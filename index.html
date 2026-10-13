@@ -1,0 +1,894 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="JAANA Logistics provides document, e-commerce, food and business delivery across Lagos.">
+    <meta name="theme-color" content="#002659">
+    <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48 256x256">
+    <link rel="icon" type="image/png" sizes="32x32" href="image/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="image/favicon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="image/apple-touch-icon.png">
+    <title>
+      JAANA Logistics — Fast, Reliable, Trusted Delivery
+    </title>
+    <link rel="stylesheet" href="design-system.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer>
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">
+      Skip to content
+    </a>
+    <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <symbol id="i-arrow" viewBox="0 0 24 24">
+        <path d="m9 5 7 7-7 7"/>
+      </symbol>
+      <symbol id="i-box" viewBox="0 0 24 24">
+        <path d="m12 2 9 5v10l-9 5-9-5V7Z M3 7l9 5 9-5 M12 12v10 M7 4l10 6v6"/>
+      </symbol>
+      <symbol id="i-cart" viewBox="0 0 24 24">
+        <path d="M2 3h3l3 13h11l3-10H6"/>
+        <circle cx="9" cy="20" r="1"/>
+        <circle cx="18" cy="20" r="1"/>
+      </symbol>
+      <symbol id="i-food" viewBox="0 0 24 24">
+        <path d="M4 3v6c0 4 6 4 6 0V3 M7 3v19 M20 22V3c-5 3-6 10 0 10"/>
+      </symbol>
+      <symbol id="i-truck" viewBox="0 0 24 24">
+        <path d="M2 4h13v13H2Z M15 9h4l3 5v3h-7"/>
+        <circle cx="6" cy="19" r="3"/>
+        <circle cx="18" cy="19" r="3"/>
+      </symbol>
+      <symbol id="i-pin" viewBox="0 0 24 24">
+        <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/>
+        <circle cx="12" cy="10" r="2.5"/>
+      </symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24">
+        <path d="m12 2 9 4v6c0 6-9 10-9 10S3 18 3 12V6Z m-5 9 3 3 7-7"/>
+      </symbol>
+      <symbol id="i-users" viewBox="0 0 24 24">
+        <circle cx="12" cy="6" r="3"/>
+        <circle cx="4" cy="8" r="2"/>
+        <circle cx="20" cy="8" r="2"/>
+        <path d="M6 22v-5a6 6 0 0 1 12 0v5Z M2 19v-5h3 M22 19v-5h-3"/>
+      </symbol>
+      <symbol id="i-star" viewBox="0 0 24 24">
+        <path d="m12 2 3 7 8 1-6 5 2 8-7-4-7 4 2-8-6-5 8-1Z"/>
+      </symbol>
+      <symbol id="i-bolt" viewBox="0 0 24 24">
+        <path d="m14 2-9 12h7l-2 8 9-12h-7Z"/>
+      </symbol>
+      <symbol id="i-smile" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M7 14c2 5 8 5 10 0 M8 8h.01 M16 8h.01"/>
+      </symbol>
+      <symbol id="i-building" viewBox="0 0 24 24">
+        <path d="M5 22V3h14v19 M2 22h20 M9 22v-4h6v4 M9 7h.01 M15 7h.01 M9 11h.01 M15 11h.01 M9 15h.01 M15 15h.01"/>
+      </symbol>
+      <symbol id="i-handshake" viewBox="0 0 24 24">
+        <path d="m2 7 4-3 5 2 4-2 7 4-4 9-6 4-6-4Z M11 6l-4 5 3 2 4-4 5 5 M10 16l4 3 M7 18l3 2"/>
+      </symbol>
+      <symbol id="i-phone" viewBox="0 0 24 24">
+        <path d="m6 2 4 5-3 3c2 4 3 5 7 7l3-3 5 4c-2 8-9 3-14-2S-2 4 6 2Z"/>
+      </symbol>
+      <symbol id="i-mail" viewBox="0 0 24 24">
+        <path d="M2 4h20v16H2Z M2 4l10 9L22 4"/>
+      </symbol>
+      <symbol id="i-map" viewBox="0 0 24 24">
+        <path d="m2 7 6-3 8 3 6-3v16l-6 3-8-3-6 3Z M8 4v16 M16 7v16"/>
+      </symbol>
+      <symbol id="i-chat" viewBox="0 0 24 24">
+        <path d="M21 11a9 9 0 0 1-13 8l-6 3 2-6a9 9 0 1 1 17-5Z M8 7c0 5 4 8 8 8"/>
+      </symbol>
+    </svg>
+    <header class="site-header" id="home">
+      <div class="container header-inner">
+        <a class="brand" href="#home" aria-label="JAANA Logistics home">
+          <span class="brand-art" role="img" aria-label="JAANA Logistics — Fast, Reliable, Trusted Delivery">
+          </span>
+        </a>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav">
+          Menu
+        </button>
+        <nav class="main-nav" id="main-nav" aria-label="Main navigation">
+          <a class="active" href="#home" aria-current="page">
+            Home
+          </a>
+          <button type="button" data-dialog="about-dialog">
+            About Us
+          </button>
+          <a href="#services">
+            Our Services
+          </a>
+          <a href="#service-bulk">
+            Business Solutions
+          </a>
+          <button type="button" data-dialog="tracking-dialog">
+            Delivery Updates
+          </button>
+          <a href="#contact">
+            Contact Us
+          </a>
+        </nav>
+        <button class="button button-blue header-book" type="button" data-dialog="booking-dialog">
+          Book a Delivery
+          <svg class="icon" aria-hidden="true">
+            <use href="#i-arrow"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-art" aria-hidden="true">
+        </div>
+        <div class="container hero-inner">
+          <div class="hero-content">
+            <h1 id="hero-title">
+              Delivering
+              <span>
+                More Possibilities
+              </span>
+            </h1>
+            <p class="hero-tagline">
+              Fast. Reliable. Trusted Delivery.
+            </p>
+            <p class="hero-description">
+              JAANA Logistics provides safe, affordable and efficient delivery solutions for individuals and businesses across Lagos and beyond.
+            </p>
+            <div class="hero-actions">
+              <button class="button button-yellow" type="button" data-dialog="booking-dialog">
+                <svg class="icon" aria-hidden="true">
+                  <use href="#i-truck"/>
+                </svg>
+                Book a Delivery
+                <svg class="icon" aria-hidden="true">
+                  <use href="#i-arrow"/>
+                </svg>
+              </button>
+              <button class="button button-outline" type="button" data-dialog="tracking-dialog">
+                <svg class="icon" aria-hidden="true">
+                  <use href="#i-pin"/>
+                </svg>
+                Request an Update
+                <svg class="icon" aria-hidden="true">
+                  <use href="#i-arrow"/>
+                </svg>
+              </button>
+            </div>
+            <ul class="hero-benefits">
+              <li>
+                <span class="small-badge">
+                  <svg class="icon" aria-hidden="true">
+                    <use href="#i-bolt"/>
+                  </svg>
+                </span>
+                Fast
+                <br>
+                Delivery
+              </li>
+              <li>
+                <span class="small-badge">
+                  <svg class="icon" aria-hidden="true">
+                    <use href="#i-shield"/>
+                  </svg>
+                </span>
+                Safe &amp;
+                <br>
+                Secure
+              </li>
+              <li>
+                <span class="small-badge">
+                  <svg class="icon" aria-hidden="true">
+                    <use href="#i-users"/>
+                  </svg>
+                </span>
+                Professional
+                <br>
+                Riders
+              </li>
+              <li>
+                <span class="small-badge">
+                  <svg class="icon" aria-hidden="true">
+                    <use href="#i-star"/>
+                  </svg>
+                </span>
+                Customer
+                <br>
+                Focused
+              </li>
+            </ul>
+          </div>
+          <div class="hero-priority"><p>Your Packages<br>Our Priority</p><ul><li>Documents</li><li>E-commerce Deliveries</li><li>Food Delivery</li><li>Bulk &amp; Business Deliveries</li></ul></div>
+        </div>
+      </section>
+      <section class="services section" id="services" aria-labelledby="services-title">
+        <div class="container">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">
+                Our Services
+              </p>
+              <h2 id="services-title">
+                Delivery Solutions for Every Need
+              </h2>
+            </div>
+            <p>
+              From personal packages to business deliveries,
+              <br class="desktop-break">
+              JAANA Logistics has you covered.
+            </p>
+          </div>
+        </div>
+        <div class="service-carousel" role="region" aria-roledescription="carousel" aria-label="Delivery services" tabindex="0">
+          <div class="carousel-viewport">
+          <div class="services-grid" id="services-track">
+            <article class="service-card" id="service-documents">
+              <img class="service-photo photo-documents" src="image/services/document-delivery.jpg" alt="Courier handing a sealed document envelope to an office customer" width="1672" height="941" loading="eager" decoding="async">
+              <div class="service-body">
+                <span class="service-badge">
+                  <svg class="icon" aria-hidden="true">
+                    <use href="#i-box"/>
+                  </svg>
+                </span>
+                <h3>
+                  Document Delivery
+                </h3>
+                <p>
+                  Fast and secure delivery of important documents.
+                </p>
+              </div>
+            </article>
+            <article class="service-card" id="service-commerce">
+              <img class="service-photo photo-commerce" src="image/services/ecommerce-delivery.jpg" alt="Online retailer scanning a packed parcel at an e-commerce fulfilment station" width="1672" height="941" loading="lazy" decoding="async">
+              <div class="service-body">
+                <span class="service-badge">
+                  <svg class="icon" aria-hidden="true">
+                    <use href="#i-cart"/>
+                  </svg>
+                </span>
+                <h3>
+                  E-commerce Delivery
+                </h3>
+                <p>
+                  Reliable last-mile delivery for online stores.
+                </p>
+              </div>
+            </article>
+            <article class="service-card" id="service-food">
+              <img class="service-photo photo-food" src="image/services/food-delivery.jpg" alt="Courier placing sealed takeaway containers into an insulated delivery bag" width="1672" height="941" loading="lazy" decoding="async">
+              <div class="service-body">
+                <span class="service-badge">
+                  <svg class="icon" aria-hidden="true">
+                    <use href="#i-food"/>
+                  </svg>
+                </span>
+                <h3>
+                  Food Delivery
+                </h3>
+                <p>
+                  Quick and safe delivery from restaurants to your doorstep.
+                </p>
+              </div>
+            </article>
+            <article class="service-card" id="service-bulk">
+              <img class="service-photo photo-bulk" src="image/services/bulk-business-delivery.jpg" alt="Warehouse staff preparing palletised cartons for loading into a delivery van" width="1672" height="941" loading="lazy" decoding="async">
+              <div class="service-body">
+                <span class="service-badge">
+                  <svg class="icon" aria-hidden="true">
+                    <use href="#i-box"/>
+                  </svg>
+                </span>
+                <h3>
+                  Bulk &amp; Business Delivery
+                </h3>
+                <p>
+                  Efficient delivery solutions for businesses of all sizes.
+                </p>
+              </div>
+            </article>
+            <article class="service-card" id="service-custom">
+              <img class="service-photo photo-custom" src="image/services/custom-logistics.jpg" alt="Logistics coordinator and business customer reviewing a delivery plan beside a van" width="1672" height="941" loading="lazy" decoding="async">
+              <div class="service-body">
+                <span class="service-badge">
+                  <svg class="icon" aria-hidden="true">
+                    <use href="#i-handshake"/>
+                  </svg>
+                </span>
+                <h3>
+                  Custom Logistics Solutions
+                </h3>
+                <p>
+                  Tailored delivery services for your unique needs.
+                </p>
+              </div>
+            </article>
+          </div>
+          </div>
+          <div class="carousel-controls">
+            <button class="carousel-arrow carousel-prev" type="button" aria-label="Previous service" aria-controls="services-track"><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+            <div class="carousel-dots" aria-label="Choose a service"></div>
+            <button class="carousel-arrow carousel-next" type="button" aria-label="Next service" aria-controls="services-track"><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+            <button class="carousel-pause" type="button">Pause slideshow</button>
+          </div>
+          <p class="sr-only carousel-status" aria-live="polite" aria-atomic="true"></p>
+        </div>
+      </section>
+      <section class="why section" aria-labelledby="why-title">
+        <div class="container why-grid">
+          <div class="why-intro">
+            <p class="eyebrow">
+              Why Choose JAANA
+            </p>
+            <h2 id="why-title">
+              More Than Just
+              <br>
+              Delivery
+            </h2>
+            <p>
+              We combine technology, professional riders and a customer-first approach to give you the best delivery experience.
+            </p>
+            <button class="button button-yellow button-small" type="button" data-dialog="about-dialog">
+              Learn More About Us
+              <svg class="icon" aria-hidden="true">
+                <use href="#i-arrow"/>
+              </svg>
+            </button>
+          </div>
+          <div class="feature">
+            <span class="feature-icon">
+              <svg class="icon" aria-hidden="true">
+                <use href="#i-pin"/>
+              </svg>
+            </span>
+            <h3>
+              Delivery Updates
+            </h3>
+            <p>
+              Request your latest delivery status from our team.
+            </p>
+          </div>
+          <div class="feature">
+            <span class="feature-icon feature-yellow">
+              <svg class="icon" aria-hidden="true">
+                <use href="#i-shield"/>
+              </svg>
+            </span>
+            <h3>
+              Safe &amp; Reliable
+            </h3>
+            <p>
+              Your items are handled with care.
+            </p>
+          </div>
+          <div class="feature">
+            <span class="feature-icon">
+              <svg class="icon" aria-hidden="true">
+                <use href="#i-users"/>
+              </svg>
+            </span>
+            <h3>
+              Trained Riders
+            </h3>
+            <p>
+              Professional and courteous service.
+            </p>
+          </div>
+          <div class="feature">
+            <span class="feature-icon feature-yellow">
+              <svg class="icon" aria-hidden="true">
+                <use href="#i-smile"/>
+              </svg>
+            </span>
+            <h3>
+              Affordable Rates
+            </h3>
+            <p>
+              Quality delivery at competitive prices.
+            </p>
+          </div>
+        </div>
+      </section>
+      <section class="stats-band" aria-label="JAANA delivery statistics">
+        <div class="container stats-grid">
+          <div class="stat">
+            <svg class="icon" aria-hidden="true">
+              <use href="#i-truck"/>
+            </svg>
+            <p>
+              <strong>
+                10,000+
+              </strong>
+              <span>
+                Deliveries Completed
+              </span>
+            </p>
+          </div>
+          <div class="stat">
+            <svg class="icon" aria-hidden="true">
+              <use href="#i-users"/>
+            </svg>
+            <p>
+              <strong>
+                5,000+
+              </strong>
+              <span>
+                Happy Customers
+              </span>
+            </p>
+          </div>
+          <div class="stat">
+            <svg class="icon" aria-hidden="true">
+              <use href="#i-building"/>
+            </svg>
+            <p>
+              <strong>
+                200+
+              </strong>
+              <span>
+                Business Partners
+              </span>
+            </p>
+          </div>
+          <div class="stat">
+            <svg class="icon" aria-hidden="true">
+              <use href="#i-star"/>
+            </svg>
+            <p>
+              <strong>
+                98%
+              </strong>
+              <span>
+                On-Time Delivery Rate
+              </span>
+            </p>
+          </div>
+        </div>
+      </section>
+      <section class="process section" aria-labelledby="process-title">
+        <div class="container process-inner">
+          <div class="process-content">
+            <p class="eyebrow">
+              How It Works
+            </p>
+            <h2 id="process-title">
+              Get Your Delivery Done in 3 Simple Steps
+            </h2>
+            <ol class="steps">
+              <li>
+                <span class="step-number">
+                  1
+                </span>
+                <div>
+                  <h3>
+                    Book a Delivery
+                  </h3>
+                  <p>
+                    Use our website, call or chat to place your request.
+                  </p>
+                </div>
+                <svg class="icon step-arrow" aria-hidden="true">
+                  <use href="#i-arrow"/>
+                </svg>
+              </li>
+              <li>
+                <span class="step-number">
+                  2
+                </span>
+                <div>
+                  <h3>
+                    We Pick Up
+                  </h3>
+                  <p>
+                    Our rider picks up your item from your location.
+                  </p>
+                </div>
+                <svg class="icon step-arrow" aria-hidden="true">
+                  <use href="#i-arrow"/>
+                </svg>
+              </li>
+              <li>
+                <span class="step-number">
+                  3
+                </span>
+                <div>
+                  <h3>
+                    We Deliver
+                  </h3>
+                  <p>
+                    Your package is delivered safely and on time.
+                  </p>
+                </div>
+              </li>
+            </ol>
+          </div>
+          <div class="phone-art" aria-label="Quick delivery actions">
+            <div class="phone-frame"><div class="phone-screen">
+              <span class="brand-art" role="img" aria-label="JAANA Delivery Services"></span>
+              <p>Fast. Reliable.<br>Trusted Delivery.</p>
+              <button type="button" data-dialog="booking-dialog">Book a Delivery</button>
+              <button type="button" data-dialog="tracking-dialog">Delivery Updates</button>
+              <button type="button" data-dialog="quote-dialog">Get a Quote</button>
+            </div></div><p class="phone-slogan">Easy.<br>Fast.<br>Reliable.</p>
+          </div>
+        </div>
+      </section>
+      <section class="coverage section" id="coverage" aria-labelledby="coverage-title">
+        <div class="container coverage-grid">
+          <div class="coverage-intro">
+            <p class="eyebrow">
+              Our Coverage
+            </p>
+            <h2 id="coverage-title">
+              Currently Serving
+              <br>
+              <span>
+                Lagos and Beyond
+              </span>
+            </h2>
+            <p>
+              We deliver across all areas in Lagos and are expanding to more cities soon.
+            </p>
+          </div>
+          <img class="map-art" src="image/lagos-coverage.svg" width="320" height="170" alt="Illustrated Lagos delivery coverage with location markers">
+          <div class="area-card">
+            <h3>
+              <svg class="icon" aria-hidden="true">
+                <use href="#i-pin"/>
+              </svg>
+              Popular Areas We Serve
+            </h3>
+            <ul class="area-list">
+              <li>
+                Ikeja
+              </li>
+              <li>
+                Victoria Island
+              </li>
+              <li>
+                Lekki
+              </li>
+              <li>
+                Surulere
+              </li>
+              <li>
+                Yaba
+              </li>
+              <li>
+                Ajah
+              </li>
+              <li>
+                Mushin
+              </li>
+              <li>
+                Festac
+              </li>
+              <li>
+                Alimosho
+              </li>
+              <li>
+                And More...
+              </li>
+            </ul>
+          </div>
+          <div class="coverage-cta">
+            <svg class="icon" aria-hidden="true">
+              <use href="#i-map"/>
+            </svg>
+            <div>
+              <h3>
+                Need a Delivery
+                <br>
+                Outside Lagos?
+              </h3>
+              <p>
+                Contact us for special arrangements.
+              </p>
+              <button class="button button-blue button-small" type="button" data-dialog="quote-dialog">
+                Get a Quote
+                <svg class="icon" aria-hidden="true">
+                  <use href="#i-arrow"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer" id="contact">
+      <div class="container">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <a href="#home" aria-label="JAANA Logistics home">
+              <span class="footer-brand-art" role="img" aria-label="JAANA Delivery Services">
+              </span>
+            </a>
+            <p>
+              Fast, Reliable, Trusted Delivery
+            </p>
+          </div>
+          <div class="footer-col">
+            <h3>
+              Quick Links
+            </h3>
+            <ul>
+              <li>
+                <a href="#home">
+                  Home
+                </a>
+              </li>
+              <li>
+                <button type="button" data-dialog="about-dialog">
+                  About Us
+                </button>
+              </li>
+              <li>
+                <a href="#services">
+                  Our Services
+                </a>
+              </li>
+              <li>
+                <button type="button" data-dialog="tracking-dialog">
+                  Delivery Updates
+                </button>
+              </li>
+              <li>
+                <a href="#contact">
+                  Contact Us
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h3>
+              Our Services
+            </h3>
+            <ul>
+              <li>
+                <a href="#service-documents">
+                  Document Delivery
+                </a>
+              </li>
+              <li>
+                <a href="#service-commerce">
+                  E-commerce Delivery
+                </a>
+              </li>
+              <li>
+                <a href="#service-food">
+                  Food Delivery
+                </a>
+              </li>
+              <li>
+                <a href="#service-bulk">
+                  Bulk &amp; Business Delivery
+                </a>
+              </li>
+              <li>
+                <a href="#service-custom">
+                  Custom Logistics Solutions
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div class="footer-col footer-contact">
+            <h3>
+              Contact Us
+            </h3>
+            <address>
+              <a href="tel:+2349072573328">
+                <svg class="icon" aria-hidden="true">
+                  <use href="#i-phone"/>
+                </svg>
+                0907 257 3328
+              </a>
+              <a href="https://wa.me/2348038422591" target="_blank" rel="noopener noreferrer">
+                <svg class="icon" aria-hidden="true">
+                  <use href="#i-chat"/>
+                </svg>
+                0803 842 2591
+              </a>
+              <a href="mailto:jaanadelivery@gmail.com">
+                <svg class="icon" aria-hidden="true">
+                  <use href="#i-mail"/>
+                </svg>
+                Jaanadelivery@gmail.com
+              </a>
+              <a href="https://www.google.com/maps/search/?api=1&amp;query=20%20Oyin%20Onibokun%20Crescent%20Isheri-Osun%20Lagos" target="_blank" rel="noopener noreferrer">
+                <svg class="icon" aria-hidden="true">
+                  <use href="#i-pin"/>
+                </svg>
+                <span>
+                  No. 20 Oyin Onibokun Crescent,
+                  <br>
+                  Isheri-Osun, Lagos 102214.
+                </span>
+              </a>
+            </address>
+            <p class="business-hours"><strong>Working hours</strong><br>Monday?Saturday<br>9:00am?5:00pm (WAT)</p>
+          </div>
+          <div class="footer-col footer-social">
+            <h3>
+              Follow Us
+            </h3>
+            <ul class="socials" aria-label="Social platforms">
+              <li>
+                <a href="https://www.facebook.com/profile.php?id=61593530777966" target="_blank" rel="noopener noreferrer" aria-label="JAANA on Facebook (opens in a new tab)">
+                  <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="currentColor" d="M14 22v-9h3l.5-4H14V7c0-1 .5-2 2-2h2V1h-3c-4 0-6 2-6 6v2H6v4h3v9Z"/>
+                  </svg>
+                </a>
+              </li>
+              <li>
+                <a href="https://instagram.com/jaana_lagos?obrf=MWh0MG5neGR2dTM1ZA%3D%3D" target="_blank" rel="noopener noreferrer" aria-label="JAANA on Instagram (opens in a new tab)">
+                  <svg class="social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" rx="5"/>
+                    <circle cx="12" cy="12" r="4"/>
+                    <circle cx="18" cy="6" r="1" fill="currentColor"/>
+                  </svg>
+                </a>
+              </li>
+              <li>
+                <a href="https://x.com/JAANALOGISTICS" target="_blank" rel="noopener noreferrer" aria-label="JAANA on X (opens in a new tab)">
+                  <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="currentColor" d="M3 2h5l13 20h-5Zm3 2 11 16h1L7 4Z M20 2h2L4 22H2Z"/>
+                  </svg>
+                </a>
+              </li>
+              <li>
+                <a href="https://wa.me/2348038422591" target="_blank" rel="noopener noreferrer" aria-label="Chat with JAANA on WhatsApp (opens in a new tab)">
+                  <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M21 11.5a9 9 0 0 1-13.2 8L2 21l1.5-5.6A9 9 0 1 1 21 11.5Z"/>
+                    <path fill="currentColor" d="M8 6.5c-.5 0-1.5 1-1.5 2.2 0 2.8 4.1 6.9 7.4 7.3 1.4.2 2.6-.8 2.6-1.5v-.8l-2.7-1.3-1.1 1.2c-1.7-.7-2.8-1.8-3.5-3.4l1-1.1L9.1 6.5Z"/>
+                  </svg>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>
+            © 2026 JAANA Logistics. All rights reserved.
+          </p>
+          <p>
+            Fast, Reliable, Trusted Delivery.
+          </p>
+        </div>
+      </div>
+    </footer>
+    <dialog id="about-dialog" aria-labelledby="about-title">
+      <div class="dialog-heading">
+        <h2 id="about-title">
+          About JAANA Logistics
+        </h2>
+        <button class="dialog-close" type="button" aria-label="Close About JAANA">
+          ×
+        </button>
+      </div>
+      <p>
+        JAANA Logistics (JAANA Delivery Services) is a customer-focused logistics and delivery company based in Lagos, Nigeria. We provide fast, reliable, secure and affordable delivery solutions to individuals, businesses and organisations.
+      </p>
+      <p>
+        Our mission is to provide accessible, efficient and dependable logistics solutions that simplify deliveries, support business growth and give customers confidence in every shipment.
+      </p>
+      <h3>What we deliver</h3><p>Documents, e-commerce parcels, food orders, bulk business shipments and custom logistics arrangements.</p><h3>Based in Lagos</h3><p>Contact our team to discuss your route, delivery requirements and availability.</p>
+      <a class="button button-blue" href="#contact" data-close-dialog>
+        Contact Us
+      </a>
+    </dialog>
+    <dialog id="booking-dialog" aria-labelledby="booking-title">
+      <div class="dialog-heading">
+        <h2 id="booking-title">
+          Book a Delivery
+        </h2>
+        <button class="dialog-close" type="button" aria-label="Close booking">
+          ×
+        </button>
+      </div>
+      <p>
+        Complete your delivery request, then review and send it to our team on WhatsApp. Your requested date and package size help us assess the service and price.
+      </p>
+      <form data-request="Delivery booking">
+        <label>Service type<select name="service" required><option value="" selected disabled>Choose a service</option><option>Document Delivery</option><option>E-commerce Delivery</option><option>Food Delivery</option><option>Bulk &amp; Business Delivery</option><option>Custom Logistics Solutions</option></select></label>
+        <label>Preferred delivery date<input name="date" type="date" required aria-describedby="booking-availability"></label>
+        <p id="booking-availability" class="form-note">Our team will confirm availability, pickup timing and pricing before confirming your booking. Working hours: Monday?Saturday, 9:00am?5:00pm (WAT).</p>
+        <label>Recipient name<input name="recipient" autocomplete="off" required maxlength="100"></label>
+        <label>Recipient phone number<input name="recipientPhone" type="tel" autocomplete="off" pattern="\+?[0-9][0-9\s]{6,28}" required maxlength="30" title="Use digits, spaces and an optional leading +."></label>
+        <label>Approximate package size<select name="size" required><option value="" selected disabled>Choose a size</option><option>Envelope or document</option><option>Small parcel (handheld)</option><option>Medium parcel (box or bag)</option><option>Large or bulk shipment</option></select></label>
+        <label>
+          Your name
+          <input name="name" autocomplete="name" required maxlength="100">
+        </label>
+        <label>
+          Phone number
+          <input name="phone" type="tel" autocomplete="tel" pattern="\+?[0-9][0-9\s]{6,28}" title="Enter a phone number using digits, spaces and an optional leading +." required maxlength="30">
+        </label>
+        <label>
+          Pickup address
+          <textarea name="pickup" required maxlength="500" rows="2"></textarea>
+        </label>
+        <label>
+          Delivery address
+          <textarea name="destination" required maxlength="500" rows="2"></textarea>
+        </label>
+        <label>
+          Package details
+          <textarea name="package" required maxlength="500" rows="2"></textarea>
+        </label>
+        <button class="button button-blue" type="submit">
+          Continue to WhatsApp
+        </button>
+        <p class="form-note">
+          Your details will be included in a WhatsApp message. Send it there to request a quote and availability. Our team confirms the price and booking; submitting this form does not reserve a delivery.
+        </p>
+      </form>
+    </dialog>
+    <dialog id="tracking-dialog" aria-labelledby="tracking-title">
+      <div class="dialog-heading">
+        <h2 id="tracking-title">
+          Delivery Updates
+        </h2>
+        <button class="dialog-close" type="button" aria-label="Close tracking">
+          ×
+        </button>
+      </div>
+      <p>
+        Enter your delivery reference to request the latest update from our team on WhatsApp.
+      </p>
+      <form data-request="Package status request">
+        <label>
+          Delivery reference
+          <input name="reference" required maxlength="100" placeholder="Your booking or package reference">
+        </label>
+        <button class="button button-blue" type="submit">
+          Request an Update
+        </button>
+        <p class="form-note">
+          This page does not provide automated live tracking. Our team will respond with your delivery status.
+        </p>
+      </form>
+      <a class="contact-alternative" href="tel:+2349072573328">
+        Or call 0907 257 3328
+      </a>
+    </dialog>
+    <dialog id="quote-dialog" aria-labelledby="quote-title">
+      <div class="dialog-heading">
+        <h2 id="quote-title">
+          Get a Delivery Quote
+        </h2>
+        <button class="dialog-close" type="button" aria-label="Close quotation">
+          ×
+        </button>
+      </div>
+      <p>
+        Tell us your route and package details. Our team will confirm the available service and price.
+      </p>
+      <form data-request="Delivery quote">
+        <label>
+          Your name
+          <input name="name" autocomplete="name" required maxlength="100">
+        </label>
+        <label>
+          Pickup location
+          <input name="pickup" required maxlength="500">
+        </label>
+        <label>
+          Delivery location
+          <input name="destination" required maxlength="500">
+        </label>
+        <label>
+          Package details
+          <textarea name="package" required maxlength="500" rows="3"></textarea>
+        </label>
+        <button class="button button-blue" type="submit">
+          Request Quote on WhatsApp
+        </button>
+        <p class="form-note">
+          Review your message in WhatsApp before sending.
+        </p>
+      </form>
+    </dialog>
+  </body>
+</html>

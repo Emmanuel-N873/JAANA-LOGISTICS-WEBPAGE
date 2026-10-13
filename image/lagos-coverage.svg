@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 170" role="img" aria-labelledby="title description">
+  <title id="title">Lagos delivery coverage</title>
+  <desc id="description">A schematic illustration of the Lagos service area, with four location markers. See the accompanying list for served areas.</desc>
+  <defs><linearGradient id="blue" x2="1" y2="1"><stop stop-color="#0878db"/><stop offset="1" stop-color="#00358d"/></linearGradient></defs>
+  <polygon points="14,129 39,107 58,105 70,78 90,70 98,43 123,34 137,12 163,18 175,39 201,31 219,46 249,45 267,68 298,66 284,87 298,101 275,110 294,127 268,138 254,127 224,120 198,108 174,115 150,110 124,115 97,111 74,116 53,114" fill="url(#blue)" stroke="#002659" stroke-width="2"/>
+  <g fill="none" stroke="#7dc9ff" stroke-width="1" opacity=".65"><path d="m58 105 44 6 29-33 42 9 26-27 36 22 29-4 M97 43l5 68 21 24 M143 18l-12 60 27 66 M173 87l-15 57 M199 60l17 64 M235 82l-2 49"/></g>
+  <g fill="#ffc52f" stroke="#ffdc73" stroke-width="1.5">
+    <path d="M84 82a9 9 0 1 1 18 0c0 7-9 16-9 16S84 89 84 82Z"/>
+    <path d="M135 50a9 9 0 1 1 18 0c0 7-9 16-9 16s-9-9-9-16Z"/>
+    <path d="M188 68a9 9 0 1 1 18 0c0 7-9 16-9 16s-9-9-9-16Z"/>
+    <path d="M236 102a9 9 0 1 1 18 0c0 7-9 16-9 16s-9-9-9-16Z"/>
+  </g>
+  <g fill="#00358d"><circle cx="93" cy="82" r="3"/><circle cx="144" cy="50" r="3"/><circle cx="197" cy="68" r="3"/><circle cx="245" cy="102" r="3"/></g>
+  <text x="158" y="103" fill="white" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="19">LAGOS</text>
+</svg>
