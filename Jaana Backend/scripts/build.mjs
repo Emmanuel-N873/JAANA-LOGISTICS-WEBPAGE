@@ -8,7 +8,7 @@ if (path.dirname(output) !== backend || path.basename(output) !== 'dist') throw 
 // Rebuild only the verified generated-output directory, never the source tree.
 await rm(output, { recursive: true, force: true });
 const pending = ['index.html', 'admin.html', '_routes.json', '_headers'];
-const backendAssets = new Set(['admin.html', 'admin.css', 'admin.js', '_routes.json', '_headers']);
+const backendAssets = new Set(['admin.html', 'admin.css', 'admin.js', 'admin-accounts.js', '_routes.json', '_headers']);
 const copied = new Set();
 while (pending.length) {
   const file = pending.shift();

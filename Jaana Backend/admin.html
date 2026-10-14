@@ -1,5 +1,74 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>JAANA — Staff orders</title><link rel="stylesheet" href="design-system.css"><link rel="stylesheet" href="admin.css"><script src="admin.js" defer></script></head>
-<body><main class="staff-shell"><a href="index.html">← JAANA homepage</a><h1>Delivery orders</h1><p>Authorised JAANA staff only. Review saved requests and keep delivery statuses up to date.</p>
-<form id="staff-login"><label for="staff-token">Staff access token</label><input id="staff-token" type="password" required autocomplete="off" minlength="32" maxlength="256"><button class="button button-blue" type="submit">Open orders</button></form>
-<p id="staff-message" role="status" aria-live="polite"></p><section id="staff-orders" hidden><div class="staff-toolbar"><button class="button button-blue" id="refresh" type="button">Refresh</button><button class="button" id="logout" type="button">Sign out</button></div><div id="order-list"></div><div class="staff-toolbar"><button class="button" id="previous" type="button">Previous page</button><span id="page-label"></span><button class="button" id="next" type="button">Next page</button></div></section></main></body></html>
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+  <title>JAANA Logistics | Staff dashboard</title>
+  <link rel="icon" href="favicon.ico"><link rel="stylesheet" href="design-system.css"><link rel="stylesheet" href="admin.css"><script src="admin.js" defer></script><script src="admin-accounts.js" defer></script>
+</head>
+<body>
+  <a class="staff-skip" href="#staff-main">Skip to orders</a>
+  <svg class="staff-symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="d-box" viewBox="0 0 24 24"><path d="m12 2 9 5v10l-9 5-9-5V7Z M3 7l9 5 9-5 M12 12v10 M7 4l10 6"/></symbol>
+    <symbol id="d-truck" viewBox="0 0 24 24"><path d="M2 4h13v13H2Z M15 9h4l3 5v3h-7"/><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="19" r="2.5"/></symbol>
+    <symbol id="d-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m7 12 3 3 7-7"/></symbol>
+    <symbol id="d-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v7l4 2"/></symbol>
+    <symbol id="d-cancel" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m8 8 8 8 M16 8l-8 8"/></symbol>
+    <symbol id="d-search" viewBox="0 0 24 24"><circle cx="10" cy="10" r="7"/><path d="m15 15 6 6"/></symbol>
+    <symbol id="d-menu" viewBox="0 0 24 24"><path d="M3 5h18 M3 12h18 M3 19h18"/></symbol>
+    <symbol id="d-exit" viewBox="0 0 24 24"><path d="M9 3H3v18h6 M9 12h13 m-5-5 5 5-5 5"/></symbol>
+    <symbol id="d-home" viewBox="0 0 24 24"><path d="m2 10 10-8 10 8 M5 9v13h14V9 M9 22v-8h6v8"/></symbol>
+    <symbol id="d-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9 8a3 3 0 1 1 5 2c-2 1-2 2-2 3 M12 17h.01"/></symbol>
+    <symbol id="d-refresh" viewBox="0 0 24 24"><path d="M21 8a9 9 0 1 0 0 8 M21 2v6h-6"/></symbol>
+    <symbol id="d-arrow" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+  </svg>
+  <button class="nav-shade" id="nav-shade" aria-label="Close navigation" type="button" hidden></button>
+  <aside class="staff-sidebar" id="staff-nav" aria-label="Staff navigation">
+    <a class="staff-brand" href="index.html" aria-label="JAANA homepage"><span class="staff-brand-art" role="img" aria-label="JAANA Delivery Services"></span></a>
+    <nav>
+      <button class="nav-item is-active" data-nav-status="" type="button"><svg class="staff-icon"><use href="#d-box"/></svg><span>Delivery Orders</span></button>
+      <button class="nav-item" data-nav-status="requested" type="button"><svg class="staff-icon"><use href="#d-clock"/></svg><span>Pending Requests</span></button>
+      <button class="nav-item" data-nav-status="in_transit" type="button"><svg class="staff-icon"><use href="#d-truck"/></svg><span>In Transit</span></button>
+      <button class="nav-item" data-nav-status="delivered" type="button"><svg class="staff-icon"><use href="#d-check"/></svg><span>Completed Orders</span></button>
+      <button class="nav-item" data-nav-status="cancelled" type="button"><svg class="staff-icon"><use href="#d-cancel"/></svg><span>Cancelled Orders</span></button>
+      <a class="nav-item" href="index.html"><svg class="staff-icon"><use href="#d-home"/></svg><span>Company Website</span></a>
+      <button class="nav-item" id="help" type="button"><svg class="staff-icon"><use href="#d-help"/></svg><span>Help &amp; Support</span></button>
+      <button class="nav-item" id="account-settings" type="button" hidden>My password</button><button class="nav-item" id="manage-staff" type="button" hidden>Staff accounts</button><button class="nav-item" id="view-activity" type="button" hidden>Activity log</button><button class="nav-item" id="logout" type="button" hidden><svg class="staff-icon"><use href="#d-exit"/></svg><span>Sign Out</span></button>
+    </nav>
+    <div class="sidebar-promo"><div class="sidebar-photo" aria-hidden="true"></div><p>Delivering<br><strong>Possibilities</strong></p><span>Fast. Reliable.<br>Trusted Delivery.</span></div>
+  </aside>
+  <div class="staff-workspace">
+    <header class="staff-topbar"><button id="menu-toggle" class="icon-button" type="button" aria-label="Toggle navigation" aria-expanded="false" aria-controls="staff-nav"><svg class="staff-icon"><use href="#d-menu"/></svg></button><span class="workspace-name">Operations workspace</span><a href="index.html" class="website-link">View website <span aria-hidden="true">&#8599;</span></a><div class="staff-identity"><span id="staff-initials" class="staff-avatar" aria-hidden="true">JA</span><span><strong id="staff-name">JAANA Team</strong><small id="staff-role">Staff access</small></span></div></header>
+    <main id="staff-main" class="staff-main">
+      <section class="welcome-banner"><div><h1>Welcome, <strong id="welcome-name">JAANA team</strong></h1><p>Every package. Every journey. One workspace.</p></div><p class="banner-priority">Your Packages<br>Our Priority</p></section>
+      <section id="login-panel" class="login-panel" aria-labelledby="login-title"><span class="login-mark"><svg class="staff-icon"><use href="#d-box"/></svg></span><h2 id="login-title">Your delivery workspace</h2><p>Sign in to review bookings, coordinate deliveries and keep customers informed.</p><form id="staff-login"><label for="staff-email">Email address</label><input id="staff-email" type="email" required autocomplete="username" maxlength="254"><label for="staff-password">Password</label><input id="staff-password" type="password" required autocomplete="current-password" maxlength="128"><button class="button button-blue" id="login-submit" type="submit">Open dashboard <span aria-hidden="true">&#8594;</span></button></form><p class="login-note">Authorised JAANA staff only.</p></section>
+      <p id="staff-message" class="staff-message" role="status" aria-live="polite"></p>
+      <section id="staff-orders" hidden aria-label="Delivery management">
+        <div class="summary-grid" aria-label="All saved orders summary">
+          <article class="summary-card summary-blue"><span class="summary-icon"><svg class="staff-icon"><use href="#d-box"/></svg></span><div><strong id="summary-total">0</strong><span>Total Orders</span></div></article>
+          <article class="summary-card summary-yellow"><span class="summary-icon"><svg class="staff-icon"><use href="#d-truck"/></svg></span><div><strong id="summary-progress">0</strong><span>On the Road</span></div></article>
+          <article class="summary-card summary-green"><span class="summary-icon"><svg class="staff-icon"><use href="#d-check"/></svg></span><div><strong id="summary-delivered">0</strong><span>Delivered Today</span></div></article>
+          <article class="summary-card summary-red"><span class="summary-icon"><svg class="staff-icon"><use href="#d-clock"/></svg></span><div><strong id="summary-pending">0</strong><span>Pending Requests</span></div></article>
+          <article class="summary-card summary-grey"><span class="summary-icon"><svg class="staff-icon"><use href="#d-cancel"/></svg></span><div><strong id="summary-cancelled">0</strong><span>Cancelled Orders</span></div></article>
+        </div>
+        <div class="orders-heading"><div><p class="staff-eyebrow">Delivery management</p><h2>Delivery orders</h2><p>Review saved requests and keep delivery statuses up to date.</p></div><button class="button button-blue" id="refresh" type="button"><svg class="staff-icon"><use href="#d-refresh"/></svg>Refresh orders</button></div>
+        <form id="order-filters" class="order-filters" role="search" aria-label="Search and filter bookings">
+          <label class="search-field"><span class="sr-only">Search by reference, customer or location</span><svg class="staff-icon" aria-hidden="true"><use href="#d-search"/></svg><input id="search" type="search" maxlength="120" placeholder="Search reference, customer or location..."></label>
+          <label><span class="sr-only">Filter by status</span><select id="status-filter"><option value="">All statuses</option></select></label>
+          <label><span class="sr-only">Filter by area</span><select id="area-filter"><option value="">All areas</option></select></label>
+          <label class="date-field"><span>Delivery date</span><input id="date-filter" type="date" aria-label="Filter by delivery date"></label>
+          <button class="clear-filters" id="clear-filters" type="button">Clear filters</button>
+        </form>
+        <div class="table-caption"><span id="result-count">All bookings</span><span>Times in West Africa Time</span></div>
+        <div class="orders-table-wrap" tabindex="0" role="region" aria-label="Delivery orders table, scroll horizontally on small screens"><table class="orders-table"><thead><tr><th scope="col">#</th><th scope="col">Order reference</th><th scope="col">Customer</th><th scope="col">Pickup location</th><th scope="col">Delivery location</th><th scope="col">Service</th><th scope="col">Delivery date</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead><tbody id="order-list"></tbody></table></div>
+        <div id="empty-state" class="empty-state" hidden><svg class="staff-icon" aria-hidden="true"><use href="#d-search"/></svg><h3>No bookings found</h3><p>Try another search or clear the filters.</p></div>
+        <div class="pagination"><span id="page-label"></span><div><button class="pager-button" id="previous" type="button">&#8592; Previous</button><button class="pager-button" id="next" type="button">Next &#8594;</button></div></div>
+      </section>
+    </main>
+  </div>
+  <dialog id="order-dialog" class="order-dialog" aria-labelledby="detail-title"><div class="detail-header"><div><p class="staff-eyebrow">Booking details</p><h2 id="detail-title">Delivery request</h2></div><button class="icon-button" id="close-detail" type="button" aria-label="Close order details">&#215;</button></div><p id="detail-message" role="status" aria-live="polite"></p><div id="detail-content" hidden><div class="reference-row"><label>Full booking reference<input id="detail-reference" readonly spellcheck="false"></label><button class="pager-button" id="copy-reference" type="button">Copy</button></div><div id="detail-status"></div><dl id="detail-fields" class="detail-fields"></dl><form id="status-form" class="status-editor"><label for="detail-status-select">Update delivery status</label><div><select id="detail-status-select"></select><button class="button button-blue" id="save-status" type="submit">Save status</button></div></form><h3 class="history-heading">Status history</h3><ol id="detail-history" class="detail-history"></ol></div></dialog>
+  <dialog id="help-dialog" class="help-dialog" aria-labelledby="help-title"><div class="detail-header"><h2 id="help-title">Staff support</h2><button id="close-help" class="icon-button" type="button" aria-label="Close support">&#215;</button></div><p>Use search and filters to find an order, then choose View to see its full details and update the delivery status.</p><p>References identify requests. Confirm pickup arrangements and pricing with the customer before marking a booking confirmed.</p><a class="button button-blue" href="https://wa.me/2348038422591" target="_blank" rel="noopener noreferrer">Contact JAANA on WhatsApp</a><p class="help-hours">Monday&ndash;Saturday, 9:00am&ndash;5:00pm WAT</p></dialog>
+<dialog id="accounts-dialog" aria-labelledby="accounts-title"><div class="detail-header"><h2 id="accounts-title">Staff accounts</h2><button class="icon-button" data-close="accounts-dialog" aria-label="Close staff accounts">&#215;</button></div><p id="accounts-message" role="status"></p><form id="create-staff" class="account-form"><h3>Create staff account</h3><label>Name<input name="name" required maxlength="100"></label><label>Email<input name="email" type="email" required maxlength="254"></label><label>Role<select name="role"><option value="staff">Staff</option><option value="admin">Administrator</option></select></label><label>Temporary password<input name="password" type="password" required minlength="14" maxlength="128" autocomplete="new-password"></label><p>Share the temporary password privately. Staff must change it on first sign-in.</p><button class="button button-blue">Create account</button></form><h3>Existing accounts</h3><div id="staff-account-list"></div></dialog>
+<dialog id="password-dialog" aria-labelledby="password-title"><div class="detail-header"><h2 id="password-title">Change password</h2><button class="icon-button" data-close="password-dialog" aria-label="Close password settings">&#215;</button></div><p id="password-message" role="status"></p><form id="change-password" class="account-form"><label>Current password<input name="currentPassword" type="password" required maxlength="128" autocomplete="current-password"></label><label>New password (14+ characters)<input name="password" type="password" required minlength="14" maxlength="128" autocomplete="new-password"></label><button class="button button-blue">Save and sign out</button></form></dialog>
+<dialog id="activity-dialog" aria-labelledby="activity-title"><div class="detail-header"><h2 id="activity-title">Staff activity log</h2><button class="icon-button" data-close="activity-dialog" aria-label="Close activity log">&#215;</button></div><p>Times are shown in WAT. Records include the staff identity at the time of each action.</p><form id="activity-filters" class="account-form"><label>Search staff name, action or reference<input name="q" type="search" maxlength="120"></label><label>Staff<select name="staff"><option value="">All staff</option></select></label><label>Action<input name="action" maxlength="80" placeholder="For example: booking.status_changed"></label><button class="button button-blue">Search activity</button></form><p id="activity-message" role="status"></p><ol id="activity-list" class="detail-history"></ol><div class="pagination"><button id="activity-previous" class="pager-button">Previous</button><span id="activity-page"></span><button id="activity-next" class="pager-button">Next</button></div></dialog>
+</body>
+</html>

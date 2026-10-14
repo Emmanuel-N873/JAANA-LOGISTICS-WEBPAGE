@@ -23,6 +23,8 @@ JAANA DELIVERY WEB PAGE/
     admin.html
     admin.css
     admin.js
+    admin-accounts.js
+    STAFF-ACCOUNTS.md
     package.json
     package-lock.json
     wrangler.jsonc
@@ -49,13 +51,13 @@ npm.cmd run db:local
 npm.cmd run dev
 ```
 
-The existing local staff token is in the ignored `Jaana Backend/.dev.vars` file. For a fresh checkout, copy `.dev.vars.example` to `.dev.vars` inside the backend folder and set a private ADMIN_API_TOKEN of at least 32 characters. Do not overwrite an existing secret or commit it to Git.
+Create the first local administrator using [the staff account guide](<Jaana Backend/STAFF-ACCOUNTS.md>). Sign-in uses individual email/password accounts; the old shared token is no longer accepted. Never commit local secrets or bootstrap SQL.
 
 Open the address printed by Wrangler, normally http://127.0.0.1:8788. Staff orders are at `/admin.html`. Opening index.html directly or using Live Server does not run the API.
 
 ## Deploy
 
-Follow [the backend setup guide](<Jaana Backend/BACKEND-SETUP.md>). Replace the all-zero D1 database ID before production and set the staff secret in Cloudflare. Pages settings:
+Follow [the backend setup guide](<Jaana Backend/BACKEND-SETUP.md>). Replace the all-zero D1 database ID before production and create a production administrator account. Pages settings:
 
 | Setting | Value |
 | --- | --- |
@@ -69,7 +71,7 @@ The backend build includes the frontend assets from the parent folder. Live URLs
 
 Validated requests are saved in D1 with server-generated references and duplicate-request protection. Customers can copy the reference, check staff-maintained delivery status, or follow up on WhatsApp. Only the latest reference is stored in the browser; customer details are saved in D1. JAANA confirms availability, pricing and bookings. No automatic reservations, payments or GPS tracking are performed. Older WhatsApp-only references are not in the database. Quotations continue through WhatsApp without becoming saved orders.
 
-The staff page requires a private shared access token, kept only in page memory. It lists orders and supports status updates with conflict checks and an event history. Use HTTPS, keep staff access private and rotate the production token when access changes.
+The website footer links to **Staff Dashboard**, which requires an individual staff account and a secure session cookie. The responsive dashboard provides live database totals, search by reference/customer/address, status/area/delivery-date filters, and pagination. Open an order to view full details, copy its reference, review its status history and save status updates with conflict checks and individual staff attribution. Administrators manage accounts and inspect a searchable activity log. Signing out clears customer details and prevents old requests from changing a newer session. Use HTTPS, keep staff access private and deactivate accounts when staff leave.
 
 ## Company and assets
 

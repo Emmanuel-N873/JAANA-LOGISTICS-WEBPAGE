@@ -1,3 +1,4 @@
+import { requireStaff, audit } from './staff-auth.js';
 export const STATUSES = {
   requested: 'Request received', confirmed: 'Booking confirmed', picked_up: 'Picked up',
   in_transit: 'In transit', delivered: 'Delivered', cancelled: 'Cancelled'
@@ -20,6 +21,10 @@ export async function endpoint(context, method, callback) {
     if (!context.env.DB) throw new HttpError(503, 'Booking service is not configured. Please contact JAANA on WhatsApp.');
     return await callback();
   } catch (error) {
+    if (context.staff) {
+      try { await audit(context, context.staff, 'request.failed', new URL(context.request.url).pathname, { method: context.request.method, status: error.status || 503 }); }
+      catch { /* Do not expose credentials or customer data in fallback logs. */ }
+    }
     if (error instanceof HttpError) return json({ error: error.message }, error.status);
     // Avoid recording customer data or credentials in logs and public errors.
     console.error('JAANA API request failed:', error.name);
@@ -74,13 +79,5 @@ export async function rateLimit(context, action, limit, seconds) {
   if (result[1].results[0].hits > limit) throw new HttpError(429, 'Too many requests. Please wait a few minutes and retry.');
 }
 export async function requireAdmin(context) {
-  const expected = context.env.ADMIN_API_TOKEN;
-  if (typeof expected !== 'string' || expected.length < 32) throw new HttpError(503, 'Staff access is not configured.');
-  const header = context.request.headers.get('Authorization') || '';
-  if (header.length > 512) throw new HttpError(401, 'Invalid staff access token.');
-  const actual = header.startsWith('Bearer ') ? header.slice(7) : '';
-  const [left, right] = await Promise.all([hash(actual), hash(expected)]);
-  let difference = 0;
-  for (let i = 0; i < left.length; i++) difference |= left.charCodeAt(i) ^ right.charCodeAt(i);
-  if (difference !== 0) throw new HttpError(401, 'Invalid staff access token.');
+  return requireStaff(context);
 }
