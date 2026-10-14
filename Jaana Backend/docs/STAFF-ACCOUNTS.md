@@ -1,6 +1,6 @@
 ﻿# Individual staff accounts and activity records
 
-All account code, database tables, dashboard assets and setup tools live in `Jaana Backend`. Existing bookings remain unchanged. The shared `ADMIN_API_TOKEN` is no longer accepted for dashboard access.
+All account code, database tables, dashboard/ assets and setup tools live in `Jaana Backend`. Staff interface source is in `dashboard/`, API routes in `functions/api/`, shared server code in `server/`, and operational guides in `docs/`. Existing bookings remain unchanged. The shared `ADMIN_API_TOKEN` is no longer accepted for dashboard access.
 
 ## First administrator: local development
 

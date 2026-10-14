@@ -8,13 +8,21 @@ if (path.dirname(output) !== backend || path.basename(output) !== 'dist') throw 
 // Rebuild only the verified generated-output directory, never the source tree.
 await rm(output, { recursive: true, force: true });
 const pending = ['index.html', 'admin.html', '_routes.json', '_headers'];
-const backendAssets = new Set(['admin.html', 'admin.css', 'admin.js', 'admin-accounts.js', '_routes.json', '_headers']);
+// Public URL -> private source location. Only explicitly mapped staff/config files are published.
+const backendAssets = new Map([
+  ['admin.html', 'dashboard/admin.html'],
+  ['assets/css/admin.css', 'dashboard/css/admin.css'],
+  ['assets/js/admin.js', 'dashboard/js/admin.js'],
+  ['assets/js/admin-accounts.js', 'dashboard/js/admin-accounts.js'],
+  ['_routes.json', 'public/_routes.json'],
+  ['_headers', 'public/_headers']
+]);
 const copied = new Set();
 while (pending.length) {
   const file = pending.shift();
   if (copied.has(file)) continue;
   const sourceRoot = backendAssets.has(file) ? backend : frontend;
-  const source = path.resolve(sourceRoot, file);
+  const source = path.resolve(sourceRoot, backendAssets.get(file) || file);
   if (!source.startsWith(sourceRoot + path.sep) || file.startsWith('dist/') || file.startsWith('Jaana Backend/')) throw new Error('Invalid asset path');
   await mkdir(path.dirname(path.join(output, file)), { recursive: true });
   await copyFile(source, path.join(output, file));

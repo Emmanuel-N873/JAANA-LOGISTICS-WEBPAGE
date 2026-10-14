@@ -39,7 +39,7 @@ Follow [STAFF-ACCOUNTS.md](STAFF-ACCOUNTS.md) to generate and apply a first-admi
 | Root directory | Jaana Backend |
 | Production branch | Your production branch, usually main |
 
-Pages installs and builds from `Jaana Backend`, compiles its `functions/` directory and reads its DB binding from `wrangler.jsonc`. The build script includes the customer HTML/CSS/JavaScript and images from the parent folder, plus the staff interface from this folder. Public URLs stay `/api/...` and `/admin.html`. Commit the code, package-lock.json and real database configuration, then push and redeploy. Check the deployed project's bindings before accepting orders. Use a separate test database and staff accounts if enabling backend access in preview deployments.
+Pages installs and builds from `Jaana Backend`, compiles its `functions/` directory and reads its DB binding from `wrangler.jsonc`. The build script includes the customer HTML/CSS/JavaScript and images from the parent folder, plus the staff interface from dashboard/ and the routing/header configuration from public/. Public URLs stay `/api/...` and `/admin.html`. Commit the code, package-lock.json and real database configuration, then push and redeploy. Check the deployed project's bindings before accepting orders. Use a separate test database and staff accounts if enabling backend access in preview deployments.
 
 The output directory is `dist`, relative to `Jaana Backend` (the full repository path is `Jaana Backend/dist`). Do not publish the repository root as the static output: dist/ deliberately contains public assets only.
 

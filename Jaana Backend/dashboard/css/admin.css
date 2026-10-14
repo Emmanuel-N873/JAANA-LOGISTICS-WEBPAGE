@@ -9,14 +9,14 @@ button:disabled { opacity:.5; cursor:not-allowed; }
 .staff-skip:focus { top:10px; }
 .staff-sidebar { position:fixed; inset:0 auto 0 0; width:238px; background:linear-gradient(155deg,#002452,#001a3c 80%); color:white; z-index:30; overflow-y:auto; display:flex; flex-direction:column; }
 .staff-brand { display:grid; place-items:center; height:82px; min-height:82px; background:white; border-bottom:1px solid var(--staff-line); }
-.staff-brand-art { display:block; width:190px; height:65px; background:white url('image/Company Logo.jpeg') 48% 52.5% / 135% auto no-repeat; }
+.staff-brand-art { display:block; width:190px; height:65px; background:white url('../images/Company Logo.jpeg') 48% 52.5% / 135% auto no-repeat; }
 .staff-sidebar nav { display:grid; gap:9px; padding:22px 12px; }
 .nav-item { display:flex; align-items:center; gap:15px; min-height:50px; padding:13px 17px; width:100%; text-align:left; border:0; border-radius:10px; background:none; color:white; font-size:13px; }
 .nav-item .staff-icon { width:23px; height:23px; }
 .nav-item:hover { background:#123c69; }
 .nav-item.is-active { background:linear-gradient(115deg,#0789ff,#0055ed); box-shadow:0 5px 20px rgb(0 88 255 / 20%); }
 .sidebar-promo { padding:0 26px 30px; margin-top:auto; }
-.sidebar-photo { height:155px; margin:0 -13px 8px; border-radius:15px; background:linear-gradient(0deg,#002047,transparent 55%),url('image/hero-delivery.jpg') 88% 45% / cover; }
+.sidebar-photo { height:155px; margin:0 -13px 8px; border-radius:15px; background:linear-gradient(0deg,#002047,transparent 55%),url('../images/hero-delivery.jpg') 88% 45% / cover; }
 .sidebar-promo p { font-size:25px; font-weight:800; line-height:1.05; letter-spacing:-.7px; }
 .sidebar-promo strong { color:#ffc52f; }
 .sidebar-promo>span { display:block; margin-top:12px; font-size:16px; line-height:1.3; }
@@ -33,7 +33,7 @@ button:disabled { opacity:.5; cursor:not-allowed; }
 .staff-identity small { display:block; color:var(--staff-muted); font-size:11px; margin-top:1px; }
 .staff-avatar { display:grid; place-items:center; width:43px; height:43px; border-radius:50%; background:#0068f6; color:white; font-size:17px; }
 .staff-main { max-width:1700px; margin:auto; padding:24px 28px 40px; }
-.welcome-banner { min-height:134px; border-radius:13px; display:flex; align-items:center; justify-content:space-between; gap:20px; padding:24px 27px; background:linear-gradient(90deg,#f0f7ff 28%,rgb(237 246 255 / 93%) 45%,rgb(220 238 255 / 70%)),url('image/hero-delivery.jpg') center 28% / cover; }
+.welcome-banner { min-height:134px; border-radius:13px; display:flex; align-items:center; justify-content:space-between; gap:20px; padding:24px 27px; background:linear-gradient(90deg,#f0f7ff 28%,rgb(237 246 255 / 93%) 45%,rgb(220 238 255 / 70%)),url('../images/hero-delivery.jpg') center 28% / cover; }
 .welcome-banner h1 { font-size:clamp(24px,2.4vw,34px); font-weight:400; line-height:1.15; letter-spacing:-1px; }
 .welcome-banner h1 strong { color:#0041b2; font-weight:800; }
 .welcome-banner div p { margin-top:8px; font-size:14px; color:#25365c; }

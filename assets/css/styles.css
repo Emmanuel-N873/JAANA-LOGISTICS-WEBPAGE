@@ -34,7 +34,7 @@
   display:block;
   width:158px;
   height:55px;
-  background: white url('image/Company Logo.jpeg') 48% 52.5% / 135% auto no-repeat
+  background: white url('../images/Company Logo.jpeg') 48% 52.5% / 135% auto no-repeat
 }
 
 .main-nav {
@@ -92,7 +92,7 @@
   min-height:387px
 }
 
-.hero-art { position: absolute; inset: 0; background: url('image/hero-delivery.jpg') 65% 20% / cover no-repeat; }
+.hero-art { position: absolute; inset: 0; background: url('../images/hero-delivery.jpg') 65% 20% / cover no-repeat; }
 
 .hero::after {
   content:'';
@@ -491,7 +491,7 @@
   width:140px;
   height:55px;
   border-radius: 8px;
-  background: white url('image/Company Logo.jpeg') 48% 52.5% / 135% auto no-repeat
+  background: white url('../images/Company Logo.jpeg') 48% 52.5% / 135% auto no-repeat
 }
 
 .footer-brand p {
