@@ -6,7 +6,7 @@
     "binding": "DB",
     "database_name": "jaana-orders",
     // Local placeholder only. Replace with your real D1 ID before production deployment.
-    "database_id": "00000000-0000-0000-0000-000000000000",
+    "database_id": "ada3e329-ce60-438c-a6e6-4e0e2582f4cc",
     "migrations_dir": "migrations"
   }]
 }

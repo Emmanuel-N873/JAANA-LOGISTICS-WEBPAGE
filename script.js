@@ -95,8 +95,13 @@
    const submit = form.querySelector('[type="submit"]');
    const newBookingButton = document.getElementById('new-booking-request');
    if (submit.disabled) return;
+   const originalButtonContent = submit.innerHTML;
    submit.disabled = true;
-   if (isBooking) newBookingButton.disabled = true;
+   if (isBooking) {
+    submit.textContent = 'Submitting Booking...';
+    submit.setAttribute('aria-busy', 'true');
+    newBookingButton.disabled = true;
+   }
    const editableFields = isBooking ? [...form.querySelectorAll('input, select, textarea')] : [];
    editableFields.forEach(field => { field.disabled = true; });
    try {
@@ -134,8 +139,12 @@
     feedback.textContent = error.name === 'TimeoutError' ? 'The server took too long to respond. Please retry the same request; it will not create a duplicate.' : error.name === 'TypeError' ? 'Could not reach the booking service. Please retry or contact JAANA on WhatsApp.' : error.message;
    } finally {
     submit.disabled = false;
+    if (isBooking) {
+     submit.innerHTML = originalButtonContent;
+     submit.removeAttribute('aria-busy');
+     newBookingButton.disabled = false;
+    }
     editableFields.forEach(field => { field.disabled = false; });
-    if (isBooking) newBookingButton.disabled = false;
    }
   });
   form.addEventListener('input', event => { if(typeof event.target.setCustomValidity === 'function') event.target.setCustomValidity(''); });
