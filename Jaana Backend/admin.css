@@ -1,0 +1,14 @@
+.staff-shell { max-width: 950px; margin: 40px auto; padding: 0 20px; }
+h1 { margin: 20px 0 8px; }
+p { margin: 10px 0; }
+#staff-login { display: grid; max-width: 500px; gap: 10px; margin: 25px 0; }
+input, select { border: 1px solid #879cb5; border-radius: 6px; padding: 10px; font: inherit; max-width: 100%; }
+.staff-toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 20px 0; }
+.order-card { border: 1px solid #cbd8e8; border-radius: 12px; padding: 20px; margin: 18px 0; overflow-wrap: anywhere; }
+.order-card h2 { font-size: 19px; letter-spacing: 0; }
+.order-card dl { display: grid; grid-template-columns: 140px 1fr; gap: 8px 16px; }
+dt { font-weight: bold; } dd { margin: 0; white-space: pre-wrap; }
+.order-card form { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.button:disabled { opacity: .5; cursor: wait; }
+[hidden] { display: none !important; }
+@media(max-width:600px) { .order-card dl { grid-template-columns: 1fr; } dd { margin-bottom: 10px; } }

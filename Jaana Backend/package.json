@@ -1,0 +1,14 @@
+{
+  "name": "jaana-logistics",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "npm run build && wrangler pages dev dist",
+    "db:local": "wrangler d1 execute DB --local --file migrations/0001_orders.sql",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "devDependencies": { "wrangler": "^4.0.0" },
+  "engines": { "node": ">=22.13" }
+}

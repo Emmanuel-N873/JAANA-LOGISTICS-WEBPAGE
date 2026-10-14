@@ -1,0 +1,11 @@
+.env
+.env.*
+node_modules/
+*.log
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+.wrangler/
+dist/
+*.sqlite
+*.sqlite-*

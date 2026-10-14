@@ -1,0 +1,12 @@
+{
+  "name": "jaana-logistics",
+  "compatibility_date": "2026-10-01",
+  "pages_build_output_dir": "./dist",
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "jaana-orders",
+    // Local placeholder only. Replace with your real D1 ID before production deployment.
+    "database_id": "00000000-0000-0000-0000-000000000000",
+    "migrations_dir": "migrations"
+  }]
+}

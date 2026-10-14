@@ -1348,3 +1348,15 @@ dialog select { width: 100%; border: 1px solid #a5b2c5; border-radius: 7px; back
 @media (max-width: 850px) { .hero-priority { display: none; } }
 .business-hours { font-size: 10px; line-height: 1.5; margin-top: 10px; }
 @media(max-width:850px) { .business-hours { font-size: 12px; } }
+
+.booking-reference-panel { margin: 14px 0 20px; padding: 16px; border: 1px solid #b7cbe5; border-radius: 12px; background: #f1f7ff; }
+.booking-reference-panel[hidden] { display: none; }
+.booking-reference-panel h3 { margin-bottom: 8px; font-size: 16px; }
+.booking-reference-panel label { font-size: 12px; margin-bottom: 5px; }
+.booking-reference-panel input { font-family: Consolas, monospace; font-size: 13px; margin-bottom: 9px; }
+.booking-reference-panel p { font-size: 12px; margin-bottom: 10px; }
+.reference-actions { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; }
+.reference-outline { border-color: #00358d; color: #00358d; background: white; }
+.reference-actions .contact-alternative { margin: 0; font-size: 12px; }
+#booking-feedback:empty { display: none; }
+#booking-feedback { margin: 12px 0; color: #00358d; }

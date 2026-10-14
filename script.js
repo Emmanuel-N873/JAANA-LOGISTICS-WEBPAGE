@@ -23,8 +23,60 @@
   refresh();
   input.addEventListener('focus', refresh);
  });
+ const bookingForm = document.querySelector('#booking-dialog form');
+ const referencePanel = document.getElementById('booking-reference-panel');
+ const referenceInput = document.getElementById('booking-reference');
+ const bookingFeedback = document.getElementById('booking-feedback');
+ const updateReference = document.querySelector('#tracking-dialog [name="reference"]');
+ const referenceStorageKey = 'jaana.latestRequestReference.v1';
+ let bookingRequest = null;
+ let bookingAttempt = null;
+ try {
+  const savedReference = localStorage.getItem(referenceStorageKey);
+  if (/^JAANA-\d{8}(?:-[A-F0-9]{6}){4}$/.test(savedReference || '')) updateReference.value = savedReference;
+ } catch { /* References still work when browser storage is unavailable. */ }
+
+ const requestApi = async (url, payload, headers = {}) => {
+  const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', ...headers }, body: JSON.stringify(payload), cache: 'no-store', signal: AbortSignal.timeout(15000) });
+  let data;
+  try { data = await response.json(); } catch { throw new Error('The booking server is unavailable. Run the backend or contact JAANA on WhatsApp.'); }
+  if (!response.ok) throw new Error(data.error || 'The request could not be completed.');
+  return data;
+ };
+ document.getElementById('copy-booking-reference').addEventListener('click', async () => {
+  if (!bookingRequest) return;
+  try {
+   await navigator.clipboard.writeText(bookingRequest.reference);
+   bookingFeedback.textContent = 'Reference copied. Keep it for your delivery updates.';
+  } catch {
+   referenceInput.focus();
+   referenceInput.select();
+   referenceInput.setSelectionRange(0, referenceInput.value.length);
+   bookingFeedback.textContent = 'Your reference is selected. Copy it using your device’s copy command.';
+  }
+ });
+ document.getElementById('use-booking-reference').addEventListener('click', () => {
+  if (!bookingRequest) return;
+  updateReference.value = bookingRequest.reference;
+  updateReference.setCustomValidity('');
+  document.getElementById('booking-dialog').close();
+  document.getElementById('tracking-dialog').showModal();
+  document.body.classList.add('dialog-open');
+  updateReference.focus();
+ });
+ document.getElementById('new-booking-request').addEventListener('click', () => {
+  bookingRequest = null;
+  bookingAttempt = null;
+  bookingForm.reset();
+  bookingForm.querySelectorAll('input, select, textarea').forEach(field => field.setCustomValidity(''));
+  referencePanel.hidden = true;
+  referenceInput.value = '';
+  document.getElementById('booking-whatsapp').removeAttribute('href');
+  bookingFeedback.textContent = 'Ready for a new booking. Complete the form to generate a new reference.';
+  bookingForm.elements.service.focus();
+ });
  document.querySelectorAll('form[data-request]').forEach(form => {
-  form.addEventListener('submit', event => {
+  form.addEventListener('submit', async event => {
    event.preventDefault(); const fields=[...new FormData(form).entries()];
    for(const [name,value] of fields) {
     const field = form.elements.namedItem(name);
@@ -37,8 +89,54 @@
     }
    }
    if(!form.reportValidity()) return;
-   const message=['Hello JAANA Logistics,',form.dataset.request,'',...fields.map(([name,value]) => `${labels[name] || name}: ${String(value).trim()}`)].join('\n');
-   window.open(`https://wa.me/2348038422591?text=${encodeURIComponent(message)}`,'_blank','noopener,noreferrer');
+   const isBooking = form === bookingForm;
+   const isUpdate = form.closest('dialog').id === 'tracking-dialog';
+   const feedback = isBooking ? bookingFeedback : document.getElementById(isUpdate ? 'delivery-status-result' : 'quote-feedback');
+   const submit = form.querySelector('[type="submit"]');
+   const newBookingButton = document.getElementById('new-booking-request');
+   if (submit.disabled) return;
+   submit.disabled = true;
+   if (isBooking) newBookingButton.disabled = true;
+   const editableFields = isBooking ? [...form.querySelectorAll('input, select, textarea')] : [];
+   editableFields.forEach(field => { field.disabled = true; });
+   try {
+    const requestLines = [];
+    if (isUpdate) {
+     feedback.textContent = 'Checking your delivery status...';
+     const result = await requestApi('/api/delivery-status', { reference: form.elements.reference.value.trim() });
+     feedback.textContent = result.label + ' - updated ' + new Date(result.updatedAt).toLocaleString('en-GB', { timeZone: 'Africa/Lagos' }) + ' WAT. Contact JAANA if you need more information.';
+     return;
+    }
+    if (isBooking) {
+     const fingerprint = JSON.stringify(fields.map(([name, value]) => [name, String(value).trim()]));
+     if (!bookingRequest || bookingRequest.fingerprint !== fingerprint) referencePanel.hidden = true;
+     if (!bookingAttempt || bookingAttempt.fingerprint !== fingerprint) bookingAttempt = { fingerprint, key: crypto.randomUUID() };
+     feedback.textContent = 'Saving your booking request...';
+     const result = await requestApi('/api/bookings', Object.fromEntries(fields), { 'Idempotency-Key': bookingAttempt.key });
+     bookingRequest = { fingerprint, reference: result.reference };
+     requestLines.push('Booking request reference: ' + bookingRequest.reference, '');
+    }
+    const message=['Hello JAANA Logistics,',form.dataset.request,'',...requestLines,...fields.map(([name,value]) => (labels[name] || name) + ': ' + String(value).trim())].join('\n');
+    const whatsappUrl = 'https://wa.me/2348038422591?text=' + encodeURIComponent(message);
+    if (isBooking) {
+     referenceInput.value = bookingRequest.reference;
+     referencePanel.hidden = false;
+     updateReference.value = bookingRequest.reference;
+     updateReference.setCustomValidity('');
+     document.getElementById('booking-whatsapp').href = whatsappUrl;
+     try { localStorage.setItem(referenceStorageKey, bookingRequest.reference); } catch { /* Saving is optional. */ }
+     feedback.textContent = 'Your request is saved. Keep your reference. JAANA will confirm availability and pricing; you can also follow up on WhatsApp.';
+     referencePanel.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+    } else {
+     window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    }
+   } catch (error) {
+    feedback.textContent = error.name === 'TimeoutError' ? 'The server took too long to respond. Please retry the same request; it will not create a duplicate.' : error.name === 'TypeError' ? 'Could not reach the booking service. Please retry or contact JAANA on WhatsApp.' : error.message;
+   } finally {
+    submit.disabled = false;
+    editableFields.forEach(field => { field.disabled = false; });
+    if (isBooking) newBookingButton.disabled = false;
+   }
   });
   form.addEventListener('input', event => { if(typeof event.target.setCustomValidity === 'function') event.target.setCustomValidity(''); });
  });

@@ -707,7 +707,7 @@
                 </span>
               </a>
             </address>
-            <p class="business-hours"><strong>Working hours</strong><br>Monday?Saturday<br>9:00am?5:00pm (WAT)</p>
+            <p class="business-hours"><strong>Working hours</strong><br>Monday&ndash;Saturday<br>9:00am&ndash;5:00pm (WAT)</p>
           </div>
           <div class="footer-col footer-social">
             <h3>
@@ -788,12 +788,25 @@
         </button>
       </div>
       <p>
-        Complete your delivery request, then review and send it to our team on WhatsApp. Your requested date and package size help us assess the service and price.
+        Complete your delivery request to save it with JAANA and receive a reference. Our team will confirm availability and pricing. You can follow up on WhatsApp.
       </p>
+      <p id="booking-feedback" class="form-note" role="status" aria-live="polite"></p>
+      <section id="booking-reference-panel" class="booking-reference-panel" aria-labelledby="booking-reference-heading" hidden>
+        <h3 id="booking-reference-heading">Your booking request reference</h3>
+        <label for="booking-reference">Save this reference for delivery updates</label>
+        <input id="booking-reference" type="text" readonly spellcheck="false">
+        <p>This identifies your request. Your request is saved with JAANA; our team will confirm your booking.</p>
+        <div class="reference-actions">
+          <button class="button button-blue button-small" id="copy-booking-reference" type="button">Copy reference</button>
+          <button class="button button-small reference-outline" id="use-booking-reference" type="button">Use for Delivery Updates</button>
+          <a class="contact-alternative" id="booking-whatsapp" target="_blank" rel="noopener noreferrer">Open booking message in WhatsApp</a>
+          <button class="button button-small reference-outline" id="new-booking-request" type="button">Start another booking</button>
+        </div>
+      </section>
       <form data-request="Delivery booking">
         <label>Service type<select name="service" required><option value="" selected disabled>Choose a service</option><option>Document Delivery</option><option>E-commerce Delivery</option><option>Food Delivery</option><option>Bulk &amp; Business Delivery</option><option>Custom Logistics Solutions</option></select></label>
         <label>Preferred delivery date<input name="date" type="date" required aria-describedby="booking-availability"></label>
-        <p id="booking-availability" class="form-note">Our team will confirm availability, pickup timing and pricing before confirming your booking. Working hours: Monday?Saturday, 9:00am?5:00pm (WAT).</p>
+        <p id="booking-availability" class="form-note">Our team will confirm availability, pickup timing and pricing before confirming your booking. Working hours: Monday&ndash;Saturday, 9:00am&ndash;5:00pm (WAT).</p>
         <label>Recipient name<input name="recipient" autocomplete="off" required maxlength="100"></label>
         <label>Recipient phone number<input name="recipientPhone" type="tel" autocomplete="off" pattern="\+?[0-9][0-9\s]{6,28}" required maxlength="30" title="Use digits, spaces and an optional leading +."></label>
         <label>Approximate package size<select name="size" required><option value="" selected disabled>Choose a size</option><option>Envelope or document</option><option>Small parcel (handheld)</option><option>Medium parcel (box or bag)</option><option>Large or bulk shipment</option></select></label>
@@ -818,10 +831,10 @@
           <textarea name="package" required maxlength="500" rows="2"></textarea>
         </label>
         <button class="button button-blue" type="submit">
-          Continue to WhatsApp
+          Save Booking Request
         </button>
         <p class="form-note">
-          Your details will be included in a WhatsApp message. Send it there to request a quote and availability. Our team confirms the price and booking; submitting this form does not reserve a delivery.
+          Submitting saves your delivery details with JAANA so our team can arrange your request. Our team confirms the price and booking; submitting does not reserve a delivery. Your details are also included if you choose to continue on WhatsApp.
         </p>
       </form>
     </dialog>
@@ -835,20 +848,23 @@
         </button>
       </div>
       <p>
-        Enter your delivery reference to request the latest update from our team on WhatsApp.
+        Enter your saved booking reference to check the latest delivery status.
       </p>
+      <p id="delivery-status-result" class="form-note" role="status" aria-live="polite"></p>
       <form data-request="Package status request">
         <label>
           Delivery reference
-          <input name="reference" required maxlength="100" placeholder="Your booking or package reference">
+          <input name="reference" required maxlength="100" placeholder="Your booking or package reference" aria-describedby="reference-help" spellcheck="false">
         </label>
+        <p class="form-note" id="reference-help">Your latest request reference is filled in automatically on this browser when available. You can enter a different reference from your WhatsApp conversation.</p>
         <button class="button button-blue" type="submit">
-          Request an Update
+          Check Status
         </button>
         <p class="form-note">
-          This page does not provide automated live tracking. Our team will respond with your delivery status.
+          Statuses are updated by our team. This is an order-status service, not live GPS tracking.
         </p>
       </form>
+      <a class="contact-alternative" href="https://wa.me/2348038422591" target="_blank" rel="noopener noreferrer">Ask our team on WhatsApp</a>
       <a class="contact-alternative" href="tel:+2349072573328">
         Or call 0907 257 3328
       </a>
@@ -865,6 +881,7 @@
       <p>
         Tell us your route and package details. Our team will confirm the available service and price.
       </p>
+      <p id="quote-feedback" class="form-note" role="status" aria-live="polite"></p>
       <form data-request="Delivery quote">
         <label>
           Your name

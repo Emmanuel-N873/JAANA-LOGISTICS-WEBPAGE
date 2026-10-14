@@ -1,54 +1,91 @@
-﻿# JAANA Logistics homepage
+﻿# JAANA Logistics
 
-A responsive, buildless homepage based on `image/JAANA Logistics Delivery Homepage.png`.
+Responsive company website with a Cloudflare Pages Functions backend and D1 order storage.
+
+## Project layout
+
+```text
+JAANA DELIVERY WEB PAGE/
+  index.html
+  script.js
+  styles.css
+  design-system.css
+  favicon.ico
+  image/
+  .gitignore
+  README.md
+  Jaana Backend/
+    functions/
+    server/
+    migrations/
+    tests/
+    scripts/
+    admin.html
+    admin.css
+    admin.js
+    package.json
+    package-lock.json
+    wrangler.jsonc
+    .dev.vars.example
+    .dev.vars           (ignored local staff secret)
+    .wrangler/          (ignored local runtime/database state)
+    node_modules/       (ignored dependencies)
+    dist/               (ignored generated public output)
+    _headers
+    _routes.json
+    BACKEND-SETUP.md
+```
+
+Customer-facing files and images remain in the project root. Backend code, staff interface, database configuration, development dependencies, tests and backend setup instructions are grouped in `Jaana Backend`.
 
 ## Run locally
 
-Open `index.html` in a modern browser. No installation, build process or external image service is required.
+Use Node.js 22.13 or newer (Node 24 recommended). In a terminal at the repository root:
 
-## Files
+```powershell
+Set-Location "Jaana Backend"
+npm.cmd install
+npm.cmd run db:local
+npm.cmd run dev
+```
 
-- `index.html`: semantic page sections, SVG icons, navigation and accessible dialogs.
-- `design-system.css`: shared colours, typography, layout primitives and buttons.
-- `styles.css`: section layouts, responsive rules and reference-image windows.
-- `script.js`: mobile navigation, service slideshow, dialogs and WhatsApp request composition.
-- `image/JAANA Logistics Delivery Homepage.png`: retained original design reference; the live page no longer crops artwork from it.
-- `image/hero-delivery.jpg`: independent generated hero scene with no embedded branding or captions; generation prompt in `image/hero-prompt.txt`.
-- `image/lagos-coverage.svg`: independent schematic coverage illustration. The adjoining area list provides the actual served-area information.
-- `image/services/`: five dedicated 1672 × 941 service images, optimised as JPEGs, plus the generation prompts in `prompts.md`. These are generated illustrations of delivery scenarios, not photographs of actual JAANA personnel or facilities.
-- `image/JAANA Logistics About Us Infographic.png`: retained source reference; About Us now uses readable HTML content.
-- `image/Company Logo.jpeg`: company logo displayed in the header and footer. CSS crops its surrounding white margins without modifying the original.
+The existing local staff token is in the ignored `Jaana Backend/.dev.vars` file. For a fresh checkout, copy `.dev.vars.example` to `.dev.vars` inside the backend folder and set a private ADMIN_API_TOKEN of at least 32 characters. Do not overwrite an existing secret or commit it to Git.
 
-## Favicon
+Open the address printed by Wrangler, normally http://127.0.0.1:8788. Staff orders are at `/admin.html`. Opening index.html directly or using Live Server does not run the API.
 
-The favicon uses the blue-and-gold parcel box from the company logo, with the wordmark and running legs removed. `favicon.ico` includes 16, 32, 48 and 256 pixel frames; matching PNGs and a 180 pixel Apple touch icon are in `image/`. The transparent master is `image/favicon-source.png`. It was produced with the built-in imagegen tool; its extraction prompt is saved in `image/favicon-prompt.txt`.
+## Deploy
 
-## Delivery requests
+Follow [the backend setup guide](<Jaana Backend/BACKEND-SETUP.md>). Replace the all-zero D1 database ID before production and set the staff secret in Cloudflare. Pages settings:
 
-Booking, quotation and package status forms validate their fields and open a prefilled WhatsApp conversation with `+2348038422591`. Visitors review and send the message themselves. Requests are not stored by this page, and a booking is confirmed by the company rather than by submitting the form.
+| Setting | Value |
+| --- | --- |
+| Root directory | Jaana Backend |
+| Build command | npm run build |
+| Build output directory | dist |
 
-There is no live tracking API or backend. The feature is consistently labelled Delivery Updates and requests a status update from the team through WhatsApp.
+The backend build includes the frontend assets from the parent folder. Live URLs remain `/api/bookings`, `/api/delivery-status`, `/api/admin/...` and `/admin.html`.
 
-The user confirmed the company details, coverage and displayed delivery/customer/partner statistics on 13 October 2026. Public contact details are `0907 257 3328`, WhatsApp `0803 842 2591`, `jaanadelivery@gmail.com`, and No. 20 Oyin Onibokun Crescent, Isheri-Osun, Lagos 102214. Confirmed working hours are Monday–Saturday, 9:00am–5:00pm, West Africa Time (Africa/Lagos). This records user confirmation, not an independent audit of the statistics.
+## Booking and staff workflow
 
-Booking requests include the service type, preferred delivery date, recipient name and phone number, approximate package size, sender contact, pickup/delivery addresses and package details. Date validation uses the current day in Lagos and rejects past dates and Sundays. The requested date, availability, pickup timing, price and booking are confirmed by the company. No automatic reservation or payment is performed.
+Validated requests are saved in D1 with server-generated references and duplicate-request protection. Customers can copy the reference, check staff-maintained delivery status, or follow up on WhatsApp. Only the latest reference is stored in the browser; customer details are saved in D1. JAANA confirms availability, pricing and bookings. No automatic reservations, payments or GPS tracking are performed. Older WhatsApp-only references are not in the database. Quotations continue through WhatsApp without becoming saved orders.
 
-Facebook, Instagram and X footer icons link to the supplied company profiles. The WhatsApp icon opens a conversation with `+2348038422591`. All four links open in new tabs.
+The staff page requires a private shared access token, kept only in page memory. It lists orders and supports status updates with conflict checks and an event history. Use HTTPS, keep staff access private and rotate the production token when access changes.
 
-## Design and accessibility
+## Company and assets
 
-The five delivery services appear in a full-width slideshow, one photograph at a time, with an overlaid title and description. Slides advance every two seconds, with a 650 millisecond sliding transition. Previous/next arrows, slide selectors, left/right keyboard arrows and touch swiping allow manual selection. Manual selection pauses rotation; the Play slideshow button resumes it. Rotation also pauses while hovered, focused or in a hidden browser tab. Reduced-motion preferences disable automatic rotation by default and remove slide animation. Service navigation links select the matching slide.
+The user confirmed company contacts, coverage and displayed statistics on 13 October 2026. Contact: 0907 257 3328, WhatsApp 0803 842 2591, jaanadelivery@gmail.com, No. 20 Oyin Onibokun Crescent, Isheri-Osun, Lagos 102214. Working hours: Monday-Saturday, 9:00am-5:00pm WAT. This records user confirmation rather than an independent audit.
 
-Tablet and mobile layouts reflow without fixed minimum grid widths. The page includes a skip link, labelled forms, keyboard focus, mobile navigation, native modal dialogs and reduced-motion support. Four statistics and horizontal coverage remain on desktop.
+The supplied Company Logo.jpeg provides the company logo. Favicon, hero and service generation prompts are retained under image/. Hero and service images are generated illustrations, not actual staff photographs. The coverage SVG is schematic. Original reference images are retained but excluded from the public build.
 
-The hero and service slides use independent full-resolution images. The phone illustration is native HTML/CSS with the supplied company logo and working booking, update and quotation buttons. The coverage illustration is an independent SVG. Service slides use `object-fit: cover` and individual focal points. Mobile captions use smaller typography and omit decorative badges. Active and following slide images load eagerly. Hidden, inert boundary copies allow the slideshow to wrap smoothly in either direction; their IDs are removed to avoid duplicate references. The copies do not appear in the accessible slide count.
+The slideshow advances every two seconds, supports manual/keyboard/touch controls, pauses for hover/focus and respects reduced motion. Social links use the supplied company URLs.
 
-## Validation
+## Verification
 
-Checked in headless Chrome at 320, 390, 600, 768, 900, 1024 and 1440 pixels: no horizontal page overflow, broken image references, duplicate IDs or broken internal anchors. Booking, quotation and update forms produce correctly encoded WhatsApp requests; required-field and phone validation, modal focus, Escape dismissal and scroll restoration were checked. The JavaScript syntax check passes. External messages were not sent.
+Run these commands inside `Jaana Backend`:
 
-The slideshow was checked at 320, 390, 768, 1024 and 1440 pixels: its slide width matches the full page width, with one accessible slide at a time. Automatic advance, previous/next, slide selectors, keyboard navigation, touch swipe, service-link selection and reduced-motion defaults passed browser checks. Header and footer use `Company Logo.jpeg`.
+```powershell
+npm.cmd test
+npm.cmd run build
+```
 
-The replacement service images were individually decoded and inspected in desktop and mobile slide views. All five are 1672 × 941 pixels with descriptive alternative text. Captions clear the navigation controls, and no horizontal page overflow was found. Mobile focal points prioritise the document handover, parcel scanning, food containers, pallet loading and tablet consultation.
-
-Business-readiness checks passed for the new booking fields, encoded WhatsApp messages, date/working-day validation, visible operating hours, Delivery Updates wording, all image resources, two-second automatic advance, forward/backward boundary wrapping, and hidden/inert boundary copies. No horizontal overflow was found at 320, 390, 768, 1024 and 1440 pixels. Messages were prepared in a browser test without sending any WhatsApp requests.
+The backend tests cover SQL persistence, retries, references, validation, rate limits, staff authentication, public-data privacy, audit events and stale-update conflicts. The real Cloudflare local runtime and browser booking/staff/status workflow have also been tested. The public build excludes server code, database files and secrets.

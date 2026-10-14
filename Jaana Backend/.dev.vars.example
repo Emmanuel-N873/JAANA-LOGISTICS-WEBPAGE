@@ -1,0 +1,3 @@
+# Copy to .dev.vars, then generate a private token of at least 32 characters.
+# Never commit .dev.vars or reuse a token from documentation.
+ADMIN_API_TOKEN=""
