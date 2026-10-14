@@ -5,23 +5,59 @@
   const message = document.getElementById('staff-message');
   const list = document.getElementById('order-list');
   let token = '', page = 1, loading = false;
+  let loadingSession = -1;
+  let sessionVersion = 0;
   const logout = () => {
-    token = ''; panel.hidden = true; login.hidden = false; login.reset(); list.replaceChildren();
-    message.textContent = 'Signed out.';
+  sessionVersion++;
+  token = '';
+  panel.hidden = true;
+  login.hidden = false;
+  login.reset();
+  list.replaceChildren();
+  message.textContent = 'Signed out.';
   };
   async function api(url, options = {}) {
-    const response = await fetch(url, { ...options, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, cache: 'no-store', signal: AbortSignal.timeout(15000) });
+    const requestSession = sessionVersion;
+    const requestToken = token;
+
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${requestToken}`
+      },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(15000)
+    });
+
     const data = await response.json();
-    if (!response.ok) { if (response.status === 401) logout(); throw new Error(data.error || 'Request failed.'); }
+
+    if (!response.ok) {
+      if (
+        response.status === 401 &&
+        sessionVersion === requestSession
+      ) {
+        logout();
+      }
+
+      throw new Error(data.error || 'Request failed.');
+    }
+
     return data;
   }
   async function load() {
-    if (loading) return;
-    loading = true; message.textContent = 'Loading orders…';
+    const currentSession = sessionVersion;
+
+    if (loading && loadingSession === currentSession) return;
+
+    loading = true;
+    loadingSession = currentSession;
+    message.textContent = 'Loading orders…';
     const requestToken = token;
+    const requestSession = sessionVersion;
     try {
       const data = await api(`/api/admin/bookings?page=${page}`);
-      if (!token || token !== requestToken) return;
+      if (!token || token !== requestToken || sessionVersion !== requestSession) return;
       panel.hidden = false; login.hidden = true; login.reset(); list.replaceChildren();
       for (const order of data.bookings) {
         const card = document.createElement('article'); card.className = 'order-card';
@@ -42,23 +78,63 @@
         const button = document.createElement('button'); button.className = 'button button-blue'; button.textContent = 'Save status';
         form.append(label, button); card.append(form); list.append(card);
         form.addEventListener('submit', async event => {
-          event.preventDefault(); button.disabled = true;
+          event.preventDefault();
+
+          if (button.disabled) return;
+
+          const statusSession = sessionVersion;
+          button.disabled = true;
+
           try {
-            const result = await api('/api/admin/status', { method: 'PATCH', body: JSON.stringify({ reference: order.reference, status: select.value, version: order.version }) });
-            order.version = result.version; order.status = result.status;
+            const result = await api('/api/admin/status', {
+              method: 'PATCH',
+              body: JSON.stringify({
+                reference: order.reference,
+                status: select.value,
+                version: order.version
+              })
+            });
+
+            // Ignore responses from a previous login session.
+            if (sessionVersion !== statusSession) return;
+
+            order.version = result.version;
+            order.status = result.status;
             message.textContent = `${order.reference}: ${result.label}.`;
-          } catch (error) { message.textContent = error.message; }
-          finally { button.disabled = false; }
+
+          } catch (error) {
+            if (sessionVersion === statusSession) {
+              message.textContent = error.message;
+            }
+          } finally {
+            button.disabled = false;
+          }
         });
       }
       document.getElementById('previous').disabled = page === 1;
       document.getElementById('next').disabled = !data.hasMore;
       document.getElementById('page-label').textContent = `Page ${page}`;
       message.textContent = data.bookings.length ? 'Orders loaded. Times shown in West Africa Time.' : 'No orders on this page.';
-    } catch (error) { message.textContent = error.message; }
-    finally { loading = false; }
+    } catch (error) {
+      if (sessionVersion === requestSession) {
+        message.textContent = error.message;
+      }
+    } finally {
+      if (loadingSession === currentSession) {
+        loading = false;
+        loadingSession = -1;
+      }
+    }
   }
-  login.addEventListener('submit', event => { event.preventDefault(); token = document.getElementById('staff-token').value.trim(); page = 1; load(); });
+  
+  login.addEventListener('submit', event => {
+  event.preventDefault();
+  sessionVersion++;
+  token = document.getElementById('staff-token').value.trim();
+  page = 1;
+  load();
+  });
+
   document.getElementById('refresh').addEventListener('click', load);
   document.getElementById('logout').addEventListener('click', logout);
   document.getElementById('previous').addEventListener('click', () => { if (page > 1 && !loading) { page--; load(); } });

@@ -97,6 +97,28 @@ test('booking rate limits are enforced', async () => {
   for (let i = 0; i < 10; i++) assert.equal((await call(create, env, { data: order() })).status, 201);
   assert.equal((await call(create, env, { data: order() })).status, 429); env.sqlite.close();
 });
+
+test('delivery status rate limits are enforced', async () => {
+  const env = setup();
+
+  try {
+    for (let i = 0; i < 30; i++) {
+      const response = await call(lookup, env, {
+        data: { reference: 'invalid' }
+      });
+
+      assert.equal(response.status, 400);
+    }
+
+    const blocked = await call(lookup, env, {
+      data: { reference: 'invalid' }
+    });
+
+    assert.equal(blocked.status, 429);
+  } finally {
+    env.sqlite.close();
+  }
+});
 test('public status returns no customer data', async () => {
   const env = setup();
   const { reference } = await (await call(create, env, { data: order() })).json();
