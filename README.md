@@ -105,6 +105,8 @@ New staff receive a temporary password and must change it before accessing booki
 
 ## Activity records
 
+The staff dashboard includes a booking-notification bell, individual unread counts, notification history, pop-up alerts and optional sound. It polls every 15 seconds while visible and stops on sign-out. Staff can explicitly acknowledge a booking; its first acknowledgement records the staff name and time without changing delivery status or marking other staff's alerts as read. Apply migration `0003_notifications.sql` before using these features. See [the notification guide](<Jaana Backend/docs/NOTIFICATIONS.md>) for activation and behaviour.
+
 The backend records sign-ins, failed sign-in attempts, sign-outs, password changes, staff-account management, booking list/detail views and status changes. Administrators can search the log by staff, action or reference. Delivery updates include the previous/new status, staff identity and timestamp, displayed in West Africa Time.
 
 Audit records cannot be edited or deleted through the dashboard, and database triggers reject updates and deletes. They do not reconstruct who performed historical shared-token actions or independently verify browser-only actions. Failed sign-ins identify the attempted account. Passwords and session tokens are excluded from audit details. See [the account and audit guide](<Jaana Backend/docs/STAFF-ACCOUNTS.md>) for security details and limitations.

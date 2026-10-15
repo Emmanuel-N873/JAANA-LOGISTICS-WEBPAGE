@@ -13,6 +13,7 @@ import { onRequest as staffAuth } from '../functions/api/staff.js';
 import { onRequest as staffAccounts } from '../functions/api/admin/staff.js';
 import { onRequest as activity } from '../functions/api/admin/activity.js';
 import { passwordHash, verifyPassword } from '../server/staff-auth.js';
+import { onRequest as notifications } from '../functions/api/admin/notifications.js';
 
 // Execute the real migration and endpoint SQL against SQLite, matching D1's API.
 function setup() {
@@ -20,6 +21,7 @@ function setup() {
   sqlite.exec('PRAGMA foreign_keys=ON;');
   sqlite.exec(readFileSync(new URL('../migrations/0001_orders.sql', import.meta.url), 'utf8'));
   sqlite.exec(readFileSync(new URL('../migrations/0002_staff.sql', import.meta.url), 'utf8'));
+  sqlite.exec(readFileSync(new URL('../migrations/0003_notifications.sql', import.meta.url), 'utf8'));
   const TEST_SESSION = 'a'.repeat(64);
   sqlite.prepare('INSERT INTO staff_users(id,name,email,role,password_hash,must_change_password,created_at) VALUES(?,?,?,?,?,0,?)').run('test-admin','Test Administrator','admin@jaana.example','admin','unused',new Date().toISOString());
   sqlite.prepare('INSERT INTO staff_sessions(token_hash,staff_id,user_version,expires_at,created_at) VALUES(?,?,?,?,?)').run(createHash('sha256').update(TEST_SESSION).digest('hex'),'test-admin',1,new Date(Date.now()+3600000).toISOString(),new Date().toISOString());
@@ -304,4 +306,70 @@ test('login attempts are limited per account across different IPs',async()=>{
  const env=setup();await loginAccount(env);
  for(let i=0;i<9;i++)assert.equal((await call(staffAuth,env,{query:'?action=login',data:{email:'admin@jaana.example',password:'wrong'},ip:'192.0.2.'+(20+i)})).status,401);
  assert.equal((await call(staffAuth,env,{query:'?action=login',data:{email:'admin@jaana.example',password:'wrong'},ip:'192.0.2.100'})).status,429);env.sqlite.close();
+});
+
+test('notifications are created once per booking and rejected/retried requests do not duplicate them',async()=>{
+ const env=setup(),token=env.TEST_SESSION,key=crypto.randomUUID();
+ const created=await call(create,env,{data:order(),key});assert.equal(created.status,201);
+ await call(create,env,{data:order(),key});await call(create,env,{data:{...order(),name:'Different'},key});
+ assert.equal((await call(create,env,{data:{...order(),phone:'invalid'}})).status,400);
+ assert.equal(env.sqlite.prepare('SELECT COUNT(*) n FROM booking_notifications').get().n,1);
+ const response=await call(notifications,env,{method:'GET',token});const data=await response.json();
+ assert.equal(response.status,200);assert.equal(data.unread,1);assert.equal(data.total,1);assert.equal(data.fresh.length,0);assert.equal(data.notifications[0].read_at,null);
+ assert.equal(data.notifications[0].customer_phone,undefined);assert.equal(data.notifications[0].pickup_address,undefined);
+ const count=env.sqlite.prepare('SELECT COUNT(*) n FROM staff_audit').get().n;
+ await call(notifications,env,{method:'GET',token});assert.equal(env.sqlite.prepare('SELECT COUNT(*) n FROM staff_audit').get().n,count);env.sqlite.close();
+});
+function anotherStaff(env){
+ const token='b'.repeat(64);env.sqlite.prepare('INSERT INTO staff_users(id,name,email,role,password_hash,must_change_password,created_at) VALUES(?,?,?,?,?,0,?)').run('second-staff','Second Staff','second@jaana.example','staff','unused',new Date().toISOString());
+ env.sqlite.prepare('INSERT INTO staff_sessions(token_hash,staff_id,user_version,expires_at,created_at) VALUES(?,?,?,?,?)').run(createHash('sha256').update(token).digest('hex'),'second-staff',1,new Date(Date.now()+3600000).toISOString(),new Date().toISOString());return token;
+}
+test('read state is individual and does not acknowledge a booking or create duplicate audit records',async()=>{
+ const env=setup(),token=env.TEST_SESSION,second=anotherStaff(env);const {reference}=await(await call(create,env,{data:order()})).json();
+ for(let i=0;i<2;i++)assert.equal((await call(notifications,env,{token,data:{action:'read',reference,staff_id:'second-staff'}})).status,200);
+ const own=await(await call(notifications,env,{method:'GET',token})).json(),other=await(await call(notifications,env,{method:'GET',token:second})).json();
+ assert.equal(own.unread,0);assert.equal(other.unread,1);assert.equal(other.notifications[0].read_at,null);
+ assert.equal(env.sqlite.prepare('SELECT COUNT(*) n FROM booking_acknowledgements').get().n,0);
+ const rows=env.sqlite.prepare("SELECT * FROM staff_audit WHERE action='notification.read'").all();assert.equal(rows.length,1);assert.equal(rows[0].staff_id,'test-admin');env.sqlite.close();
+});
+test('acknowledgement records the first staff member once, stays separate from reads and appears in order details',async()=>{
+ const env=setup(),token=env.TEST_SESSION,second=anotherStaff(env);const {reference}=await(await call(create,env,{data:order()})).json();
+ const results=await Promise.all([call(notifications,env,{token,data:{action:'acknowledge',reference}}),call(notifications,env,{token:second,data:{action:'acknowledge',reference}})]);
+ assert.deepEqual(results.map(r=>r.status),[200,409]);
+ assert.equal((await call(notifications,env,{token,data:{action:'acknowledge',reference}})).status,200);
+ const data=await(await call(notifications,env,{method:'GET',token:second})).json();assert.equal(data.notifications[0].acknowledged_name,'Test Administrator');assert.equal(data.unread,1);
+ const orderDetails=await(await call(details,env,{method:'GET',token,query:'?reference='+reference})).json();assert.equal(orderDetails.acknowledgement.staff_id,'test-admin');
+ const audits=env.sqlite.prepare("SELECT * FROM staff_audit WHERE action='booking.acknowledged'").all();assert.equal(audits.length,1);assert.equal(audits[0].target,reference);
+ assert.equal(env.sqlite.prepare('SELECT status FROM bookings').get().status,'requested');env.sqlite.close();
+});
+test('notification history and cursors cover more than one polling batch without dropping events',async()=>{
+ const env=setup(),token=env.TEST_SESSION;
+ for(let i=0;i<55;i++)await call(create,env,{data:order(),ip:'192.0.2.'+(i+20)});
+ const get=async query=>(await call(notifications,env,{method:'GET',token,query})).json();
+ const baseline=await get('');assert.equal(baseline.total,55);assert.equal(baseline.notifications.length,30);
+ const second=await get('?page=2');assert.equal(second.notifications.length,25);
+ const first=await get('?after=0');assert.equal(first.fresh.length,50);assert.equal(first.hasMoreFresh,true);
+ const next=await get('?after='+first.cursor);assert.equal(next.fresh.length,5);assert.equal(next.hasMoreFresh,false);
+ assert.equal(new Set([...first.fresh,...next.fresh].map(e=>e.id)).size,55);
+ assert.equal((await get('?after='+next.cursor)).fresh.length,0);env.sqlite.close();
+});
+test('notifications require a valid active session and validate actions and cursors',async()=>{
+ const env=setup(),token=env.TEST_SESSION;
+ assert.equal((await call(notifications,env,{method:'GET'})).status,401);
+ assert.equal((await call(notifications,env,{method:'GET',token,query:'?after=-1'})).status,400);
+ assert.equal((await call(notifications,env,{method:'GET',token,query:'?page=1.5'})).status,400);
+ assert.equal((await call(notifications,env,{token,data:{action:'read',reference:'invalid'}})).status,400);
+ const reference='JAANA-20261015-AAAAAA-AAAAAA-AAAAAA-AAAAAA';
+ assert.equal((await call(notifications,env,{token,data:{action:'read',reference}})).status,404);
+ const saved=await(await call(create,env,{data:order()})).json();
+ await call(update,env,{method:'PATCH',token,data:{reference:saved.reference,status:'cancelled',version:1}});
+ assert.equal((await call(notifications,env,{token,data:{action:'acknowledge',reference:saved.reference}})).status,409);
+ assert.equal(env.sqlite.prepare('SELECT COUNT(*) n FROM booking_acknowledgements').get().n,0);
+ env.sqlite.prepare('UPDATE staff_users SET active=0').run();assert.equal((await call(notifications,env,{method:'GET',token})).status,401);env.sqlite.close();
+});
+test('notification migration backfills existing bookings and is safe to reapply',async()=>{
+ const env=setup();env.sqlite.exec('DROP TRIGGER booking_notification_created');
+ await call(create,env,{data:order()});assert.equal(env.sqlite.prepare('SELECT COUNT(*) n FROM booking_notifications').get().n,0);
+ const sql=readFileSync(new URL('../migrations/0003_notifications.sql',import.meta.url),'utf8');env.sqlite.exec(sql);env.sqlite.exec(sql);
+ assert.equal(env.sqlite.prepare('SELECT COUNT(*) n FROM booking_notifications').get().n,1);env.sqlite.close();
 });

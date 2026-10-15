@@ -55,6 +55,8 @@ There are no self-registration or email-based password recovery endpoints. Ask a
 
 ## What is traceable
 
+Booking notification reads and acknowledgements are also recorded against individual accounts. Acknowledgement is a separate action from viewing or reading a booking alert. See [NOTIFICATIONS.md](NOTIFICATIONS.md) for setup, unread counts, optional sound and polling behaviour.
+
 Backend records include sign-ins, failed sign-in attempts, sign-outs, password changes, account creation/edits/resets, booking searches/list views, detailed order views, delivery status changes, denied privileged requests, and viewing the audit log. Failed login records identify the attempted account, not a verified person. For signed-in actions, staff identity comes from the server session, never from client-submitted names.
 
 Status changes record the previous and new status with the order reference and version in the same D1 transaction as the booking change. Their staff name/role also appear in the order's status history. Old events from before this upgrade have no individual staff attribution; new code cannot identify who performed historic shared-token actions.

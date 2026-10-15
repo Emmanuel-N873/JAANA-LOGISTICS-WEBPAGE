@@ -14,6 +14,7 @@ const backendAssets = new Map([
   ['assets/css/admin.css', 'dashboard/css/admin.css'],
   ['assets/js/admin.js', 'dashboard/js/admin.js'],
   ['assets/js/admin-accounts.js', 'dashboard/js/admin-accounts.js'],
+  ['assets/js/admin-notifications.js', 'dashboard/js/admin-notifications.js'],
   ['_routes.json', 'public/_routes.json'],
   ['_headers', 'public/_headers']
 ]);

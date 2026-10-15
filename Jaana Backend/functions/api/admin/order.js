@@ -10,6 +10,7 @@ export async function onRequest(context) {
     if (!order) throw new HttpError(404, 'Booking not found. Refresh the order list.');
     const events = await context.env.DB.prepare('SELECT e.status,e.created_at,a.staff_id,a.staff_name,a.staff_role FROM booking_events e LEFT JOIN staff_audit a ON a.id=e.id WHERE e.reference=? ORDER BY e.created_at,e.id').bind(reference).all();
     await audit(context, context.staff, 'booking.view', reference);
-    return json({ order, events: events.results, statuses: STATUSES });
+    const acknowledgement = await context.env.DB.prepare('SELECT staff_id,staff_name,acknowledged_at FROM booking_acknowledgements WHERE reference=?').bind(reference).first();
+    return json({ order, events: events.results, statuses: STATUSES, acknowledgement });
   });
 }

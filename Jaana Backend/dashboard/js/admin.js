@@ -133,6 +133,7 @@
   }
   function renderDetails(data) {
     const order = data.order; currentOrder = order; statusLabels = data.statuses;
+    window.dispatchEvent(new CustomEvent('staff-order', { detail: { order, acknowledgement: data.acknowledgement } }));
     byId('detail-reference').value = order.reference;
     byId('detail-status').replaceChildren(badge(order.status));
     const fields = {
@@ -241,7 +242,7 @@
   document.addEventListener('keydown', event => { if (event.key === 'Escape') closeNavigation(); });
   window.matchMedia('(min-width:1001px)').addEventListener('change', event => { if (event.matches) closeNavigation(); });
   syncNavigation();
-  window.JaanaStaff = { api, logout };
+  window.JaanaStaff = { api, logout, openOrder };
   setTimeout(async () => {
     const requestSession = sessionVersion;
     byId('login-submit').disabled = true;
