@@ -10,3 +10,11 @@ dist/
 *.sqlite
 *.sqlite-*
 .staff-bootstrap.sql
+# Database backups and temporary credential files
+jaana-production-backup.sql
+.local-admin-reset.sql
+
+# Local development-only utilities
+scripts/reset-local-admin.mjs
+
+/Jaana Backend/scripts/reset-local-admin.mjs
