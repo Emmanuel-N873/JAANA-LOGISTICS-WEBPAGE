@@ -136,3 +136,26 @@ dialog::backdrop { background:rgb(0 24 55 / 66%); }
 .booking-acknowledgement { margin:18px 0; border:1px solid #dce3ee; padding:15px; border-radius:9px; }
 .booking-acknowledgement p { font-size:13px; margin-bottom:10px; overflow-wrap:anywhere; }
 @media(max-width:600px) { .staff-identity { min-width:0; gap:6px; }.staff-identity>span:last-child { min-width:0; }.staff-identity strong { max-width:105px; }.notification-bell { width:33px; height:35px; }.staff-topbar { gap:5px; }.notification-toast { right:16px; bottom:16px; } }
+
+/* Branded order details: grouped information on a clean white surface. */
+#order-dialog{width:min(1160px,calc(100% - 32px));padding:28px;background:white;color:#10284a}
+.order-brand-banner{display:flex;align-items:center;gap:26px;padding:0 0 20px;border-bottom:1px solid #dce7f2;margin-bottom:22px}
+.order-brand-logo{display:block;flex:0 0 240px;height:88px;background:white url('../images/Company Logo.jpeg') 48% 52.5% / 135% auto no-repeat}
+.order-brand-banner>p{border-left:2px solid #d5deeb;padding-left:24px;font-size:19px;line-height:1.4;font-style:italic;color:#10396d}
+.order-brand-banner>#close-detail{margin-left:auto;flex-shrink:0;background:#f0f5fb;border-radius:50%;align-self:flex-start}
+.order-title-row{margin-bottom:12px}.order-title-row h2{font-size:clamp(26px,3vw,38px);letter-spacing:-1px}.order-title-row .staff-eyebrow{margin-bottom:4px}.order-title-row .status-badge{font-size:13px;padding:11px 16px;border-radius:10px;white-space:normal}
+#order-dialog .reference-row{padding:16px 18px;background:#f5f9ff;border:1px solid #d9e7f8;border-radius:12px;margin:0 0 18px;align-items:center}
+#order-dialog .reference-row label{font-size:12px}#order-dialog .reference-row input{font-size:14px;font-weight:600;background:white;min-width:0}
+.order-information-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:18px}
+.order-panel{min-width:0;border:1px solid #dce7f2;border-radius:12px;background:white;overflow:hidden;padding:0 18px 16px}
+.order-panel-wide{grid-column:1/-1}.order-panel h3{display:flex;align-items:center;gap:12px;font-size:17px;background:#f3f8fd;margin:0 -18px 10px;padding:12px 18px;line-height:1.4}
+.order-section-icon{display:grid;place-items:center;flex:0 0 34px;height:34px;border-radius:9px;background:#0064e8;color:white}.order-section-icon .staff-icon{width:21px;height:21px}
+.order-information-grid>.order-panel:nth-child(2) h3{background:#f1f9f3}.order-information-grid>.order-panel:nth-child(2) .order-section-icon{background:#218547}
+.order-information-grid>.order-panel:nth-child(3) h3{background:#fff9e8}.order-information-grid>.order-panel:nth-child(3) .order-section-icon{background:#c38b00}
+.order-data-list{margin:0}.order-data-list>div{display:grid;grid-template-columns:minmax(105px,.65fr) minmax(0,1fr);gap:12px;padding:12px 0;border-bottom:1px solid #e9eff6;font-size:13px;line-height:1.6}.order-data-list>div:last-child{border-bottom:0}.order-data-list dt{color:#58708f}.order-data-list dd{margin:0;overflow-wrap:anywhere;white-space:pre-wrap;font-weight:500}
+.order-panel-wide .order-data-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:30px}
+.order-price-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding-top:6px}.order-price-card{border:1px solid #dbe8f7;border-radius:10px;background:#f5faff;padding:16px 12px;min-width:0}.order-price-card span{display:block;font-size:12px;color:#58708f;margin-bottom:9px}.order-price-card strong{font-size:23px;line-height:1.3;overflow-wrap:anywhere}.order-price-card:last-child{background:#fff5d8;border-color:#f5e0a0}.order-pricing-note{font-size:12px;line-height:1.6;color:#58708f;margin-top:14px}
+#order-dialog .status-editor{padding:18px;margin-bottom:18px}#order-dialog .status-editor>label{font-size:16px;margin-bottom:12px}#order-dialog .status-editor select{font-size:14px}
+.order-followup-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.order-followup-grid .booking-acknowledgement{margin:0}.order-followup-grid .order-panel>p{font-size:13px;line-height:1.7;overflow-wrap:anywhere}.order-followup-grid .history-heading{margin-top:0}.order-followup-grid .detail-history{margin-top:18px;list-style:none;padding-left:0}.order-followup-grid .detail-history li{font-size:12px;line-height:1.5}.order-followup-grid .detail-history time{font-size:11px}
+@media(min-width:1100px){.order-price-grid{grid-template-columns:repeat(6,minmax(0,1fr))}.order-price-card strong{font-size:21px}}
+@media(max-width:700px){#order-dialog{padding:18px;width:calc(100% - 20px)}.order-brand-logo{flex-basis:175px;height:65px}.order-brand-banner{gap:12px}.order-brand-banner>p{display:none}.order-information-grid,.order-followup-grid{grid-template-columns:1fr}.order-panel-wide{grid-column:auto}.order-panel-wide .order-data-list{grid-template-columns:1fr}.order-title-row{align-items:flex-start;flex-direction:column;gap:10px}.order-price-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#order-dialog .reference-row{align-items:stretch;flex-direction:column;gap:10px}#order-dialog .reference-row .pager-button{align-self:flex-end}#order-dialog .reference-row input{font-size:11px}.order-price-card strong{font-size:22px}}

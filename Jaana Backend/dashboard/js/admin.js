@@ -136,18 +136,44 @@
     window.dispatchEvent(new CustomEvent('staff-order', { detail: { order, acknowledgement: data.acknowledgement } }));
     byId('detail-reference').value = order.reference;
     byId('detail-status').replaceChildren(badge(order.status));
-    const fields = {
-      Customer: order.customer_name, 'Customer phone': order.customer_phone,
-      Recipient: order.recipient_name, 'Recipient phone': order.recipient_phone,
-      Service: order.service, 'Delivery date': deliveryDate(order.delivery_date),
-      'Package size': order.package_size, 'Pickup address': order.pickup_address,
-      'Delivery address': order.delivery_address, 'Package details': order.package_details,
-      Received: dateTime(order.created_at), 'Last updated': dateTime(order.updated_at)
-    };
     const details = byId('detail-fields'); details.replaceChildren();
-    for (const [key, value] of Object.entries(fields)) {
-      const dt = document.createElement('dt'), dd = document.createElement('dd'); dt.textContent = key; dd.textContent = value; details.append(dt, dd);
-    }
+    const panel = (title, icon, rows, wide=false) => {
+      const section=document.createElement('section');section.className='order-panel'+(wide?' order-panel-wide':'');
+      const heading=document.createElement('h3'), mark=document.createElement('span');
+      mark.className='order-section-icon';mark.setAttribute('aria-hidden','true');
+      const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.classList.add('staff-icon');
+      const use=document.createElementNS('http://www.w3.org/2000/svg','use');use.setAttribute('href','#'+icon);svg.append(use);mark.append(svg);
+      heading.append(mark,document.createTextNode(title));section.append(heading);
+      const list=document.createElement('dl');list.className='order-data-list';
+      for(const [label,value] of rows){
+        const row=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');
+        dt.textContent=label;dd.textContent=value||'Not supplied';row.append(dt,dd);list.append(row);
+      }
+      section.append(list);details.append(section);return section;
+    };
+    panel('Customer information','d-home',[['Customer',order.customer_name],['Phone',order.customer_phone]]);
+    panel('Recipient information','d-home',[['Recipient',order.recipient_name],['Phone',order.recipient_phone]]);
+    panel('Delivery information','d-truck',[
+      ['Service',order.service],['Delivery date',deliveryDate(order.delivery_date)],['Package size',order.package_size],
+      ['Pickup address',order.pickup_address],['Delivery address',order.delivery_address],['Package details',order.package_details]
+    ],true);
+    let shipment=null;
+    try{const parsed=JSON.parse(order.shipment_json);if(parsed&&typeof parsed==='object'&&!Array.isArray(parsed))shipment=parsed;}catch{}
+    const pricingPanel=panel('Shipment & pricing details','d-box',[],true);
+    pricingPanel.querySelector('dl').remove();
+    const finite=value=>typeof value==='number'&&Number.isFinite(value)&&value>=0;
+    const money=value=>finite(value)?new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN',maximumFractionDigits:0}).format(value):'Not quoted';
+    if(shipment){
+      const grid=document.createElement('div');grid.className='order-price-grid';
+      const items=[['Packages',finite(shipment.packages)?String(shipment.packages):'Not supplied'],['Combined weight',finite(shipment.weight)?shipment.weight+' kg':'Not supplied'],['Road distance',finite(shipment.distanceKm)?shipment.distanceKm.toFixed(3)+' km':'Not calculated'],['Distance charge',money(shipment.distanceCharge)],['Weight charge',shipment.weightCharge===null?'Custom quote':money(shipment.weightCharge)],['Estimated total',shipment.total===null?'Custom quote':money(shipment.total)]];
+      for(const [label,value] of items){const card=document.createElement('div'),caption=document.createElement('span'),amount=document.createElement('strong');card.className='order-price-card';caption.textContent=label;amount.textContent=value;card.append(caption,amount);grid.append(card);}
+      pricingPanel.append(grid);
+      const note=document.createElement('p');note.className='order-pricing-note';
+      note.textContent=shipment.minimumApplied?'Minimum distance charge applied: '+money(shipment.rates?.minimum)+'. Weight charge is added separately.':'Price is subject to JAANA confirmation.';
+      if(shipment.rates&&finite(shipment.rates.perKm))note.textContent+=' Rate: '+money(shipment.rates.perKm)+' per km.';
+      pricingPanel.append(note);
+    }else{const note=document.createElement('p');note.className='order-pricing-note';note.textContent='No calculator details supplied. Confirm shipment information and pricing with the customer.';pricingPanel.append(note);}
+    panel('Booking record','d-clock',[['Received',dateTime(order.created_at)],['Last updated',dateTime(order.updated_at)]],true);
     fillOptions(byId('detail-status-select'), Object.entries(data.statuses)); byId('detail-status-select').value = order.status;
     byId('detail-history').replaceChildren();
     for (const event of data.events) {
@@ -160,7 +186,7 @@
     if (!token) return;
     const requestSession = sessionVersion, requestVersion = ++detailVersion;
     statusVersion++; currentOrder = null;
-    byId('detail-content').hidden = true; detailMessage.textContent = 'Loading booking details...';
+    byId('detail-content').hidden = true; byId('detail-status').replaceChildren(); detailMessage.textContent = 'Loading booking details...';
     if (!detailDialog.open) detailDialog.showModal();
     try {
       const data = await api('/api/admin/order?' + new URLSearchParams({ reference }));
@@ -201,7 +227,7 @@
   });
   const closeDetails = () => { detailVersion++; statusVersion++; currentOrder = null; if (detailDialog.open) detailDialog.close(); };
   byId('close-detail').addEventListener('click', closeDetails);
-  detailDialog.addEventListener('close', () => { if (detailDialog.open) return; detailVersion++; statusVersion++; currentOrder = null; byId('detail-content').hidden = true; byId('detail-fields').replaceChildren(); byId('detail-history').replaceChildren(); byId('detail-reference').value = ''; });
+  detailDialog.addEventListener('close', () => { if (detailDialog.open) return; detailVersion++; statusVersion++; currentOrder = null; byId('detail-content').hidden = true; byId('detail-fields').replaceChildren(); byId('detail-history').replaceChildren(); byId('detail-status').replaceChildren(); byId('detail-reference').value = ''; });
   login.addEventListener('submit', async event => {
     event.preventDefault(); if (byId('login-submit').disabled) return;
     sessionVersion++; loadVersion++;

@@ -1,6 +1,6 @@
 ﻿# JAANA Logistics
 
-JAANA Logistics company website with online delivery requests, customer status lookup, and a staff dashboard. The application uses HTML, CSS and JavaScript, Cloudflare Pages Functions, and a Cloudflare D1 database.
+JAANA Logistics company website with a dedicated delivery rate calculator, online delivery requests, customer status lookup, and a staff dashboard. The application uses HTML, CSS and JavaScript, Cloudflare Pages Functions, and a Cloudflare D1 database.
 
 Customers can request deliveries and save their booking references. Staff sign in with individual accounts to manage orders, while administrators manage staff access and review activity records.
 
@@ -8,7 +8,8 @@ Customers can request deliveries and save their booking references. Staff sign i
 
 ```text
 JAANA DELIVERY WEB PAGE/
-  index.html                   # Public landing page
+  index.html                   # Homepage and original booking dialog
+  calculator.html              # Separate delivery rate calculator
   favicon.ico
   README.md
   .gitignore
@@ -46,6 +47,27 @@ JAANA DELIVERY WEB PAGE/
 
 The landing page stays at the project root; customer-facing styles, scripts and images are grouped under assets/. Backend code, staff interface, database configuration, development dependencies, tests and backend setup instructions are grouped in `Jaana Backend`.
 
+## Customer pages and delivery pricing
+
+- `/index.html`: company homepage, services, contact information and delivery updates.
+- `/calculator.html`: shipment addresses, package count, combined weight, package size and delivery estimate. Homepage **Book a Delivery** and quotation links open this page.
+- **Continue to Booking** returns to `/index.html#booking` and opens the original booking template with the shipment details and estimate filled in. Package dimension fields are omitted from both forms.
+- `/admin.html`: secured staff dashboard. Administrators can select **Delivery pricing** to change the rate per kilometre and minimum distance charge.
+
+Default distance pricing is ?300 per kilometre with a ?2,000 minimum. The calculation is:
+
+`max(minimum distance charge, ceil(road kilometres ? rate per kilometre)) + weight charge`
+
+| Combined shipment weight | Additional charge |
+| --- | --- |
+| Up to 5 kg | ?0 |
+| Over 5?10 kg | ?500 |
+| Over 10?15 kg | ?1,000 |
+| Over 15?20 kg | ?1,500 |
+| Over 20 kg | Custom quotation required; automatic total stops |
+
+Geoapify geocodes Nigerian addresses and calculates driving road distance. Customers can inspect their route through a Google Maps link. Estimates use current administrator pricing, and the booking endpoint recalculates the route and price rather than trusting customer-submitted amounts. JAANA still confirms the final quote and availability. Contact buttons open the company WhatsApp at +2348038422591.
+
 ## Run locally
 
 Use Node.js 22.13 or newer (Node 24 recommended). In a terminal at the repository root:
@@ -55,6 +77,14 @@ Set-Location "Jaana Backend"
 npm.cmd install
 npm.cmd run db:local
 ```
+
+Configure the map service in `Jaana Backend/.dev.vars`. Create that file if it does not exist, or add this setting to the existing file while preserving other entries:
+
+```ini
+GEOAPIFY_API_KEY=your_actual_geoapify_key_here
+```
+
+Replace the placeholder with your actual Geoapify key. Keep it server-side; `.dev.vars` is ignored by Git. Restart the development server after changing secrets. Without a working key, automatic estimates show a setup or provider error; WhatsApp contact remains available. See [calculator setup](<Jaana Backend/docs/CALCULATOR-SETUP.md>).
 
 For a new local database, create the first administrator:
 
@@ -86,20 +116,22 @@ Follow [the backend setup guide](<Jaana Backend/docs/BACKEND-SETUP.md>). Confirm
 | Build command | npm run build |
 | Build output directory | dist |
 
-The backend build includes the landing page and assets/ from the parent folder. It maps dashboard/ source files to public staff asset URLs and copies configuration from public/. Live URLs remain `/api/bookings`, `/api/delivery-status`, `/api/admin/...` and `/admin.html`.
+Set `GEOAPIFY_API_KEY` as a Cloudflare Pages secret for each deployed environment that needs routing; the local `.dev.vars` file does not configure production. Apply all ordered migrations, including `0004_pricing.sql`, before using the calculator and pricing controls.
+
+The backend build includes the homepage, separate calculator page and assets/ from the parent folder. It maps dashboard/ source files to public staff asset URLs and copies configuration from public/. Live URLs remain `/api/bookings`, `/api/delivery-status`, `/api/admin/...` and `/admin.html`.
 
 Deploy only the generated `Jaana Backend/dist/` output with its Pages Functions. The source dashboard HTML belongs in `dashboard/`; its public URL remains `/admin.html`. Rebuild after changing source files and confirm HTTPS before accepting live bookings. Production database setup and deployment are separate actions; running the local development command does not publish the website.
 
 ## Booking and staff workflow
 
-Validated requests are saved in D1 with server-generated references and duplicate-request protection. Customers can copy the reference, check staff-maintained delivery status, or follow up on WhatsApp. Only the latest reference is stored in the browser; customer details are saved in D1. JAANA confirms availability, pricing and bookings. No automatic reservations, payments or GPS tracking are performed. Older WhatsApp-only references are not in the database. Quotations continue through WhatsApp without becoming saved orders.
+Validated requests are saved in D1 with server-generated references and duplicate-request protection. Customers can copy the reference, check staff-maintained delivery status, or follow up on WhatsApp. The latest reference is stored in browser local storage. Shipment details and the estimate are temporarily stored in session storage to transfer between the calculator and booking form; starting another booking clears that draft. Submitted customer details and shipment information are saved in D1. JAANA confirms availability, pricing and bookings. No automatic reservations, payments or GPS tracking are performed. Older WhatsApp-only references are not in the database. WhatsApp quotation messages do not become saved orders unless a booking request is submitted.
 
 The main navigation and website footer link to **Staff Dashboard**, which requires an individual staff account and a secure session cookie. The staff member's name, role and initials appear in the header. The responsive dashboard provides database totals, including cancelled orders, search by reference/customer/address, status/area/delivery-date filters, and pagination. Open an order to view full details, copy its reference, review its status history and save status updates with conflict checks and individual staff attribution. Signing out clears customer details and prevents old requests from changing a newer session.
 
 | Role | Access |
 | --- | --- |
 | Staff | Search and view all bookings, inspect order details, update delivery statuses and change their own password |
-| Administrator | Staff access plus account creation, account changes, deactivation, password resets and activity-log search |
+| Administrator | Staff access plus delivery pricing changes, account creation, account changes, deactivation, password resets and activity-log search |
 
 New staff receive a temporary password and must change it before accessing bookings. Password resets and account changes revoke previous sessions. Sessions expire after eight hours. Use HTTPS, keep staff access private and deactivate accounts when staff leave.
 
@@ -107,7 +139,7 @@ New staff receive a temporary password and must change it before accessing booki
 
 The staff dashboard includes a booking-notification bell, individual unread counts, notification history, pop-up alerts and optional sound. It polls every 15 seconds while visible and stops on sign-out. Staff can explicitly acknowledge a booking; its first acknowledgement records the staff name and time without changing delivery status or marking other staff's alerts as read. Apply migration `0003_notifications.sql` before using these features. See [the notification guide](<Jaana Backend/docs/NOTIFICATIONS.md>) for activation and behaviour.
 
-The backend records sign-ins, failed sign-in attempts, sign-outs, password changes, staff-account management, booking list/detail views and status changes. Administrators can search the log by staff, action or reference. Delivery updates include the previous/new status, staff identity and timestamp, displayed in West Africa Time.
+The backend records sign-ins, failed sign-in attempts, sign-outs, password changes, staff-account management, booking list/detail views, delivery pricing changes and status changes. Administrators can search the log by staff, action or reference. Delivery updates include the previous/new status, staff identity and timestamp, displayed in West Africa Time.
 
 Audit records cannot be edited or deleted through the dashboard, and database triggers reject updates and deletes. They do not reconstruct who performed historical shared-token actions or independently verify browser-only actions. Failed sign-ins identify the attempted account. Passwords and session tokens are excluded from audit details. See [the account and audit guide](<Jaana Backend/docs/STAFF-ACCOUNTS.md>) for security details and limitations.
 
@@ -143,4 +175,6 @@ npm.cmd test
 npm.cmd run build
 ```
 
-The backend tests cover SQL persistence, retries, references, validation, rate limits, staff authentication, public-data privacy, audit events and stale-update conflicts. The real Cloudflare local runtime and browser booking/staff/status workflow have also been tested. The public build excludes server code, database files and secrets.
+The backend suite covers SQL persistence, retries, references, validation, rate limits, staff authentication, public-data privacy, audit events, stale-update conflicts, administrator pricing permissions, weight tiers, shipment storage and mocked Geoapify geocoding/routing. Provider mocks verify metre-to-kilometre conversion and server-side recalculation of booking prices.
+
+The latest local verification passed all 31 backend tests and the production build, plus JavaScript syntax and page-structure checks. The revised calculator appearance and cross-page booking flow still need browser verification. A live Geoapify request requires a valid API key and is not verified by mocked tests. The public build excludes server code, database files and secrets.

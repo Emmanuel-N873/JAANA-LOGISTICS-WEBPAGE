@@ -1,4 +1,4 @@
-﻿(() => {
+(() => {
  'use strict';
  const menuToggle = document.querySelector('.menu-toggle');
  const navigation = document.querySelector('#main-nav');
@@ -117,8 +117,18 @@
      if (!bookingRequest || bookingRequest.fingerprint !== fingerprint) referencePanel.hidden = true;
      if (!bookingAttempt || bookingAttempt.fingerprint !== fingerprint) bookingAttempt = { fingerprint, key: crypto.randomUUID() };
      feedback.textContent = 'Saving your booking request...';
-     const result = await requestApi('/api/bookings', Object.fromEntries(fields), { 'Idempotency-Key': bookingAttempt.key });
+     const bookingData = {
+      ...Object.fromEntries(fields),
+      ...(window.jaanaBookingLocationTokens?.() || {})
+     };
+
+     const result = await requestApi(
+      '/api/bookings',
+      bookingData,
+      { 'Idempotency-Key': bookingAttempt.key }
+     );
      bookingRequest = { fingerprint, reference: result.reference };
+     window.dispatchEvent(new Event('jaana-booking-saved'));
      requestLines.push('Booking request reference: ' + bookingRequest.reference, '');
     }
     const message=['Hello JAANA Logistics,',form.dataset.request,'',...requestLines,...fields.map(([name,value]) => (labels[name] || name) + ': ' + String(value).trim())].join('\n');

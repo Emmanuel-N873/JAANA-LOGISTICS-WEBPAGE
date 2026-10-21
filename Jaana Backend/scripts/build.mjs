@@ -11,6 +11,7 @@ const pending = ['index.html', 'admin.html', '_routes.json', '_headers'];
 // Public URL -> private source location. Only explicitly mapped staff/config files are published.
 const backendAssets = new Map([
   ['admin.html', 'dashboard/admin.html'],
+  ['assets/js/admin-pricing.js', 'dashboard/js/admin-pricing.js'],
   ['assets/css/admin.css', 'dashboard/css/admin.css'],
   ['assets/js/admin.js', 'dashboard/js/admin.js'],
   ['assets/js/admin-accounts.js', 'dashboard/js/admin-accounts.js'],

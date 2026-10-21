@@ -1,4 +1,6 @@
-﻿import test from 'node:test';
+import { signLocation } from '../server/location-token.js';
+import { verifyLocation } from '../server/location-token.js';
+import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
 import { readFileSync } from 'node:fs';
@@ -22,6 +24,7 @@ function setup() {
   sqlite.exec(readFileSync(new URL('../migrations/0001_orders.sql', import.meta.url), 'utf8'));
   sqlite.exec(readFileSync(new URL('../migrations/0002_staff.sql', import.meta.url), 'utf8'));
   sqlite.exec(readFileSync(new URL('../migrations/0003_notifications.sql', import.meta.url), 'utf8'));
+  sqlite.exec(readFileSync(new URL('../migrations/0004_pricing.sql', import.meta.url), 'utf8'));
   const TEST_SESSION = 'a'.repeat(64);
   sqlite.prepare('INSERT INTO staff_users(id,name,email,role,password_hash,must_change_password,created_at) VALUES(?,?,?,?,?,0,?)').run('test-admin','Test Administrator','admin@jaana.example','admin','unused',new Date().toISOString());
   sqlite.prepare('INSERT INTO staff_sessions(token_hash,staff_id,user_version,expires_at,created_at) VALUES(?,?,?,?,?)').run(createHash('sha256').update(TEST_SESSION).digest('hex'),'test-admin',1,new Date(Date.now()+3600000).toISOString(),new Date().toISOString());
@@ -372,4 +375,198 @@ test('notification migration backfills existing bookings and is safe to reapply'
  await call(create,env,{data:order()});assert.equal(env.sqlite.prepare('SELECT COUNT(*) n FROM booking_notifications').get().n,0);
  const sql=readFileSync(new URL('../migrations/0003_notifications.sql',import.meta.url),'utf8');env.sqlite.exec(sql);env.sqlite.exec(sql);
  assert.equal(env.sqlite.prepare('SELECT COUNT(*) n FROM booking_notifications').get().n,1);env.sqlite.close();
+});
+import { onRequest as pricingEndpoint, estimate } from '../functions/api/pricing.js';
+import { onRequest as routeEndpoint } from '../functions/api/estimate.js';
+test('pricing changes require an administrator and persist with an audit record', async()=>{
+ const env=setup();
+ assert.deepEqual(await (await call(pricingEndpoint,env,{method:'GET'})).json(),{perKm:300,minimum:2000});
+ assert.equal((await call(pricingEndpoint,env,{method:'PUT',data:{perKm:400,minimum:2500}})).status,401);
+ env.sqlite.prepare("UPDATE staff_users SET role='staff' WHERE id='test-admin'").run();
+ assert.equal((await call(pricingEndpoint,env,{method:'PUT',token:env.TEST_SESSION,data:{perKm:400,minimum:2500}})).status,403);
+ env.sqlite.prepare("UPDATE staff_users SET role='admin' WHERE id='test-admin'").run();
+ assert.equal((await call(pricingEndpoint,env,{method:'PUT',token:env.TEST_SESSION,data:{perKm:-1,minimum:2500}})).status,400);
+ assert.equal((await call(pricingEndpoint,env,{method:'PUT',token:env.TEST_SESSION,data:{perKm:400,minimum:2500}})).status,200);
+ assert.deepEqual(await (await call(pricingEndpoint,env,{method:'GET'})).json(),{perKm:400,minimum:2500});
+ assert.equal(env.sqlite.prepare("SELECT COUNT(*) n FROM staff_audit WHERE action='pricing.updated'").get().n,1);env.sqlite.close();
+});
+test('estimate applies minimum, all weight boundaries, custom quotes and changed rates',()=>{
+ const r={perKm:300,minimum:2000};
+ for(const [w,charge] of [[5,0],[5.01,500],[10,500],[10.01,1000],[15,1000],[15.01,1500],[20,1500]]) assert.equal(estimate(1,w,r).total,2000+charge);
+ assert.equal(estimate(12,8,r).total,4100);assert.equal(estimate(12,20.01,r).total,null);
+ assert.equal(estimate(12,8,{perKm:400,minimum:2500}).total,5300);
+});
+test('route setup errors do not invent distances and shipment data persists without a quote',async()=>{
+ const env=setup();
+ assert.equal((await call(routeEndpoint,env,{data:{pickup:'Ikeja, Lagos',destination:'Lekki, Lagos',weight:8}})).status,503);
+ const response=await call(create,env,{data:{...order(),packages:'2',weight:'8',length:'30',width:'20',height:'10'}});
+ assert.equal(response.status,201);
+ assert.deepEqual(JSON.parse(env.sqlite.prepare('SELECT shipment_json FROM bookings').get().shipment_json),{packages:2,weight:8,length:30,width:20,height:10});env.sqlite.close();
+});
+test('route uses provider metres and booking recalculates rather than trusting customer prices', async () => {
+  const env = setup();
+  env.GEOAPIFY_API_KEY = 'test-key';
+  env.LOCATION_SIGNING_SECRET = 'test-location-signing-secret-at-least-32-characters';
+
+  const original = globalThis.fetch;
+  let routingCalls = 0;
+
+  globalThis.fetch = async (input) => {
+    const url = new URL(String(input));
+
+    if (url.pathname === '/v1/routing') {
+      routingCalls++;
+
+      return Response.json({
+        features: [{
+          properties: { distance: 12000 }
+        }]
+      });
+    }
+
+    throw new Error(`Unexpected API request: ${url.pathname}`);
+  };
+
+  try {
+    const pickup = 'Ikeja City Mall, Ikeja, Lagos, Nigeria';
+    const destination = 'Admiralty Way, Lekki, Lagos, Nigeria';
+
+    const pickupToken = await signLocation(env, {
+      label: pickup,
+      lat: 6.6018,
+      lon: 3.3515
+    });
+
+    const destinationToken = await signLocation(env, {
+      label: destination,
+      lat: 6.4474,
+      lon: 3.4722
+    });
+
+    const response = await call(routeEndpoint, env, {
+      data: {
+        pickup,
+        destination,
+        pickupToken,
+        destinationToken,
+        weight: 8
+      }
+    });
+
+    assert.equal(response.status, 200);
+
+    const result = await response.json();
+
+    assert.equal(result.distanceKm, 12);
+    assert.equal(result.total, 4100);
+
+    const booking = await call(create, env, {
+      data: {
+        ...order(),
+        pickup,
+        destination,
+        pickupToken,
+        destinationToken,
+        packages: '2',
+        weight: '8',
+        distanceKm: '1',
+        estimateSummary: '?1'
+      }
+    });
+
+    assert.equal(booking.status, 201);
+
+    const saved = JSON.parse(
+      env.sqlite.prepare(
+        'SELECT shipment_json FROM bookings'
+      ).get().shipment_json
+    );
+
+    assert.equal(saved.distanceKm, 12);
+    assert.equal(saved.total, 4100);
+    assert.equal(routingCalls, 2);
+
+  } finally {
+    globalThis.fetch = original;
+    env.sqlite.close();
+  }
+});
+
+test('signed location tokens reject tampering, mismatched addresses and expiration', async () => {
+  const env = {
+    LOCATION_SIGNING_SECRET:
+      'test-location-signing-secret-at-least-32-characters'
+  };
+
+  const location = {
+    label: 'Ikeja City Mall, Ikeja, Lagos, Nigeria',
+    lat: 6.6018,
+    lon: 3.3515
+  };
+
+  const token = await signLocation(env, location);
+
+  // 1. A valid signed token must be accepted.
+  const verified = await verifyLocation(
+    env,
+    token,
+    location.label
+  );
+
+  assert.deepEqual(verified, {
+    lat: location.lat,
+    lon: location.lon
+  });
+
+  // 2. Changing the signed payload must invalidate the signature.
+  const [payload, signature] = token.split('.');
+
+  const tamperedPayload =
+    (payload[0] === 'A' ? 'B' : 'A') + payload.slice(1);
+
+  await assert.rejects(
+    verifyLocation(
+      env,
+      `${tamperedPayload}.${signature}`,
+      location.label
+    ),
+    { status: 400 }
+  );
+
+  // 3. A different address cannot reuse the original token.
+  await assert.rejects(
+    verifyLocation(
+      env,
+      token,
+      'Different delivery address'
+    ),
+    { status: 400 }
+  );
+
+  // 4. A token signed with another secret must be rejected.
+  await assert.rejects(
+    verifyLocation(
+      {
+        LOCATION_SIGNING_SECRET:
+          'another-test-location-secret-at-least-32-characters'
+      },
+      token,
+      location.label
+    ),
+    { status: 400 }
+  );
+
+  // 5. An expired token must be rejected.
+  const originalNow = Date.now;
+
+  try {
+    Date.now = () => originalNow() + 16 * 60 * 1000;
+
+    await assert.rejects(
+      verifyLocation(env, token, location.label),
+      { status: 400 }
+    );
+  } finally {
+    Date.now = originalNow;
+  }
 });

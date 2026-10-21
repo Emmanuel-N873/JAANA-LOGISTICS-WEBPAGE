@@ -1,22 +1,22 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="JAANA Logistics provides document, e-commerce, food and business delivery across Lagos.">
     <meta name="theme-color" content="#002659">
-    <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48 256x256">
-    <link rel="icon" type="assets/images/png" sizes="32x32" href="assets/images/favicon-32.png">
-    <link rel="icon" type="assets/images/png" sizes="16x16" href="assets/images/favicon-16.png">
+    
+    
+    
     <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
     <title>
       JAANA Logistics — Fast, Reliable, Trusted Delivery
     </title>
     <link rel="stylesheet" href="assets/css/design-system.css">
     <link rel="stylesheet" href="assets/css/styles.css">
-    <script src="assets/js/script.js" defer>
+    <link rel="stylesheet" href="assets/css/calculator.css"><script src="assets/js/booking-transfer.js" defer></script><script src="assets/js/script.js" defer>
     </script>
-  </head>
+  <link rel="icon" type="image/svg+xml" href="assets/images/favicon-mascot.svg"></head>
   <body>
     <a class="skip-link" href="#main">
       Skip to content
@@ -115,12 +115,12 @@
             Staff Dashboard
           </a>
         </nav>
-        <button class="button button-blue header-book" type="button" data-dialog="booking-dialog">
+        <a class="button button-blue header-book" href="calculator.html">
           Book a Delivery
           <svg class="icon" aria-hidden="true">
             <use href="#i-arrow"/>
           </svg>
-        </button>
+        </a>
       </div>
     </header>
     <main id="main">
@@ -142,7 +142,7 @@
               JAANA Logistics provides safe, affordable and efficient delivery solutions for individuals and businesses across Lagos and beyond.
             </p>
             <div class="hero-actions">
-              <button class="button button-yellow" type="button" data-dialog="booking-dialog">
+              <a class="button button-yellow" href="calculator.html">
                 <svg class="icon" aria-hidden="true">
                   <use href="#i-truck"/>
                 </svg>
@@ -150,7 +150,7 @@
                 <svg class="icon" aria-hidden="true">
                   <use href="#i-arrow"/>
                 </svg>
-              </button>
+              </a>
               <button class="button button-outline" type="button" data-dialog="tracking-dialog">
                 <svg class="icon" aria-hidden="true">
                   <use href="#i-pin"/>
@@ -511,9 +511,9 @@
             <div class="phone-frame"><div class="phone-screen">
               <span class="brand-art" role="img" aria-label="JAANA Delivery Services"></span>
               <p>Fast. Reliable.<br>Trusted Delivery.</p>
-              <button type="button" data-dialog="booking-dialog">Book a Delivery</button>
+              <a href="calculator.html">Book a Delivery</a>
               <button type="button" data-dialog="tracking-dialog">Delivery Updates</button>
-              <button type="button" data-dialog="quote-dialog">Get a Quote</button>
+              <a href="calculator.html">Get a Quote</a>
             </div></div><p class="phone-slogan">Easy.<br>Fast.<br>Reliable.</p>
           </div>
         </div>
@@ -589,17 +589,18 @@
               <p>
                 Contact us for special arrangements.
               </p>
-              <button class="button button-blue button-small" type="button" data-dialog="quote-dialog">
+              <a class="button button-blue button-small" href="calculator.html">
                 Get a Quote
                 <svg class="icon" aria-hidden="true">
                   <use href="#i-arrow"/>
                 </svg>
-              </button>
+              </a>
             </div>
           </div>
         </div>
       </section>
-    </main>
+
+</main>
     <footer class="site-footer" id="contact">
       <div class="container">
         <div class="footer-grid">
@@ -677,7 +678,7 @@
               </li>
             </ul>
           </div>
-          <div class="footer-col footer-contact">
+          <div class="footer-col footer-contact"><div class="footer-contact-details">
             <h3>
               Contact Us
             </h3>
@@ -710,7 +711,7 @@
                   Isheri-Osun, Lagos 102214.
                 </span>
               </a>
-            </address>
+            </address></div>
             <p class="business-hours"><strong>Working hours</strong><br>Monday&ndash;Saturday<br>9:00am&ndash;5:00pm (WAT)</p>
           </div>
           <div class="footer-col footer-social">
@@ -808,7 +809,7 @@
         </div>
       </section>
       <form data-request="Delivery booking">
-        <label>Service type<select name="service" required><option value="" selected disabled>Choose a service</option><option>Document Delivery</option><option>E-commerce Delivery</option><option>Food Delivery</option><option>Bulk &amp; Business Delivery</option><option>Custom Logistics Solutions</option></select></label>
+        <fieldset class="booking-shipment"><legend>Shipment and estimate</legend><div class="rate-fields"><label>Number of packages<input name="packages" type="number" min="1" max="10000" step="1" value="1" required></label><label>Combined weight (kg)<input name="weight" type="number" min="0.01" max="10000" step="0.01" value="1" required></label></div><label>Road distance (km)<input name="distanceKm" readonly></label><label>Price breakdown and estimate<textarea name="estimateSummary" readonly rows="4"></textarea></label><p id="booking-shipment-help">Details transferred from the delivery calculator are locked. Click a locked field or use Return to calculator to make adjustments.</p><a href="calculator.html" id="booking-recalculate">Return to calculator</a></fieldset><label>Service type<select name="service" required><option value="" selected disabled>Choose a service</option><option>Document Delivery</option><option>E-commerce Delivery</option><option>Food Delivery</option><option>Bulk &amp; Business Delivery</option><option>Custom Logistics Solutions</option></select></label>
         <label>Preferred delivery date<input name="date" type="date" required aria-describedby="booking-availability"></label>
         <p id="booking-availability" class="form-note">Our team will confirm availability, pickup timing and pricing before confirming your booking. Working hours: Monday&ndash;Saturday, 9:00am&ndash;5:00pm (WAT).</p>
         <label>Recipient name<input name="recipient" autocomplete="off" required maxlength="100"></label>
