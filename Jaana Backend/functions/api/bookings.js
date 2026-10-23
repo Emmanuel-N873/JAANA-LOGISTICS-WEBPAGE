@@ -15,10 +15,6 @@ export async function onRequest(context) {
     }
     if (!services.includes(order.service) || !sizes.includes(order.size)) throw new HttpError(400, 'Choose a valid service and package size.');
     for (const phone of [order.phone, order.recipientPhone]) if (!/^\+?[0-9][0-9\s]{6,28}$/.test(phone)) throw new HttpError(400, 'Please provide valid phone numbers.');
-    const date = new Date(`${order.date}T12:00:00Z`);
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(order.date) || !Number.isFinite(date.getTime()) || date.toISOString().slice(0, 10) !== order.date || order.date < lagosToday() || date.getUTCDay() === 0) {
-      throw new HttpError(400, 'Choose today or a future date, Monday to Saturday.');
-    }
     let shipment = null;
     if (data.weight || data.packages) {
       shipment = {};
@@ -29,6 +25,29 @@ export async function onRequest(context) {
         shipment[field] = value;
       }
       if (!shipment.packages || !shipment.weight) throw new HttpError(400, 'Enter package count and combined weight.');
+    }
+    // The request identity excludes provider results, prices and expiring proof tokens.
+    const requestHash = await hash(JSON.stringify({ ...order, ...(shipment ? { shipment } : {}) }));
+    const previous = await context.env.DB.prepare('SELECT * FROM bookings WHERE idempotency_key=?').bind(key).first();
+    const matchesSaved = async saved => {
+      if (saved.request_hash) return saved.request_hash === requestHash;
+      // Requests made before migration 0005 still have a safe retry path.
+      const oldOrder = {};
+      const columns = {name:'customer_name',phone:'customer_phone',service:'service',date:'delivery_date',recipient:'recipient_name',recipientPhone:'recipient_phone',size:'package_size',pickup:'pickup_address',destination:'delivery_address',package:'package_details'};
+      for(const [name,column] of Object.entries(columns))oldOrder[name]=saved[column];
+      let oldShipment=null;
+      if(saved.shipment_json){oldShipment={};const parsed=JSON.parse(saved.shipment_json);for(const field of ['packages','weight','length','width','height'])if(parsed[field])oldShipment[field]=parsed[field];}
+      return await hash(JSON.stringify({...oldOrder,...(oldShipment?{shipment:oldShipment}:{})}))===requestHash;
+    };
+    if(previous){
+      if(!await matchesSaved(previous))throw new HttpError(409,'This request key was already used for different booking details.');
+      return json({reference:previous.reference,status:previous.status,createdAt:previous.created_at});
+    }
+    const date = new Date(`${order.date}T12:00:00Z`);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(order.date) || !Number.isFinite(date.getTime()) || date.toISOString().slice(0, 10) !== order.date || order.date < lagosToday() || date.getUTCDay() === 0) {
+      throw new HttpError(400, 'Choose today or a future date, Monday to Saturday.');
+    }
+    if(shipment){
       const hasPickupToken = typeof data.pickupToken === 'string'
         && data.pickupToken.length > 0;
 
@@ -64,12 +83,12 @@ export async function onRequest(context) {
     const reference = `JAANA-${lagosToday().replaceAll('-', '')}-${bytes.match(/.{6}/g).join('-')}`;
     const now = new Date().toISOString();
     await context.env.DB.batch([
-      context.env.DB.prepare(`INSERT INTO bookings(reference,idempotency_key,payload_hash,customer_name,customer_phone,service,delivery_date,recipient_name,recipient_phone,package_size,pickup_address,delivery_address,package_details,created_at,updated_at,shipment_json)
-        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(idempotency_key) DO NOTHING`).bind(reference, key, digest, order.name, order.phone, order.service, order.date, order.recipient, order.recipientPhone, order.size, order.pickup, order.destination, order.package, now, now, shipment ? JSON.stringify(shipment) : null),
+      context.env.DB.prepare(`INSERT INTO bookings(reference,idempotency_key,payload_hash,customer_name,customer_phone,service,delivery_date,recipient_name,recipient_phone,package_size,pickup_address,delivery_address,package_details,created_at,updated_at,shipment_json,request_hash)
+        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(idempotency_key) DO NOTHING`).bind(reference, key, digest, order.name, order.phone, order.service, order.date, order.recipient, order.recipientPhone, order.size, order.pickup, order.destination, order.package, now, now, shipment ? JSON.stringify(shipment) : null, requestHash),
       context.env.DB.prepare(`INSERT INTO booking_events(id,reference,status,created_at) SELECT reference||':created',reference,'requested',created_at FROM bookings WHERE idempotency_key=? ON CONFLICT(id) DO NOTHING`).bind(key)
     ]);
-    const saved = await context.env.DB.prepare('SELECT reference,payload_hash,status,created_at FROM bookings WHERE idempotency_key=?').bind(key).first();
-    if (saved.payload_hash !== digest) throw new HttpError(409, 'This request key was already used for different booking details.');
+    const saved = await context.env.DB.prepare('SELECT * FROM bookings WHERE idempotency_key=?').bind(key).first();
+    if (!await matchesSaved(saved)) throw new HttpError(409, 'This request key was already used for different booking details.');
     return json({ reference: saved.reference, status: saved.status, createdAt: saved.created_at }, saved.reference === reference ? 201 : 200);
   });
 }

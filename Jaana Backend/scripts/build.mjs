@@ -7,10 +7,13 @@ const output = path.resolve(backend, 'dist');
 if (path.dirname(output) !== backend || path.basename(output) !== 'dist') throw new Error('Unsafe output path');
 // Rebuild only the verified generated-output directory, never the source tree.
 await rm(output, { recursive: true, force: true });
-const pending = ['index.html', 'admin.html', '_routes.json', '_headers'];
+const pending = ['index.html', 'admin.html', '404.html', 'google951b51027c7a799d.html', '_routes.json', '_headers'];
 // Public URL -> private source location. Only explicitly mapped staff/config files are published.
 const backendAssets = new Map([
   ['admin.html', 'dashboard/admin.html'],
+  ['404.html', 'public/404.html'],
+  ['google951b51027c7a799d.html', 'public/google951b51027c7a799d.html'],
+  ['assets/js/admin-mfa.js', 'dashboard/js/admin-mfa.js'],
   ['assets/js/admin-pricing.js', 'dashboard/js/admin-pricing.js'],
   ['assets/css/admin.css', 'dashboard/css/admin.css'],
   ['assets/js/admin.js', 'dashboard/js/admin.js'],

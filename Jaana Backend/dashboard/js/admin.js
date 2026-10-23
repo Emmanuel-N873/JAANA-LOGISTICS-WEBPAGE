@@ -36,7 +36,7 @@
     byId('staff-initials').textContent = user ? user.name.split(/\s+/).map(part => part[0]).slice(0,2).join('').toUpperCase() : 'JA';
     byId('welcome-name').textContent = user?.name || 'JAANA team';
     byId('account-settings').hidden = !user;
-    byId('manage-staff').hidden = !user || user.role !== 'admin' || user.mustChangePassword;
+    byId('manage-staff').hidden = !user || user.role !== 'admin' || user.mustChangePassword || user.mustEnrollMfa;
     byId('view-activity').hidden = !user || user.role !== 'admin' || user.mustChangePassword;
     window.dispatchEvent(new CustomEvent('staff-session', { detail: user }));
   };
@@ -232,14 +232,15 @@
     event.preventDefault(); if (byId('login-submit').disabled) return;
     sessionVersion++; loadVersion++;
     const requestSession = sessionVersion;
-    const email = byId('staff-email').value, password = byId('staff-password').value;
+    const email = byId('staff-email').value, password = byId('staff-password').value, code=byId('staff-code').value.trim();
+    byId('staff-code').value='';
     byId('staff-password').value = ''; byId('login-submit').disabled = true;
     try {
-      const data = await api('/api/staff?action=login', { method: 'POST', body: JSON.stringify({ email, password }) });
+      const data = await api('/api/staff?action=login', { method: 'POST', body: JSON.stringify({ email, password, code }) });
       if (sessionVersion !== requestSession) return;
       setIdentity(data.user); login.reset(); page = 1;
       byId('logout').hidden = false; byId('login-panel').hidden = true;
-      if (data.user.mustChangePassword) { message.textContent = 'Change your temporary password to continue.'; return; }
+      if (data.user.mustChangePassword || data.user.mustEnrollMfa) { message.textContent = data.user.mustChangePassword?'Change your temporary password to continue.':'Set up your authenticator to continue.'; return; }
       await load({ replace: true });
     } catch (error) { if (!token) message.textContent = errorText(error); }
     finally { byId('login-submit').disabled = false; }
@@ -278,7 +279,7 @@
       const data = await response.json();
       if (sessionVersion !== requestSession) return;
       setIdentity(data.user); byId('login-panel').hidden = true; byId('logout').hidden = false;
-      if (!data.user.mustChangePassword) await load({ replace:true });
+      if (!data.user.mustChangePassword&&!data.user.mustEnrollMfa) await load({ replace:true });
     } catch { /* Sign-in remains available when session restoration fails. */ }
     finally { if (sessionVersion === requestSession) byId('login-submit').disabled = false; }
   }, 0);

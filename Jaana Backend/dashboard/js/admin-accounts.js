@@ -40,10 +40,11 @@
     field(form,'Account active','checkbox','active',account.active);
     const password=field(form,'New temporary password (for reset only)','password','password');
     const actions=node('div');actions.className='account-actions';
-    for(const [value,label] of [['update','Save account'],['reset','Reset password']]){const button=node('button',label);button.type='submit';button.value=value;button.className='pager-button';actions.append(button);}
+    for(const [value,label] of [['update','Save account'],['reset','Reset password'],['resetMfa','Reset authenticator']]){const button=node('button',label);button.type='submit';button.value=value;button.className='pager-button';actions.append(button);}
     form.append(actions);form.addEventListener('submit',async event=>{
      event.preventDefault();const requestGeneration=generation,action=event.submitter.value;const buttons=[...form.querySelectorAll('button')];if(buttons.some(b=>b.disabled))return;
      const payload={action,id:account.id,version:account.version,name:form.elements.name.value,role:role.value,active:form.elements.active.checked};
+     if(action==='resetMfa'){const reason=prompt('After independently verifying this staff member?s identity, record the verification method. This revokes sessions and removes the authenticator.');if(!reason||reason.trim().length<12)return;payload.reason=reason.trim();}
      if(action==='reset'){if(password.value.length<14){$('accounts-message').textContent='Enter a temporary password of at least 14 characters.';password.focus();return;}payload.password=password.value;}
      buttons.forEach(b=>b.disabled=true);password.value='';
      try {

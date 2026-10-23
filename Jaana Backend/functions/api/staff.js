@@ -1,3 +1,4 @@
+import { verifySecondFactor } from '../../server/mfa.js';
 ﻿import { endpoint, body, text, rateLimit, json, HttpError, hash } from '../../server/common.js';
 import { requireStaff, safeUser, passwordValue, passwordHash, verifyPassword, emailValue, audit, auditStatement, sessionHash, sessionCookie } from '../../server/staff-auth.js';
 
@@ -14,7 +15,7 @@ export async function onRequest(context) {
     if(action==='login') {
       await rateLimit(context,'staff-login',10,900);
       const email=emailValue(data.email), password=typeof data.password==='string'&&data.password.length<=128?data.password:'';
-      const accountContext={...context,request:new Request(context.request.url,{headers:{'CF-Connecting-IP':email}})};
+      const accountContext={...context,request:new Request(context.request.url,{headers:{'CF-Connecting-IP':email+':'+(context.request.headers.get('CF-Connecting-IP')||'local-development')}})};
       await rateLimit(accountContext,'staff-login-account',10,900);
       const user=await context.env.DB.prepare('SELECT * FROM staff_users WHERE email=?').bind(email).first();
       const dummy='pbkdf2-sha256$100000$00000000000000000000000000000000$'+'0'.repeat(64);
@@ -23,6 +24,8 @@ export async function onRequest(context) {
         await audit(context,user,'auth.login_failed',user?.id||'',{attemptedEmail:email});
         throw new HttpError(401,'Email or password is incorrect.');
       }
+      if(user.mfa_secret)await verifySecondFactor(context,user,data.code);
+      user.must_enroll_mfa=context.env.REQUIRE_STAFF_MFA==='true'&&!user.mfa_secret;
       const token=[...crypto.getRandomValues(new Uint8Array(32))].map(v=>v.toString(16).padStart(2,'0')).join('');
       const now=new Date().toISOString(), expires=new Date(Date.now()+28800000).toISOString();
       const cookie=sessionCookie(context,token);

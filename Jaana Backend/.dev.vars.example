@@ -1,6 +1,15 @@
-﻿# Staff sign-in now uses individual accounts stored in D1.
-# ADMIN_API_TOKEN is no longer used. See docs/STAFF-ACCOUNTS.md.
-# Keep any future local-only secrets in .dev.vars; never commit them.
+﻿# Server-only secrets. Copy placeholders into untracked .dev.vars and replace them.
+# Never commit actual secret values.
+GEOAPIFY_API_KEY=replace-with-your-geoapify-key
+LOCATION_SIGNING_SECRET=replace-with-a-random-secret-at-least-32-characters
+MFA_ENCRYPTION_KEY=replace-with-a-different-random-secret-at-least-32-characters
 
-# Server-only key: enable Google Maps Platform Routes API with billing.
-# GOOGLE_MAPS_API_KEY=
+# Require all staff to enroll before accessing protected data. Enable after configuring
+# MFA_ENCRYPTION_KEY and applying migrations; existing staff can still enroll/sign out.
+REQUIRE_STAFF_MFA=false
+
+# Application-wide maximum upstream autocomplete calls per UTC day (all visitor IPs).
+LOCATION_DAILY_LIMIT=1000
+ROUTING_DAILY_LIMIT=1000
+# Leave caching disabled unless your Geoapify agreement permits it. Maximum 300 seconds.
+LOCATION_CACHE_SECONDS=0

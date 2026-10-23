@@ -1,7 +1,7 @@
 ﻿import { HttpError, hash } from './common.js';
 const encoder = new TextEncoder();
 export const COOKIE = 'jaana_staff';
-export const safeUser = user => ({ id:user.id, name:user.name, email:user.email, role:user.role, active:!!user.active, mustChangePassword:!!user.must_change_password, version:user.version });
+export const safeUser = user => ({ id:user.id, name:user.name, email:user.email, role:user.role, active:!!user.active, mustChangePassword:!!user.must_change_password, version:user.version, mfaEnabled:!!user.mfa_secret, mustEnrollMfa:!!user.must_enroll_mfa });
 const hex = bytes => [...new Uint8Array(bytes)].map(b=>b.toString(16).padStart(2,'0')).join('');
 export function passwordValue(value) {
   if (typeof value !== 'string' || value.length < 14 || value.length > 128) throw new HttpError(400,'Use a password of 14 to 128 characters.');
@@ -48,6 +48,8 @@ export async function requireStaff(context, adminOnly=false, allowPasswordChange
   if(!user) throw new HttpError(401,'Your session has expired. Please sign in again.');
   if(adminOnly&&user.role!=='admin') { await audit(context,user,'access.denied',new URL(context.request.url).pathname); throw new HttpError(403,'Administrator access is required.'); }
   if(user.must_change_password&&!allowPasswordChange) throw new HttpError(403,'Change your temporary password before continuing.');
+  user.must_enroll_mfa=context.env.REQUIRE_STAFF_MFA==='true'&&!user.mfa_secret;
+  if(user.must_enroll_mfa&&!allowPasswordChange)throw new HttpError(403,'Set up an authenticator before accessing bookings.');
   context.staff=user;
   return user;
 }

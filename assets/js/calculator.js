@@ -17,6 +17,8 @@
   let controller;
   let activeIndex = -1;
   let suggestions = [];
+  let generation = 0;
+  let blurTimer;
 
   function close() {
     list.hidden = true;
@@ -35,6 +37,8 @@
     }
 
     clearTimeout(searchTimer);
+    clearTimeout(blurTimer);
+    generation++;
     controller?.abort();
 
     // Display the selected address.
@@ -72,6 +76,8 @@
 
   input.addEventListener('input', () => {
     selectedLocations[name] = null;
+    generation++;
+    clearTimeout(blurTimer);
 
     clearTimeout(searchTimer);
     controller?.abort();
@@ -79,6 +85,8 @@
 
     const query = input.value.trim();
     if (query.length < 3) return;
+    if(query.length>150){$('rate-feedback').textContent='Use an address search of at most 150 characters.';return;}
+    const searchVersion=generation;
 
     searchTimer = setTimeout(async () => {
       controller = new AbortController();
@@ -90,12 +98,11 @@
           { signal: requestController.signal }
         );
 
-        if (!response.ok) return;
-
         const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Address suggestions are unavailable. Please retry.');
 
         // Ignore responses for an address that has since changed.
-        if (requestController.signal.aborted ||
+        if (searchVersion!==generation || document.activeElement!==input || requestController.signal.aborted ||
             input.value.trim() !== query) return;
 
         suggestions = Array.isArray(data.suggestions)
@@ -125,12 +132,13 @@
         });
 
         list.hidden = suggestions.length === 0;
+        if(!suggestions.length)$('rate-feedback').textContent='No matching addresses found. Try a street, landmark, area and city.';
         input.setAttribute(
           'aria-expanded',
           String(suggestions.length > 0)
         );
       } catch (error) {
-        if (error.name !== 'AbortError') close();
+        if(error.name!=='AbortError'&&searchVersion===generation&&document.activeElement===input){close();$('rate-feedback').textContent=error.message||'Address suggestions are unavailable. Please retry.';}
       }
     }, 400);
   });
@@ -148,15 +156,17 @@
       event.preventDefault();
       selectSuggestion(activeIndex);
     } else if (event.key === 'Escape') {
-      close();
+      clearTimeout(searchTimer);controller?.abort();generation++;close();
     }
   });
 
   input.addEventListener('blur', () => {
-    setTimeout(close, 150);
+    clearTimeout(searchTimer);controller?.abort();generation++;
+    blurTimer=setTimeout(close,150);
   });
 
   form.addEventListener('reset', () => {
+    selectedLocations[name]=null;generation++;clearTimeout(blurTimer);
     clearTimeout(searchTimer);
     controller?.abort();
     close();
@@ -175,9 +185,10 @@
  function rates(r){document.querySelectorAll('[data-per-km]').forEach(e=>e.textContent=money(r.perKm));document.querySelectorAll('[data-minimum]').forEach(e=>e.textContent=money(r.minimum));$('rate-formula').textContent=`Total = higher of ${money(r.minimum)} or (road distance × ${money(r.perKm)}), plus weight charge.`;}
  rates({perKm:300,minimum:2000});
  fetch('/api/pricing',{cache:'no-store'}).then(async r=>{if(!r.ok)throw Error();rates(await r.json());}).catch(()=>{$('rate-feedback').textContent='Displayed rates are defaults. Current pricing will be checked when you calculate.';});
- function invalidate(){version++;quote=null;$('continue-booking').disabled=true;for(const id of ['road-distance','distance-charge','weight-charge','rate-total'])$(id).textContent='—';$('minimum-row').hidden=true;$('route-map').hidden=true;}
+ function invalidate(){$('rate-contact').href='https://wa.me/2348038422591';version++;quote=null;$('continue-booking').disabled=true;for(const id of ['road-distance','distance-charge','weight-charge','rate-total'])$(id).textContent='—';$('minimum-row').hidden=true;$('route-map').hidden=true;}
  async function calculate(){
   if(!form.reportValidity())return;
+  if(!selectedLocations.pickup?.token||!selectedLocations.destination?.token){$('rate-feedback').textContent='Please select both addresses from the suggestions before calculating.';return;}
   const current=++version;quote=null;$('continue-booking').disabled=true;
   $('rate-feedback').textContent='Finding your road route and current pricing…';
   try{
@@ -209,6 +220,11 @@
   catch{$('rate-feedback').textContent='Please enable session storage in your browser to carry shipment details to booking.';}
  });
  try{const draft=JSON.parse(sessionStorage.getItem('jaana.shipmentDraft.v1')||'null');if(draft?.fields)for(const [name,value] of Object.entries(draft.fields))if(form.elements[name])form.elements[name].value=value;}catch{}
+ $('rate-contact').addEventListener('click',()=>{
+  const data=payload();
+  const lines=Object.entries(data).filter(([name])=>!['pickupToken','destinationToken'].includes(name)).map(([name,value])=>name+': '+value);
+  $('rate-contact').href='https://wa.me/2348038422591?text='+encodeURIComponent('Hello JAANA Logistics, please quote for my shipment.\n'+lines.join('\n')+(quote?'\n'+summary(quote):''));
+ });
  setupAddressAutocomplete('pickup');
  setupAddressAutocomplete('destination');
  updateCustomQuotation();

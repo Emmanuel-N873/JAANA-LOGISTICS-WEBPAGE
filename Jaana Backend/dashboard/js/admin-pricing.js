@@ -1,7 +1,7 @@
 ﻿(() => {
  const button=document.getElementById('manage-pricing'), dialog=document.getElementById('pricing-dialog'), form=document.getElementById('pricing-form'), message=document.getElementById('pricing-message');
  let session=0;
- window.addEventListener('staff-session',event=>{session++;button.hidden=!(event.detail?.role==='admin'&&!event.detail.mustChangePassword);if(button.hidden)dialog.close();});
+ window.addEventListener('staff-session',event=>{session++;button.hidden=!(event.detail?.role==='admin'&&!event.detail.mustChangePassword&&!event.detail.mustEnrollMfa);if(button.hidden)dialog.close();});
  async function api(options={}){const r=await fetch('/api/pricing',{...options,credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(15000)});const d=await r.json();if(!r.ok)throw Error(d.error||'Pricing request failed.');return d;}
  button.addEventListener('click',async()=>{dialog.showModal();message.textContent='Loading current rates…';form.hidden=true;const current=session;try{const d=await api();if(current!==session)return;form.elements.perKm.value=d.perKm;form.elements.minimum.value=d.minimum;form.hidden=false;message.textContent='';}catch(e){message.textContent=e.message;}});
  document.getElementById('close-pricing').addEventListener('click',()=>dialog.close());

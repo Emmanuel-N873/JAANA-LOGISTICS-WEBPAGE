@@ -4,6 +4,10 @@ JAANA Logistics company website with a dedicated delivery rate calculator, onlin
 
 Customers can request deliveries and save their booking references. Staff sign in with individual accounts to manage orders, while administrators manage staff access and review activity records.
 
+## Reliability and security updates
+
+See [the rollout and recovery guide](<Jaana Backend/docs/RELIABILITY-SECURITY.md>) before deploying migrations 0005 and 0006. It covers the authoritative `wrangler.jsonc` configuration, required signing/encryption secrets, MFA activation, staff recovery, provider budgets, search changes, security headers and staging verification.
+
 ## Project layout
 
 ```text
@@ -82,6 +86,8 @@ Configure the map service in `Jaana Backend/.dev.vars`. Create that file if it d
 
 ```ini
 GEOAPIFY_API_KEY=your_actual_geoapify_key_here
+LOCATION_SIGNING_SECRET=replace-with-an-independent-random-secret-of-at-least-32-characters
+MFA_ENCRYPTION_KEY=replace-with-another-random-secret-of-at-least-32-characters
 ```
 
 Replace the placeholder with your actual Geoapify key. Keep it server-side; `.dev.vars` is ignored by Git. Restart the development server after changing secrets. Without a working key, automatic estimates show a setup or provider error; WhatsApp contact remains available. See [calculator setup](<Jaana Backend/docs/CALCULATOR-SETUP.md>).
@@ -131,7 +137,7 @@ The main navigation and website footer link to **Staff Dashboard**, which requir
 | Role | Access |
 | --- | --- |
 | Staff | Search and view all bookings, inspect order details, update delivery statuses and change their own password |
-| Administrator | Staff access plus delivery pricing changes, account creation, account changes, deactivation, password resets and activity-log search |
+| Administrator | Staff access plus delivery pricing changes, account creation, account changes, deactivation, password and authenticator recovery, and activity-log search |
 
 New staff receive a temporary password and must change it before accessing bookings. Password resets and account changes revoke previous sessions. Sessions expire after eight hours. Use HTTPS, keep staff access private and deactivate accounts when staff leave.
 
@@ -177,4 +183,4 @@ npm.cmd run build
 
 The backend suite covers SQL persistence, retries, references, validation, rate limits, staff authentication, public-data privacy, audit events, stale-update conflicts, administrator pricing permissions, weight tiers, shipment storage and mocked Geoapify geocoding/routing. Provider mocks verify metre-to-kilometre conversion and server-side recalculation of booking prices.
 
-The latest local verification passed all 31 backend tests and the production build, plus JavaScript syntax and page-structure checks. The revised calculator appearance and cross-page booking flow still need browser verification. A live Geoapify request requires a valid API key and is not verified by mocked tests. The public build excludes server code, database files and secrets.
+Run the test suite for current results. Regression coverage now includes saved-booking retries after token expiry/pricing changes, MFA/recovery, and frontend autocomplete behavior. The revised calculator appearance and cross-page booking flow still need browser verification. A live Geoapify request requires a valid API key and is not verified by mocked tests. The public build excludes server code, database files and secrets.

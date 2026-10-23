@@ -114,6 +114,10 @@ export async function route(
   url.searchParams.set('mode', 'drive');
   url.searchParams.set('apiKey', apiKey);
 
+  const dailyLimit=Number(context.env.ROUTING_DAILY_LIMIT||1000);
+  if(!Number.isSafeInteger(dailyLimit)||dailyLimit<1)throw new HttpError(503,'Routing is temporarily unavailable.');
+  const globalContext={...context,request:new Request(context.request.url,{headers:{'CF-Connecting-IP':'routing-global'}})};
+  await rateLimit(globalContext,'routing-daily',dailyLimit,86400);
   const data = await geoapifyRequest(url);
 
   const meters = data.features?.[0]?.properties?.distance;

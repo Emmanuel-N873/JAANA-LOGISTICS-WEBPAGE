@@ -73,7 +73,7 @@
   }finally{if(version===generation&&operation===request){busy=false;schedule();}}
  }
  window.addEventListener('staff-session',event=>{
-  generation++;request++;clearTimeout(timer);clearTimeout(toastTimer);user=event.detail&&!event.detail.mustChangePassword?event.detail:null;
+  generation++;request++;clearTimeout(timer);clearTimeout(toastTimer);user=event.detail&&!event.detail.mustChangePassword&&!event.detail.mustEnrollMfa?event.detail:null;
   busy=false;cursor=null;page=1;delay=15000;detail=null;ackBusy=false;
   $('notification-bell').hidden=!user;$('notification-count').hidden=true;$('notification-count').textContent='0';$('notification-bell').setAttribute('aria-label','Booking notifications');
   $('notification-toast').hidden=true;$('notification-list').replaceChildren();$('notification-message').textContent='';$('notification-page').textContent='';

@@ -14,16 +14,14 @@ export async function onRequest(context) {
     if (search.length > 120 || area.length > 80 || (status && !Object.hasOwn(STATUSES, status))) throw new HttpError(400, 'Invalid search or status filter.');
     if (date && (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(Date.parse(date)) || new Date(date).toISOString().slice(0, 10) !== date)) throw new HttpError(400, 'Choose a valid delivery date.');
     const conditions = [], values = [];
-    const pattern = value => `%${value.replace(/[\\%_]/g, '\\$&')}%`;
-    if (search) {
-      conditions.push("(reference LIKE ? ESCAPE '\\' OR customer_name LIKE ? ESCAPE '\\' OR pickup_address LIKE ? ESCAPE '\\' OR delivery_address LIKE ? ESCAPE '\\')");
-      values.push(...Array(4).fill(pattern(search)));
-    }
+    // Quote tokens as FTS literals: user input cannot become query syntax.
+    const expression=value=>{
+      const tokens=value.match(/[\p{L}\p{N}]+/gu)||[];
+      return tokens.length?'"'+tokens.join(' ')+'"*':'';
+    };
+    if(search){const match=expression(search);if(match){conditions.push('rowid IN (SELECT rowid FROM bookings_search WHERE bookings_search MATCH ?)');values.push(match);}else{conditions.push('(instr(reference,?)>0 OR instr(customer_name,?)>0 OR instr(pickup_address,?)>0 OR instr(delivery_address,?)>0)');values.push(...Array(4).fill(search));}}
     if (status) { conditions.push('status=?'); values.push(status); }
-    if (area) {
-      conditions.push("(pickup_address LIKE ? ESCAPE '\\' OR delivery_address LIKE ? ESCAPE '\\')");
-      values.push(pattern(area), pattern(area));
-    }
+    if(area){const match=expression(area);conditions.push(match?'rowid IN (SELECT rowid FROM bookings_search WHERE bookings_search MATCH ?)':'0');if(match)values.push('{pickup_address delivery_address} : ('+match+')');}
     if (date) { conditions.push('delivery_date=?'); values.push(date); }
     const where = conditions.length ? ` WHERE ${conditions.join(' AND ')}` : '';
     const todayStart = new Date(`${lagosToday()}T00:00:00+01:00`).toISOString();
@@ -31,12 +29,12 @@ export async function onRequest(context) {
     const results = await context.env.DB.batch([
       context.env.DB.prepare(`SELECT reference,customer_name,service,delivery_date,pickup_address,delivery_address,status,created_at,updated_at,version FROM bookings${where} ORDER BY created_at DESC,reference DESC LIMIT 20 OFFSET ?`).bind(...values, (page - 1) * 20),
       context.env.DB.prepare(`SELECT COUNT(*) AS total FROM bookings${where}`).bind(...values),
-      context.env.DB.prepare(`SELECT COUNT(*) AS total,
-        COALESCE(SUM(CASE WHEN status IN ('picked_up','in_transit') THEN 1 ELSE 0 END),0) AS inProgress,
-        COALESCE(SUM(CASE WHEN status='requested' THEN 1 ELSE 0 END),0) AS pending,
-        COALESCE(SUM(CASE WHEN status='cancelled' THEN 1 ELSE 0 END),0) AS cancelled,
-        COALESCE(SUM(CASE WHEN status='delivered' AND updated_at>=? AND updated_at<? THEN 1 ELSE 0 END),0) AS deliveredToday
-        FROM bookings`).bind(todayStart, tomorrowStart)
+      context.env.DB.prepare(`SELECT
+        (SELECT COUNT(*) FROM bookings) AS total,
+        (SELECT COUNT(*) FROM bookings WHERE status IN ('picked_up','in_transit')) AS inProgress,
+        (SELECT COUNT(*) FROM bookings WHERE status='requested') AS pending,
+        (SELECT COUNT(*) FROM bookings WHERE status='cancelled') AS cancelled,
+        (SELECT COUNT(*) FROM bookings WHERE status='delivered' AND updated_at>=? AND updated_at<?) AS deliveredToday`).bind(todayStart,tomorrowStart)
     ]);
     const total = results[1].results[0].total;
     await audit(context, context.staff, 'bookings.list', '', { page, status, area, date, searched: !!search });

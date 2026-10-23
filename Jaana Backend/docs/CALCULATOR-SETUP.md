@@ -10,3 +10,5 @@ The separate calculator.html page transfers shipment fields through session stor
 Full street addresses are sent to Geoapify for Nigeria-filtered geocoding and driving road distance. A Google Maps route link lets the customer inspect the addresses and route. This is on-demand road routing, not live rider GPS tracking. If the provider is unavailable, the calculator shows a clear error and does not fabricate a distance or price. WhatsApp remains available at +2348038422591.
 
 Pricing: max(minimum, ceil(kilometres × rate)) + weight charge. Weight tiers are 0 / 500 / 1000 / 1500 naira through 5 / 10 / 15 / 20 kg respectively. Above 20 kg the total is null and requires a custom quotation. The booking endpoint recalculates any quoted route and price, so customer-submitted prices are never authoritative.
+
+Signed location selection also requires LOCATION_SIGNING_SECRET (a random secret of at least 32 characters) in local .dev.vars and each deployed environment. See [RELIABILITY-SECURITY.md](RELIABILITY-SECURITY.md) for signing, MFA encryption, provider budgets and the complete rollout checklist.

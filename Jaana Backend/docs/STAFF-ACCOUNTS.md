@@ -84,3 +84,7 @@ Official runtime reference: https://developers.cloudflare.com/workers/runtime-ap
 | GET | /api/admin/bookings | Signed-in staff, password change completed |
 | GET | /api/admin/order | Signed-in staff, password change completed |
 | PATCH | /api/admin/status | Signed-in staff, password change completed |
+
+## Authenticator verification and recovery
+
+See [RELIABILITY-SECURITY.md](RELIABILITY-SECURITY.md) for MFA enrollment, single-use recovery codes, administrator/owner recovery and production enforcement. Login throttling is now per IP and account/IP pair rather than an account-wide lock that can be exhausted by another network.

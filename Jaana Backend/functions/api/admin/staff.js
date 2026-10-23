@@ -31,6 +31,12 @@ export async function onRequest(context) {
    const digest=await passwordHash(passwordValue(data.password));
    statement=context.env.DB.prepare('UPDATE staff_users SET password_hash=?,must_change_password=1,version=version+1 WHERE id=? AND version=?').bind(digest,id,data.version);
    details={passwordReset:true};
+  } else if(data.action==='resetMfa') {
+   if(actor.id===id)throw new HttpError(400,'Use your authenticator settings or a separate administrator for recovery.');
+   const reason=text(data,'reason',500);
+   if(reason.length<12)throw new HttpError(400,'Record how the staff identity was verified.');
+   statement=context.env.DB.prepare('UPDATE staff_users SET mfa_secret=NULL,mfa_pending=NULL,mfa_pending_exp=NULL,mfa_counter=-1,mfa_generation=NULL,version=version+1 WHERE id=? AND version=?').bind(id,data.version);
+   details={mfaReset:true,reason};
   } else if(data.action==='update') {
    const name=text(data,'name',100),role=text(data,'role');
    if(!['admin','staff'].includes(role)||typeof data.active!=='boolean') throw new HttpError(400,'Invalid role or active state.');
@@ -42,6 +48,7 @@ export async function onRequest(context) {
   const result=await context.env.DB.batch([
    statement,
    context.env.DB.prepare('INSERT INTO staff_audit(id,staff_id,staff_name,staff_role,action,target,details,created_at) SELECT ?,?,?,?,?,?,?,? WHERE changes()=1').bind(eventId,actor.id,actor.name,actor.role,'staff.'+data.action,id,JSON.stringify(details),new Date().toISOString()),
+   context.env.DB.prepare('DELETE FROM staff_recovery_codes WHERE staff_id=? AND EXISTS(SELECT 1 FROM staff_users WHERE id=? AND mfa_secret IS NULL)').bind(id,id),
    context.env.DB.prepare('DELETE FROM staff_sessions WHERE staff_id=? AND user_version<> (SELECT version FROM staff_users WHERE id=?)').bind(id,id)
   ]);
   if(!result[0].meta.changes) throw new HttpError(409,'Account changed or the last administrator must stay active. Refresh and retry.');

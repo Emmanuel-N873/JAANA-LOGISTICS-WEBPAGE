@@ -25,6 +25,8 @@ function setup() {
   sqlite.exec(readFileSync(new URL('../migrations/0002_staff.sql', import.meta.url), 'utf8'));
   sqlite.exec(readFileSync(new URL('../migrations/0003_notifications.sql', import.meta.url), 'utf8'));
   sqlite.exec(readFileSync(new URL('../migrations/0004_pricing.sql', import.meta.url), 'utf8'));
+  sqlite.exec(readFileSync(new URL('../migrations/0005_reliability.sql', import.meta.url), 'utf8'));
+  sqlite.exec(readFileSync(new URL('../migrations/0006_mfa.sql', import.meta.url), 'utf8'));
   const TEST_SESSION = 'a'.repeat(64);
   sqlite.prepare('INSERT INTO staff_users(id,name,email,role,password_hash,must_change_password,created_at) VALUES(?,?,?,?,?,0,?)').run('test-admin','Test Administrator','admin@jaana.example','admin','unused',new Date().toISOString());
   sqlite.prepare('INSERT INTO staff_sessions(token_hash,staff_id,user_version,expires_at,created_at) VALUES(?,?,?,?,?)').run(createHash('sha256').update(TEST_SESSION).digest('hex'),'test-admin',1,new Date(Date.now()+3600000).toISOString(),new Date().toISOString());
@@ -305,10 +307,12 @@ test('legacy bearer authentication, expired sessions and cross-origin requests a
  assert.equal((await call(list,env,{method:'GET',token,origin:'https://evil.example'})).status,403);
  env.sqlite.prepare("UPDATE staff_sessions SET expires_at='2000-01-01T00:00:00Z'").run();assert.equal((await call(list,env,{method:'GET',token})).status,401);env.sqlite.close();
 });
-test('login attempts are limited per account across different IPs',async()=>{
+test('attackers on another IP cannot exhaust the legitimate account login allowance',async()=>{
  const env=setup();await loginAccount(env);
- for(let i=0;i<9;i++)assert.equal((await call(staffAuth,env,{query:'?action=login',data:{email:'admin@jaana.example',password:'wrong'},ip:'192.0.2.'+(20+i)})).status,401);
- assert.equal((await call(staffAuth,env,{query:'?action=login',data:{email:'admin@jaana.example',password:'wrong'},ip:'192.0.2.100'})).status,429);env.sqlite.close();
+ for(let i=0;i<10;i++)assert.equal((await call(staffAuth,env,{query:'?action=login',data:{email:'admin@jaana.example',password:'wrong'},ip:'192.0.2.50'})).status,401);
+ assert.equal((await call(staffAuth,env,{query:'?action=login',data:{email:'admin@jaana.example',password:'wrong'},ip:'192.0.2.50'})).status,429);
+ assert.equal((await call(staffAuth,env,{query:'?action=login',data:{email:'admin@jaana.example',password:'Local test password 123!'},ip:'192.0.2.51'})).status,200);
+ env.sqlite.close();
 });
 
 test('notifications are created once per booking and rejected/retried requests do not duplicate them',async()=>{
@@ -569,4 +573,99 @@ test('signed location tokens reject tampering, mismatched addresses and expirati
   } finally {
     Date.now = originalNow;
   }
+});
+
+import { onRequest as mfaEndpoint } from '../functions/api/mfa.js';
+import { onRequest as locationsEndpoint } from '../functions/api/locations.js';
+import { totp } from '../server/mfa.js';
+import { rateLimit } from '../server/common.js';
+
+test('saved booking retries survive price changes, provider failure and expired tokens',async()=>{
+ const env=setup();env.GEOAPIFY_API_KEY='test-key';env.LOCATION_SIGNING_SECRET='test-location-signing-secret-at-least-32-characters';
+ const originalFetch=globalThis.fetch,originalNow=Date.now;
+ try{
+  globalThis.fetch=async()=>Response.json({features:[{properties:{distance:12000}}]});
+  const data={...order(),packages:'2',weight:'8',distanceKm:'12'};
+  data.pickupToken=await signLocation(env,{label:data.pickup,lat:6.6,lon:3.3});data.destinationToken=await signLocation(env,{label:data.destination,lat:6.4,lon:3.4});
+  const key=crypto.randomUUID(),first=await call(create,env,{data,key});assert.equal(first.status,201);const saved=await first.json();
+  env.sqlite.prepare('UPDATE delivery_pricing SET per_km=999 WHERE id=1').run();
+  globalThis.fetch=async()=>{throw Error('Provider unavailable');};Date.now=()=>originalNow()+16*60000;
+  const retry=await call(create,env,{data,key});assert.equal(retry.status,200);assert.equal((await retry.json()).reference,saved.reference);
+  assert.equal((await call(create,env,{data:{...data,weight:'9'},key})).status,409);
+  assert.equal(env.sqlite.prepare('SELECT COUNT(*) n FROM bookings').get().n,1);
+ }finally{globalThis.fetch=originalFetch;Date.now=originalNow;env.sqlite.close();}
+});
+test('legacy saved bookings can be retried after request hash migration',async()=>{
+ const env=setup(),data=order(),key=crypto.randomUUID();assert.equal((await call(create,env,{data,key})).status,201);
+ env.sqlite.prepare('UPDATE bookings SET request_hash=NULL').run();
+ assert.equal((await call(create,env,{data,key})).status,200);
+ assert.equal((await call(create,env,{data:{...data,name:'Changed'},key})).status,409);env.sqlite.close();
+});
+test('rate cleanup uses expiry index and deletes no more than 50 rows per request',async()=>{
+ const env=setup();for(let i=0;i<200;i++)env.sqlite.prepare('INSERT INTO api_rate_limits VALUES(?,1,1)').run('expired-'+i);
+ await rateLimit({env,request:new Request('https://jaana.example')},'review',10,60);
+ assert.equal(env.sqlite.prepare('SELECT COUNT(*) n FROM api_rate_limits WHERE expires_at=1').get().n,150);
+ const plan=env.sqlite.prepare('EXPLAIN QUERY PLAN SELECT bucket FROM api_rate_limits WHERE expires_at < ? ORDER BY expires_at LIMIT 50').all(2);assert(plan.some(row=>row.detail.includes('api_rate_limits_expiry')));env.sqlite.close();
+});
+test('suggestions are signed, not cached by clients, filtered and globally budgeted',async()=>{
+ const env=setup();Object.assign(env,{GEOAPIFY_API_KEY:'mock',LOCATION_SIGNING_SECRET:'test-location-signing-secret-at-least-32-characters',LOCATION_DAILY_LIMIT:'1'});
+ const original=globalThis.fetch;let calls=0;
+ globalThis.fetch=async()=>{calls++;return Response.json({features:[{properties:{lat:6.6,lon:3.3,result_type:'building',country_code:'ng',formatted:'Ikeja City Mall',rank:{confidence:0.9}}},{properties:{lat:6.6,lon:3.3,result_type:'city',country_code:'ng',formatted:'Ikeja',rank:{confidence:0.9}}}]});};
+ try{
+  const response=await call(locationsEndpoint,env,{method:'GET',query:'?q=Ikeja'});assert.equal(response.status,200);assert.equal(response.headers.get('Cache-Control'),'no-store');const data=await response.json();assert.equal(data.suggestions.length,1);assert.deepEqual(await verifyLocation(env,data.suggestions[0].token,'Ikeja City Mall'),{lat:6.6,lon:3.3});
+  assert.equal((await call(locationsEndpoint,env,{method:'GET',query:'?q=Lekki',ip:'192.0.2.99'})).status,429);assert.equal(calls,1);
+  assert.equal((await call(locationsEndpoint,env,{method:'GET',query:'?q=Ikeja',origin:'https://untrusted.example'})).status,403);
+ }finally{globalThis.fetch=original;env.sqlite.close();}
+});
+test('TOTP matches the RFC 6238 test vector',async()=>{
+ assert.equal(await totp('GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ',1),'287082');
+});
+test('MFA enrollment encrypts secrets, revokes sessions, blocks replay and consumes recovery codes once',async()=>{
+ const env=setup();env.MFA_ENCRYPTION_KEY='test-encryption-secret-at-least-32-characters';const password='Local test password 123!';await loginAccount(env);
+ const token=env.TEST_SESSION,originalNow=Date.now;
+ try{
+  const begin=await call(mfaEndpoint,env,{token,data:{action:'begin',password}});assert.equal(begin.status,200);assert.equal(begin.headers.get('Cache-Control'),'no-store');const {secret}=await begin.json();
+  const encrypted=env.sqlite.prepare('SELECT mfa_pending FROM staff_users').get().mfa_pending;assert(!encrypted.includes(secret));
+  const counter=Math.floor(Date.now()/30000),code=await totp(secret,counter);
+  const confirm=await call(mfaEndpoint,env,{token,data:{action:'confirm',password,code}});assert.equal(confirm.status,200);const {recoveryCodes}=await confirm.json();assert.equal(recoveryCodes.length,8);
+  assert.equal(env.sqlite.prepare('SELECT COUNT(*) n FROM staff_sessions').get().n,0);
+  assert.equal((await call(staffAuth,env,{query:'?action=login',data:{email:'admin@jaana.example',password}})).status,401);
+  assert.equal((await call(staffAuth,env,{query:'?action=login',data:{email:'admin@jaana.example',password,code}})).status,401);
+  Date.now=()=>counter*30000+31000;const fresh=await totp(secret,counter+1);
+  assert.equal((await call(staffAuth,env,{query:'?action=login',data:{email:'admin@jaana.example',password,code:fresh}})).status,200);
+  assert.equal((await call(staffAuth,env,{query:'?action=login',data:{email:'admin@jaana.example',password,code:fresh}})).status,401);
+  assert.equal((await call(staffAuth,env,{query:'?action=login',data:{email:'admin@jaana.example',password,code:recoveryCodes[0]}})).status,200);
+  assert.equal((await call(staffAuth,env,{query:'?action=login',data:{email:'admin@jaana.example',password,code:recoveryCodes[0]}})).status,401);
+  const hashes=env.sqlite.prepare('SELECT code_hash FROM staff_recovery_codes').all();assert.equal(hashes.length,7);assert(!hashes.some(row=>recoveryCodes.includes(row.code_hash)));
+ }finally{Date.now=originalNow;env.sqlite.close();}
+});
+test('required MFA restricts existing sessions until enrollment while allowing account settings',async()=>{
+ const env=setup();env.REQUIRE_STAFF_MFA='true';
+ assert.equal((await call(list,env,{method:'GET',token:env.TEST_SESSION})).status,403);
+ const me=await call(staffAuth,env,{method:'GET',token:env.TEST_SESSION});assert.equal(me.status,200);assert.equal((await me.json()).user.mustEnrollMfa,true);env.sqlite.close();
+});
+test('only another administrator can reset an authenticator with a recorded recovery reason',async()=>{
+ const env=setup(),token=env.TEST_SESSION;
+ const self=await call(staffAccounts,env,{token,data:{action:'resetMfa',id:'test-admin',version:1,reason:'Verified face to face'}});assert.equal(self.status,400);
+ await call(staffAccounts,env,{token,data:{action:'create',name:'Recover Person',email:'recover@jaana.example',role:'staff',password:'Temporary password 123!'}});
+ const target=env.sqlite.prepare("SELECT * FROM staff_users WHERE email='recover@jaana.example'").get();
+ env.sqlite.prepare('UPDATE staff_users SET mfa_secret=? WHERE id=?').run('encrypted-placeholder',target.id);
+ const reset=await call(staffAccounts,env,{token,data:{action:'resetMfa',id:target.id,version:1,reason:'Identity verified in person by administrator'}});assert.equal(reset.status,200);
+ assert.equal(env.sqlite.prepare('SELECT mfa_secret FROM staff_users WHERE id=?').get(target.id).mfa_secret,null);
+ assert.equal(env.sqlite.prepare("SELECT COUNT(*) n FROM staff_audit WHERE action='staff.resetMfa'").get().n,1);env.sqlite.close();
+});
+
+test('MFA cannot be disabled without a second factor, and concurrent confirmation preserves the winning recovery codes',async()=>{
+ const env=setup();env.MFA_ENCRYPTION_KEY='test-encryption-secret-at-least-32-characters';const password='Local test password 123!';await loginAccount(env);const token=env.TEST_SESSION;
+ const started=await (await call(mfaEndpoint,env,{token,data:{action:'begin',password}})).json();
+ const code=await totp(started.secret,Math.floor(Date.now()/30000));
+ const responses=await Promise.all([call(mfaEndpoint,env,{token,data:{action:'confirm',password,code}}),call(mfaEndpoint,env,{token,data:{action:'confirm',password,code}})]);
+ const winner=responses.find(r=>r.status===200),loser=responses.find(r=>r.status!==200);assert(winner);assert(loser);assert.equal(loser.status,409);
+ const codes=(await winner.json()).recoveryCodes;
+ assert.equal(env.sqlite.prepare('SELECT COUNT(*) n FROM staff_recovery_codes').get().n,8);
+ const login=await call(staffAuth,env,{query:'?action=login',data:{email:'admin@jaana.example',password,code:codes[0]}});assert.equal(login.status,200);const session=cookieToken(login);
+ assert.equal((await call(mfaEndpoint,env,{token:session,data:{action:'disable',password,code:'000000'}})).status,401);
+ // Incorrect credentials deliberately revoke the dashboard's UI session only; backend cookie is still checked normally.
+ const disabled=await call(mfaEndpoint,env,{token:session,data:{action:'disable',password,code:codes[1]}});assert.equal(disabled.status,200);
+ assert.equal(env.sqlite.prepare('SELECT mfa_secret FROM staff_users').get().mfa_secret,null);assert.equal(env.sqlite.prepare('SELECT COUNT(*) n FROM staff_recovery_codes').get().n,0);env.sqlite.close();
 });

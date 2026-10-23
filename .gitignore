@@ -18,3 +18,4 @@ jaana-production-backup.sql
 scripts/reset-local-admin.mjs
 
 /Jaana Backend/scripts/reset-local-admin.mjs
+.staff-recovery.sql

@@ -2,6 +2,8 @@
 
 The backend is implemented and tested locally. Live order storage requires a real D1 database and an individual administrator account. Do not deploy with the all-zero database ID in wrangler.jsonc.
 
+Read [RELIABILITY-SECURITY.md](RELIABILITY-SECURITY.md) for the current migration, secret, MFA and header requirements. Only `wrangler.jsonc` is active.
+
 ## 1. Create the production database
 
 From the repository root, enter the backend folder first:
@@ -72,7 +74,7 @@ The staff list accepts `q` (reference, customer name or address), `status`, `are
 
 Open **Staff Dashboard** in the website footer, then sign in. Use **View** to inspect customer and recipient details, addresses, package information and timestamped status history. Save a status from the details dialog; conflicting updates reload the latest order for review. Signing out clears displayed customer data and ignores responses from older sessions. The mobile sidebar opens with the menu button. No database migration is needed for these dashboard improvements.
 
-Individual staff accounts grant access according to role. This version has no payments, automatic notifications or live GPS tracking. The business should decide its order-retention period and who may access production records.
+Individual staff accounts grant access according to role. This version has no payments or live rider GPS tracking. The dashboard supports booking notifications. The business should decide its order-retention period and who may access production records.
 
 Official references:
 - https://developers.cloudflare.com/pages/functions/bindings/

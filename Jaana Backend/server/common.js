@@ -10,7 +10,10 @@ export class HttpError extends Error {
 export function json(data, status = 200, extra = {}) {
   return new Response(JSON.stringify(data), { status, headers: {
     'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store',
-    'X-Content-Type-Options': 'nosniff', ...extra
+    'X-Content-Type-Options': 'nosniff',
+    'Content-Security-Policy': "default-src 'none'; frame-ancestors 'none'",
+    'X-Frame-Options': 'DENY', 'Referrer-Policy': 'no-referrer',
+    'Strict-Transport-Security': 'max-age=86400', ...extra
   } });
 }
 export async function endpoint(context, method, callback) {
@@ -73,7 +76,7 @@ export async function rateLimit(context, action, limit, seconds) {
   const ip = context.request.headers.get('CF-Connecting-IP') || 'local-development';
   const bucket = `${action}:${await hash(ip)}:${Math.floor(now / seconds)}`;
   const result = await context.env.DB.batch([
-    context.env.DB.prepare('DELETE FROM api_rate_limits WHERE expires_at < ?').bind(now),
+    context.env.DB.prepare('DELETE FROM api_rate_limits WHERE bucket IN (SELECT bucket FROM api_rate_limits WHERE expires_at < ? ORDER BY expires_at LIMIT 50)').bind(now),
     context.env.DB.prepare('INSERT INTO api_rate_limits(bucket,hits,expires_at) VALUES(?,1,?) ON CONFLICT(bucket) DO UPDATE SET hits=hits+1 RETURNING hits').bind(bucket, now + seconds)
   ]);
   if (result[1].results[0].hits > limit) throw new HttpError(429, 'Too many requests. Please wait a few minutes and retry.');
