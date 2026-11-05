@@ -1,242 +1,640 @@
 <!doctype html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Delivery Rate Calculator | JAANA Logistics</title><meta name="description" content="Calculate your JAANA delivery estimate by road distance and package weight, then continue to booking."><link rel="stylesheet" href="assets/css/design-system.css"><link rel="stylesheet" href="assets/css/styles.css"><link rel="stylesheet" href="assets/css/calculator.css"><script src="assets/js/calculator.js" defer></script><link rel="icon" type="image/svg+xml" href="assets/images/favicon-mascot.svg"></head>
-<body class="calculator-page"><a class="skip-link" href="#main">Skip to calculator</a><svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <symbol id="i-arrow" viewBox="0 0 24 24">
-        <path d="m9 5 7 7-7 7"/>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1"
+    />
+    <title>Delivery Rate Calculator | JAANA Logistics</title>
+    <meta
+      name="description"
+      content="Calculate your JAANA delivery estimate by road distance and package weight, then continue to booking."
+    />
+    <link
+      rel="stylesheet"
+      href="assets/css/design-system.css"
+    />
+    <link
+      rel="stylesheet"
+      href="assets/css/styles.css"
+    />
+    <link
+      rel="stylesheet"
+      href="assets/css/calculator.css"
+    />
+    <!-- Shared price presentation loads before either customer workflow. -->
+    <script
+      src="assets/js/delivery-summary.js"
+      defer
+    ></script>
+    <script
+      src="assets/js/calculator.js"
+      defer
+    ></script>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="assets/images/favicon-mascot.svg"
+    />
+  </head>
+  <body class="calculator-page">
+    <a
+      class="skip-link"
+      href="#main"
+      >Skip to calculator</a
+    ><svg
+      class="icon-library"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <symbol
+        id="i-arrow"
+        viewBox="0 0 24 24"
+      >
+        <path d="m9 5 7 7-7 7" />
       </symbol>
-      <symbol id="i-box" viewBox="0 0 24 24">
-        <path d="m12 2 9 5v10l-9 5-9-5V7Z M3 7l9 5 9-5 M12 12v10 M7 4l10 6v6"/>
+      <symbol
+        id="i-box"
+        viewBox="0 0 24 24"
+      >
+        <path d="m12 2 9 5v10l-9 5-9-5V7Z M3 7l9 5 9-5 M12 12v10 M7 4l10 6v6" />
       </symbol>
-      <symbol id="i-cart" viewBox="0 0 24 24">
-        <path d="M2 3h3l3 13h11l3-10H6"/>
-        <circle cx="9" cy="20" r="1"/>
-        <circle cx="18" cy="20" r="1"/>
+      <symbol
+        id="i-cart"
+        viewBox="0 0 24 24"
+      >
+        <path d="M2 3h3l3 13h11l3-10H6" />
+        <circle
+          cx="9"
+          cy="20"
+          r="1"
+        />
+        <circle
+          cx="18"
+          cy="20"
+          r="1"
+        />
       </symbol>
-      <symbol id="i-food" viewBox="0 0 24 24">
-        <path d="M4 3v6c0 4 6 4 6 0V3 M7 3v19 M20 22V3c-5 3-6 10 0 10"/>
+      <symbol
+        id="i-food"
+        viewBox="0 0 24 24"
+      >
+        <path d="M4 3v6c0 4 6 4 6 0V3 M7 3v19 M20 22V3c-5 3-6 10 0 10" />
       </symbol>
-      <symbol id="i-truck" viewBox="0 0 24 24">
-        <path d="M2 4h13v13H2Z M15 9h4l3 5v3h-7"/>
-        <circle cx="6" cy="19" r="3"/>
-        <circle cx="18" cy="19" r="3"/>
+      <symbol
+        id="i-truck"
+        viewBox="0 0 24 24"
+      >
+        <path d="M2 4h13v13H2Z M15 9h4l3 5v3h-7" />
+        <circle
+          cx="6"
+          cy="19"
+          r="3"
+        />
+        <circle
+          cx="18"
+          cy="19"
+          r="3"
+        />
       </symbol>
-      <symbol id="i-pin" viewBox="0 0 24 24">
-        <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/>
-        <circle cx="12" cy="10" r="2.5"/>
+      <symbol
+        id="i-pin"
+        viewBox="0 0 24 24"
+      >
+        <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z" />
+        <circle
+          cx="12"
+          cy="10"
+          r="2.5"
+        />
       </symbol>
-      <symbol id="i-shield" viewBox="0 0 24 24">
-        <path d="m12 2 9 4v6c0 6-9 10-9 10S3 18 3 12V6Z m-5 9 3 3 7-7"/>
+      <symbol
+        id="i-shield"
+        viewBox="0 0 24 24"
+      >
+        <path d="m12 2 9 4v6c0 6-9 10-9 10S3 18 3 12V6Z m-5 9 3 3 7-7" />
       </symbol>
-      <symbol id="i-users" viewBox="0 0 24 24">
-        <circle cx="12" cy="6" r="3"/>
-        <circle cx="4" cy="8" r="2"/>
-        <circle cx="20" cy="8" r="2"/>
-        <path d="M6 22v-5a6 6 0 0 1 12 0v5Z M2 19v-5h3 M22 19v-5h-3"/>
+      <symbol
+        id="i-users"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          cx="12"
+          cy="6"
+          r="3"
+        />
+        <circle
+          cx="4"
+          cy="8"
+          r="2"
+        />
+        <circle
+          cx="20"
+          cy="8"
+          r="2"
+        />
+        <path d="M6 22v-5a6 6 0 0 1 12 0v5Z M2 19v-5h3 M22 19v-5h-3" />
       </symbol>
-      <symbol id="i-star" viewBox="0 0 24 24">
-        <path d="m12 2 3 7 8 1-6 5 2 8-7-4-7 4 2-8-6-5 8-1Z"/>
+      <symbol
+        id="i-star"
+        viewBox="0 0 24 24"
+      >
+        <path d="m12 2 3 7 8 1-6 5 2 8-7-4-7 4 2-8-6-5 8-1Z" />
       </symbol>
-      <symbol id="i-bolt" viewBox="0 0 24 24">
-        <path d="m14 2-9 12h7l-2 8 9-12h-7Z"/>
+      <symbol
+        id="i-bolt"
+        viewBox="0 0 24 24"
+      >
+        <path d="m14 2-9 12h7l-2 8 9-12h-7Z" />
       </symbol>
-      <symbol id="i-smile" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="10"/>
-        <path d="M7 14c2 5 8 5 10 0 M8 8h.01 M16 8h.01"/>
+      <symbol
+        id="i-smile"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          cx="12"
+          cy="12"
+          r="10"
+        />
+        <path d="M7 14c2 5 8 5 10 0 M8 8h.01 M16 8h.01" />
       </symbol>
-      <symbol id="i-building" viewBox="0 0 24 24">
-        <path d="M5 22V3h14v19 M2 22h20 M9 22v-4h6v4 M9 7h.01 M15 7h.01 M9 11h.01 M15 11h.01 M9 15h.01 M15 15h.01"/>
+      <symbol
+        id="i-building"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M5 22V3h14v19 M2 22h20 M9 22v-4h6v4 M9 7h.01 M15 7h.01 M9 11h.01 M15 11h.01 M9 15h.01 M15 15h.01"
+        />
       </symbol>
-      <symbol id="i-handshake" viewBox="0 0 24 24">
-        <path d="m2 7 4-3 5 2 4-2 7 4-4 9-6 4-6-4Z M11 6l-4 5 3 2 4-4 5 5 M10 16l4 3 M7 18l3 2"/>
+      <symbol
+        id="i-handshake"
+        viewBox="0 0 24 24"
+      >
+        <path d="m2 7 4-3 5 2 4-2 7 4-4 9-6 4-6-4Z M11 6l-4 5 3 2 4-4 5 5 M10 16l4 3 M7 18l3 2" />
       </symbol>
-      <symbol id="i-phone" viewBox="0 0 24 24">
-        <path d="m6 2 4 5-3 3c2 4 3 5 7 7l3-3 5 4c-2 8-9 3-14-2S-2 4 6 2Z"/>
+      <symbol
+        id="i-phone"
+        viewBox="0 0 24 24"
+      >
+        <path d="m6 2 4 5-3 3c2 4 3 5 7 7l3-3 5 4c-2 8-9 3-14-2S-2 4 6 2Z" />
       </symbol>
-      <symbol id="i-mail" viewBox="0 0 24 24">
-        <path d="M2 4h20v16H2Z M2 4l10 9L22 4"/>
+      <symbol
+        id="i-mail"
+        viewBox="0 0 24 24"
+      >
+        <path d="M2 4h20v16H2Z M2 4l10 9L22 4" />
       </symbol>
-      <symbol id="i-map" viewBox="0 0 24 24">
-        <path d="m2 7 6-3 8 3 6-3v16l-6 3-8-3-6 3Z M8 4v16 M16 7v16"/>
+      <symbol
+        id="i-map"
+        viewBox="0 0 24 24"
+      >
+        <path d="m2 7 6-3 8 3 6-3v16l-6 3-8-3-6 3Z M8 4v16 M16 7v16" />
       </symbol>
-      <symbol id="i-chat" viewBox="0 0 24 24">
-        <path d="M21 11a9 9 0 0 1-13 8l-6 3 2-6a9 9 0 1 1 17-5Z M8 7c0 5 4 8 8 8"/>
+      <symbol
+        id="i-chat"
+        viewBox="0 0 24 24"
+      >
+        <path d="M21 11a9 9 0 0 1-13 8l-6 3 2-6a9 9 0 1 1 17-5Z M8 7c0 5 4 8 8 8" />
       </symbol>
-    </svg><header class="calculator-header"><div class="container"><a class="brand" href="index.html" aria-label="JAANA Logistics home"><span class="brand-art" role="img" aria-label="JAANA Delivery Services"></span></a><nav aria-label="Main navigation"><a href="index.html">Home</a><a href="index.html#services">Services</a><a href="index.html#contact">Contact</a></nav></div></header><main id="main"><section id="calculator" class="rate-section"><div class="container"><div class="rate-heading"><div><h2>Delivery Rate Calculator</h2><p>Distance-based pricing. Clear weight charges.</p></div><div class="rate-badges"><span><b data-per-km>₦300</b> per km</span><span><b data-minimum>₦2,000</b> minimum distance charge</span></div></div><div class="rate-layout"><form id="rate-form" class="rate-card"><h3>Shipment details</h3><div class="rate-fields calculator-fields"><label class="address-field">
-  Pickup address
-  <input
-    name="pickup"
-    id="pickup-address"
-    required
-    maxlength="500"
-    placeholder="Start typing a pickup address"
-    autocomplete="off"
-    role="combobox"
-    aria-autocomplete="list"
-    aria-expanded="false"
-    aria-controls="pickup-suggestions"
-  >
-  <span id="pickup-suggestions" class="address-suggestions" role="listbox" hidden></span>
-</label><label class="address-field">
-  Delivery address
-  <input
-    name="destination"
-    id="destination-address"
-    required
-    maxlength="500"
-    placeholder="Start typing a delivery address"
-    autocomplete="off"
-    role="combobox"
-    aria-autocomplete="list"
-    aria-expanded="false"
-    aria-controls="destination-suggestions"
-  >
-  <span id="destination-suggestions" class="address-suggestions" role="listbox" hidden></span>
-</label><label>Number of packages<input name="packages" type="number" min="1" max="10000" step="1" value="1" required></label><label>Combined weight (kg)<input name="weight" type="number" min="0.01" max="10000" step="0.01" value="1" required></label><label>Package size<select name="size"><option>Envelope or document</option><option>Small parcel (handheld)</option><option selected>Medium parcel (box or bag)</option><option>Large or bulk shipment</option></select></label></div><p>Road distance is calculated from your addresses using Geoapify. Use complete street addresses and check the route before booking.</p><div class="rate-actions"><button class="button button-blue" type="submit">Calculate Estimate</button><button class="button reference-outline" type="reset">Reset</button></div><p id="rate-feedback" role="status" aria-live="polite"></p><a id="route-map" hidden target="_blank" rel="noopener noreferrer">View pickup and delivery route on Google Maps ↗</a></form><aside class="rate-card rate-summary"><h3>Your estimate</h3><dl><div><dt>Road distance</dt><dd id="road-distance">—</dd></div><div><dt id="distance-label">Distance charge</dt><dd id="distance-charge">—</dd></div><div id="minimum-row" hidden><dt>Minimum distance charge applied</dt><dd data-minimum>₦2,000</dd></div><div><dt>Weight charge</dt><dd id="weight-charge">—</dd></div><div class="rate-total"><dt>Estimated total</dt><dd id="rate-total">—</dd></div></dl><button id="continue-booking" class="button rate-continue" type="button" disabled>Continue to Booking →</button><div class="rate-custom" id="custom-quotation" hidden><h4>When weight exceeds 20 kg</h4><p>Custom quotation required — contact JAANA Logistics.</p><a id="rate-contact" class="button button-blue" href="https://wa.me/2348038422591" target="_blank" rel="noopener noreferrer">Contact JAANA Logistics</a></div></aside></div><div class="rate-card rate-weights"><h3>Weight charges</h3><div class="weight-tiers"><p>Up to 5 kg<strong>No extra charge</strong></p><p>Over 5–10 kg<strong>+ ₦500</strong></p><p>Over 10–15 kg<strong>+ ₦1,000</strong></p><p>Over 15–20 kg<strong>+ ₦1,500</strong></p><p>Over 20 kg<strong>Custom quotation required</strong></p></div><p class="rate-formula" id="rate-formula"></p><small>Final quote is subject to weight and motorcycle suitability checks. Above 20 kg, automatic pricing stops.</small></div></div></section></main><footer class="site-footer" id="contact">
+    </svg>
+    <header class="calculator-header">
+      <div class="container">
+        <a
+          class="brand"
+          href="index.html"
+          aria-label="JAANA Logistics home"
+          ><span
+            class="brand-art"
+            role="img"
+            aria-label="JAANA Delivery Services"
+          ></span
+        ></a>
+        <nav aria-label="Main navigation">
+          <a href="index.html">Home</a><a href="index.html#services">Services</a
+          ><a href="index.html#contact">Contact</a>
+        </nav>
+      </div>
+    </header>
+    <!-- Calculator flow: select addresses, enter shipment weight, then continue to booking. -->
+    <main id="main">
+      <section
+        id="calculator"
+        class="rate-section"
+      >
+        <div class="container">
+          <div class="rate-heading">
+            <div>
+              <h2>Delivery Rate Calculator</h2>
+              <p>Distance-based pricing. Clear weight charges.</p>
+            </div>
+            <div class="rate-badges">
+              <span><b data-per-km>₦300</b> per km</span
+              ><span><b data-minimum>₦2,000</b> minimum distance charge</span>
+            </div>
+          </div>
+          <div class="rate-layout">
+            <form
+              id="rate-form"
+              class="rate-card"
+            >
+              <h3>Shipment details</h3>
+              <div class="rate-fields calculator-fields">
+                <label class="address-field">
+                  Pickup address
+                  <input
+                    name="pickup"
+                    id="pickup-address"
+                    required
+                    maxlength="500"
+                    placeholder="Start typing a pickup address"
+                    autocomplete="off"
+                    role="combobox"
+                    aria-autocomplete="list"
+                    aria-expanded="false"
+                    aria-controls="pickup-suggestions"
+                  />
+                  <span
+                    id="pickup-suggestions"
+                    class="address-suggestions"
+                    role="listbox"
+                    hidden
+                  ></span> </label
+                ><label class="address-field">
+                  Delivery address
+                  <input
+                    name="destination"
+                    id="destination-address"
+                    required
+                    maxlength="500"
+                    placeholder="Start typing a delivery address"
+                    autocomplete="off"
+                    role="combobox"
+                    aria-autocomplete="list"
+                    aria-expanded="false"
+                    aria-controls="destination-suggestions"
+                  />
+                  <span
+                    id="destination-suggestions"
+                    class="address-suggestions"
+                    role="listbox"
+                    hidden
+                  ></span> </label
+                ><label
+                  >Number of packages<input
+                    name="packages"
+                    type="number"
+                    min="1"
+                    max="10000"
+                    step="1"
+                    value="1"
+                    required /></label
+                ><label
+                  >Combined weight (kg)<input
+                    name="weight"
+                    type="number"
+                    min="0.01"
+                    max="10000"
+                    step="0.01"
+                    value="1"
+                    required /></label
+                ><label
+                  >Package size<select name="size">
+                    <option>Envelope or document</option>
+                    <option>Small parcel (handheld)</option>
+                    <option selected>Medium parcel (box or bag)</option>
+                    <option>Large or bulk shipment</option>
+                  </select></label
+                >
+              </div>
+              <p>
+                Road distance is calculated from your addresses using Geoapify. Use complete street
+                addresses and check the route before booking.
+              </p>
+              <div class="rate-actions">
+                <button
+                  class="button button-blue"
+                  type="submit"
+                >
+                  Calculate Estimate</button
+                ><button
+                  class="button reference-outline"
+                  type="reset"
+                >
+                  Reset
+                </button>
+              </div>
+              <p
+                id="rate-feedback"
+                role="status"
+                aria-live="polite"
+              ></p>
+              <a
+                id="route-map"
+                hidden
+                target="_blank"
+                rel="noopener noreferrer"
+                >View pickup and delivery route on Google Maps ↗</a
+              >
+            </form>
+            <aside class="rate-card rate-summary">
+              <h3>Your estimate</h3>
+              <dl>
+                <div>
+                  <dt>Road distance</dt>
+                  <dd id="road-distance">—</dd>
+                </div>
+                <div>
+                  <dt id="distance-label">Distance charge</dt>
+                  <dd id="distance-charge">—</dd>
+                </div>
+                <div
+                  id="minimum-row"
+                  hidden
+                >
+                  <dt>Minimum distance charge applied</dt>
+                  <dd data-minimum>₦2,000</dd>
+                </div>
+                <div>
+                  <dt>Weight charge</dt>
+                  <dd id="weight-charge">—</dd>
+                </div>
+                <div class="rate-total">
+                  <dt>Estimated total</dt>
+                  <dd id="rate-total">—</dd>
+                </div>
+              </dl>
+              <button
+                id="continue-booking"
+                class="button rate-continue"
+                type="button"
+                disabled
+              >
+                Continue to Booking →
+              </button>
+              <div
+                class="rate-custom"
+                id="custom-quotation"
+                hidden
+              >
+                <h4>When weight exceeds 20 kg</h4>
+                <p>Custom quotation required — contact JAANA Logistics.</p>
+                <a
+                  id="rate-contact"
+                  class="button button-blue"
+                  href="https://wa.me/2348038422591"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Contact JAANA Logistics</a
+                >
+              </div>
+            </aside>
+          </div>
+          <div class="rate-card rate-weights">
+            <h3>Weight charges</h3>
+            <div class="weight-tiers">
+              <p>Up to 5 kg<strong>No extra charge</strong></p>
+              <p>Over 5–10 kg<strong>+ ₦500</strong></p>
+              <p>Over 10–15 kg<strong>+ ₦1,000</strong></p>
+              <p>Over 15–20 kg<strong>+ ₦1,500</strong></p>
+              <p>Over 20 kg<strong>Custom quotation required</strong></p>
+            </div>
+            <p
+              class="rate-formula"
+              id="rate-formula"
+            ></p>
+            <small
+              >Final quote is subject to weight and motorcycle suitability checks. Above 20 kg,
+              automatic pricing stops.</small
+            >
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer
+      class="site-footer"
+      id="contact"
+    >
       <div class="container">
         <div class="footer-grid">
           <div class="footer-brand">
-            <a href="index.html#home" aria-label="JAANA Logistics home">
-              <span class="footer-brand-art" role="img" aria-label="JAANA Delivery Services">
+            <a
+              href="index.html#home"
+              aria-label="JAANA Logistics home"
+            >
+              <span
+                class="footer-brand-art"
+                role="img"
+                aria-label="JAANA Delivery Services"
+              >
               </span>
             </a>
-            <p>
-              Fast, Reliable, Trusted Delivery
-            </p>
+            <p>Fast, Reliable, Trusted Delivery</p>
           </div>
           <div class="footer-col">
-            <h3>
-              Quick Links
-            </h3>
+            <h3>Quick Links</h3>
             <ul>
               <li>
-                <a href="index.html#home">
-                  Home
-                </a>
+                <a href="index.html#home"> Home </a>
               </li>
               <li>
-                <a href="index.html">
-                  About Us
-                </a>
+                <a href="index.html"> About Us </a>
               </li>
               <li>
-                <a href="index.html#services">
-                  Our Services
-                </a>
+                <a href="index.html#services"> Our Services </a>
               </li>
               <li>
-                <a href="index.html">
-                  Delivery Updates
-                </a>
+                <a href="index.html"> Delivery Updates </a>
               </li>
               <li>
-                <a href="index.html#contact">
-                  Contact Us
-                </a>
+                <a href="index.html#contact"> Contact Us </a>
               </li>
               <li><a href="admin.html">Staff Dashboard</a></li>
             </ul>
           </div>
           <div class="footer-col">
-            <h3>
-              Our Services
-            </h3>
+            <h3>Our Services</h3>
             <ul>
               <li>
-                <a href="index.html#service-documents">
-                  Document Delivery
-                </a>
+                <a href="index.html#service-documents"> Document Delivery </a>
               </li>
               <li>
-                <a href="index.html#service-commerce">
-                  E-commerce Delivery
-                </a>
+                <a href="index.html#service-commerce"> E-commerce Delivery </a>
               </li>
               <li>
-                <a href="index.html#service-food">
-                  Food Delivery
-                </a>
+                <a href="index.html#service-food"> Food Delivery </a>
               </li>
               <li>
-                <a href="index.html#service-bulk">
-                  Bulk &amp; Business Delivery
-                </a>
+                <a href="index.html#service-bulk"> Bulk &amp; Business Delivery </a>
               </li>
               <li>
-                <a href="index.html#service-custom">
-                  Custom Logistics Solutions
-                </a>
+                <a href="index.html#service-custom"> Custom Logistics Solutions </a>
               </li>
             </ul>
           </div>
-          <div class="footer-col footer-contact"><div class="footer-contact-details">
-            <h3>
-              Contact Us
-            </h3>
-            <address>
-              <a href="tel:+2349072573328">
-                <svg class="icon" aria-hidden="true">
-                  <use href="index.html#i-phone"/>
-                </svg>
-                0907 257 3328
-              </a>
-              <a href="https://wa.me/2348038422591" target="_blank" rel="noopener noreferrer">
-                <svg class="icon" aria-hidden="true">
-                  <use href="index.html#i-chat"/>
-                </svg>
-                0803 842 2591
-              </a>
-              <a href="mailto:jaanadelivery@gmail.com">
-                <svg class="icon" aria-hidden="true">
-                  <use href="index.html#i-mail"/>
-                </svg>
-                Jaanadelivery@gmail.com
-              </a>
-              <a href="https://www.google.com/maps/search/?api=1&amp;query=20%20Oyin%20Onibokun%20Crescent%20Isheri-Osun%20Lagos" target="_blank" rel="noopener noreferrer">
-                <svg class="icon" aria-hidden="true">
-                  <use href="index.html#i-pin"/>
-                </svg>
-                <span>
-                  No. 20 Oyin Onibokun Crescent,
-                  <br>
-                  Isheri-Osun, Lagos 102214.
-                </span>
-              </a>
-            </address></div>
-            <p class="business-hours"><strong>Working hours</strong><br>Monday&ndash;Saturday<br>9:00am&ndash;5:00pm (WAT)</p>
+          <div class="footer-col footer-contact">
+            <div class="footer-contact-details">
+              <h3>Contact Us</h3>
+              <address>
+                <a href="tel:+2349072573328">
+                  <svg
+                    class="icon"
+                    aria-hidden="true"
+                  >
+                    <use href="index.html#i-phone" />
+                  </svg>
+                  0907 257 3328
+                </a>
+                <a
+                  href="https://wa.me/2348038422591"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <svg
+                    class="icon"
+                    aria-hidden="true"
+                  >
+                    <use href="index.html#i-chat" />
+                  </svg>
+                  0803 842 2591
+                </a>
+                <a href="mailto:jaanadelivery@gmail.com">
+                  <svg
+                    class="icon"
+                    aria-hidden="true"
+                  >
+                    <use href="index.html#i-mail" />
+                  </svg>
+                  Jaanadelivery@gmail.com
+                </a>
+                <a
+                  href="https://www.google.com/maps/search/?api=1&amp;query=20%20Oyin%20Onibokun%20Crescent%20Isheri-Osun%20Lagos"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <svg
+                    class="icon"
+                    aria-hidden="true"
+                  >
+                    <use href="index.html#i-pin" />
+                  </svg>
+                  <span>
+                    No. 20 Oyin Onibokun Crescent,
+                    <br />
+                    Isheri-Osun, Lagos 102214.
+                  </span>
+                </a>
+              </address>
+            </div>
+            <p class="business-hours">
+              <strong>Working hours</strong><br />Monday&ndash;Saturday<br />9:00am&ndash;5:00pm
+              (WAT)
+            </p>
           </div>
           <div class="footer-col footer-social">
-            <h3>
-              Follow Us
-            </h3>
-            <ul class="socials" aria-label="Social platforms">
+            <h3>Follow Us</h3>
+            <ul
+              class="socials"
+              aria-label="Social platforms"
+            >
               <li>
-                <a href="https://www.facebook.com/profile.php?id=61593530777966" target="_blank" rel="noopener noreferrer" aria-label="JAANA on Facebook (opens in a new tab)">
-                  <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-                    <path fill="currentColor" d="M14 22v-9h3l.5-4H14V7c0-1 .5-2 2-2h2V1h-3c-4 0-6 2-6 6v2H6v4h3v9Z"/>
+                <a
+                  href="https://www.facebook.com/profile.php?id=61593530777966"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="JAANA on Facebook (opens in a new tab)"
+                >
+                  <svg
+                    class="social-icon"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M14 22v-9h3l.5-4H14V7c0-1 .5-2 2-2h2V1h-3c-4 0-6 2-6 6v2H6v4h3v9Z"
+                    />
                   </svg>
                 </a>
               </li>
               <li>
-                <a href="https://instagram.com/jaana_lagos?obrf=MWh0MG5neGR2dTM1ZA%3D%3D" target="_blank" rel="noopener noreferrer" aria-label="JAANA on Instagram (opens in a new tab)">
-                  <svg class="social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <rect x="3" y="3" width="18" height="18" rx="5"/>
-                    <circle cx="12" cy="12" r="4"/>
-                    <circle cx="18" cy="6" r="1" fill="currentColor"/>
+                <a
+                  href="https://instagram.com/jaana_lagos?obrf=MWh0MG5neGR2dTM1ZA%3D%3D"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="JAANA on Instagram (opens in a new tab)"
+                >
+                  <svg
+                    class="social-icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    aria-hidden="true"
+                  >
+                    <rect
+                      x="3"
+                      y="3"
+                      width="18"
+                      height="18"
+                      rx="5"
+                    />
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="4"
+                    />
+                    <circle
+                      cx="18"
+                      cy="6"
+                      r="1"
+                      fill="currentColor"
+                    />
                   </svg>
                 </a>
               </li>
               <li>
-                <a href="https://x.com/JAANALOGISTICS" target="_blank" rel="noopener noreferrer" aria-label="JAANA on X (opens in a new tab)">
-                  <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-                    <path fill="currentColor" d="M3 2h5l13 20h-5Zm3 2 11 16h1L7 4Z M20 2h2L4 22H2Z"/>
+                <a
+                  href="https://x.com/JAANALOGISTICS"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="JAANA on X (opens in a new tab)"
+                >
+                  <svg
+                    class="social-icon"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M3 2h5l13 20h-5Zm3 2 11 16h1L7 4Z M20 2h2L4 22H2Z"
+                    />
                   </svg>
                 </a>
               </li>
               <li>
-                <a href="https://wa.me/2348038422591" target="_blank" rel="noopener noreferrer" aria-label="Chat with JAANA on WhatsApp (opens in a new tab)">
-                  <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-                    <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M21 11.5a9 9 0 0 1-13.2 8L2 21l1.5-5.6A9 9 0 1 1 21 11.5Z"/>
-                    <path fill="currentColor" d="M8 6.5c-.5 0-1.5 1-1.5 2.2 0 2.8 4.1 6.9 7.4 7.3 1.4.2 2.6-.8 2.6-1.5v-.8l-2.7-1.3-1.1 1.2c-1.7-.7-2.8-1.8-3.5-3.4l1-1.1L9.1 6.5Z"/>
+                <a
+                  href="https://wa.me/2348038422591"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Chat with JAANA on WhatsApp (opens in a new tab)"
+                >
+                  <svg
+                    class="social-icon"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M21 11.5a9 9 0 0 1-13.2 8L2 21l1.5-5.6A9 9 0 1 1 21 11.5Z"
+                    />
+                    <path
+                      fill="currentColor"
+                      d="M8 6.5c-.5 0-1.5 1-1.5 2.2 0 2.8 4.1 6.9 7.4 7.3 1.4.2 2.6-.8 2.6-1.5v-.8l-2.7-1.3-1.1 1.2c-1.7-.7-2.8-1.8-3.5-3.4l1-1.1L9.1 6.5Z"
+                    />
                   </svg>
                 </a>
               </li>
@@ -244,12 +642,10 @@
           </div>
         </div>
         <div class="footer-bottom">
-          <p>
-            © 2026 JAANA Logistics. All rights reserved.
-          </p>
-          <p>
-            Fast, Reliable, Trusted Delivery.
-          </p>
+          <p>© 2026 JAANA Logistics. All rights reserved.</p>
+          <p>Fast, Reliable, Trusted Delivery.</p>
         </div>
       </div>
-    </footer></body></html>
+    </footer>
+  </body>
+</html>

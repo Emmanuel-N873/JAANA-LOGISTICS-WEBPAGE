@@ -8,6 +8,12 @@ Customers can request deliveries and save their booking references. Staff sign i
 
 See [the rollout and recovery guide](<Jaana Backend/docs/RELIABILITY-SECURITY.md>) before deploying migrations 0005 and 0006. It covers the authoritative `wrangler.jsonc` configuration, required signing/encryption secrets, MFA activation, staff recovery, provider budgets, search changes, security headers and staging verification.
 
+For a beginner-friendly backend walkthrough, read [the backend guide](<Jaana Backend/docs/BACKEND-GUIDE.md>) before changing API routes, authentication or database migrations.
+
+## Reading the frontend
+
+Start with [the frontend guide](docs/FRONTEND-GUIDE.md). It explains each script, browser storage, staff events, and the calculator-to-booking flow. Run `npm.cmd run check:frontend` inside `Jaana Backend` to check formatting, or `npm.cmd run format:frontend` to format frontend source.
+
 ## Project layout
 
 ```text
@@ -127,6 +133,8 @@ Set `GEOAPIFY_API_KEY` as a Cloudflare Pages secret for each deployed environmen
 The backend build includes the homepage, separate calculator page and assets/ from the parent folder. It maps dashboard/ source files to public staff asset URLs and copies configuration from public/. Live URLs remain `/api/bookings`, `/api/delivery-status`, `/api/admin/...` and `/admin.html`.
 
 Deploy only the generated `Jaana Backend/dist/` output with its Pages Functions. The source dashboard HTML belongs in `dashboard/`; its public URL remains `/admin.html`. Rebuild after changing source files and confirm HTTPS before accepting live bookings. Production database setup and deployment are separate actions; running the local development command does not publish the website.
+
+Before pushing a deployment, run `npm.cmd run build` followed by `npm.cmd run check:deployment` from `Jaana Backend`. The check is local-only: it verifies the generated files and routing configuration but does not publish the site or modify D1.
 
 ## Booking and staff workflow
 

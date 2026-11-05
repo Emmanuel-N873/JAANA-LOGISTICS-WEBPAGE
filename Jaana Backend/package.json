@@ -10,9 +10,13 @@
     "staff:bootstrap": "node scripts/create-admin.mjs",
     "test": "node --test tests/*.test.mjs",
     "staff:recover": "node scripts/recover-staff.mjs",
-    "test:performance": "node scripts/check-performance.mjs"
+    "test:performance": "node scripts/check-performance.mjs",
+    "check:deployment": "node scripts/check-deployment.mjs",
+    "format:frontend": "node scripts/format-frontend.mjs",
+    "check:frontend": "node scripts/format-frontend.mjs --check"
   },
   "devDependencies": {
+    "prettier": "3.6.2",
     "wrangler": "^4.0.0"
   },
   "engines": {

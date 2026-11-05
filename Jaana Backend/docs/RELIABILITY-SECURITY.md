@@ -88,3 +88,11 @@ Official reference: https://developers.cloudflare.com/pages/configuration/header
 4. Enroll a test staff account, verify password-plus-code sign-in, replay rejection, one-time recovery, session revocation, password reset and administrator-assisted recovery. Activate `REQUIRE_STAFF_MFA=true` after confirming the configuration.
 5. Request a real page, a fabricated static path, and an unknown API path. Expect 200, 404, 404. Check CSP/HSTS/no-store headers and foreign-Origin rejection.
 6. Check the provider dashboard quotas and available alerts, set a suitable application daily budget, monitor errors and route usage, and confirm preview settings do not point to production customer data.
+
+## Booking retry and saved-price behavior
+
+Pending booking attempts now retain a canonical request fingerprint and idempotency key in sessionStorage before submission. Reopening the booking form or recalculating a quote reuses the key when the actual booking details are unchanged; refreshed location tokens, road distance and estimate text do not create a new booking identity. Successful submission clears the stored attempt and drafts. Starting another booking resets the identity. If browser storage is blocked, only retries within the current page can retain their key.
+
+Booking responses include the saved shipment/pricing breakdown, including for duplicate retries. The customer form and WhatsApp message use this saved breakdown, with a visible notice if verification changed the estimate. A saved request remains subject to JAANA confirmation; this is not a payment authorization or fixed-price reservation.
+
+MFA settings return a validation error for an incorrect current password or second-factor code while preserving a valid session. Actual expired/invalid sessions still return 401. Failed MFA login attempts create `auth.mfa_failed` audit entries containing staff attribution, without passwords, authenticator codes, recovery codes or secrets.

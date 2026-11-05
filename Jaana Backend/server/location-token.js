@@ -11,10 +11,7 @@ function toBase64Url(bytes) {
     binary += String.fromCharCode(byte);
   }
 
-  return btoa(binary)
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
 function fromBase64Url(value) {
@@ -23,15 +20,11 @@ function fromBase64Url(value) {
   }
 
   try {
-    const base64 = value
-      .replace(/-/g, '+')
-      .replace(/_/g, '/');
+    const base64 = value.replace(/-/g, '+').replace(/_/g, '/');
 
-    const binary = atob(
-      base64.padEnd(Math.ceil(base64.length / 4) * 4, '=')
-    );
+    const binary = atob(base64.padEnd(Math.ceil(base64.length / 4) * 4, '='));
 
-    return Uint8Array.from(binary, char => char.charCodeAt(0));
+    return Uint8Array.from(binary, (char) => char.charCodeAt(0));
   } catch {
     throw new HttpError(400, 'Invalid location selection.');
   }
@@ -41,10 +34,7 @@ async function signingKey(env) {
   const secret = env.LOCATION_SIGNING_SECRET;
 
   if (typeof secret !== 'string' || secret.length < 32) {
-    throw new HttpError(
-      503,
-      'Secure location selection is temporarily unavailable.'
-    );
+    throw new HttpError(503, 'Secure location selection is temporarily unavailable.');
   }
 
   return crypto.subtle.importKey(
@@ -70,20 +60,14 @@ export async function signLocation(env, location) {
     label: location.label,
     lat: location.lat,
     lon: location.lon,
-    exp: Math.floor(Date.now() / 1000) + MAX_AGE_SECONDS
+    exp: Math.floor(Date.now() / 1000) + MAX_AGE_SECONDS,
   };
 
-  const encoded = toBase64Url(
-    encoder.encode(JSON.stringify(payload))
-  );
+  const encoded = toBase64Url(encoder.encode(JSON.stringify(payload)));
 
   const key = await signingKey(env);
 
-  const signature = await crypto.subtle.sign(
-    'HMAC',
-    key,
-    encoder.encode(encoded)
-  );
+  const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(encoded));
 
   return `${encoded}.${toBase64Url(new Uint8Array(signature))}`;
 }
@@ -138,6 +122,6 @@ export async function verifyLocation(env, token, expectedLabel) {
 
   return {
     lat: location.lat,
-    lon: location.lon
+    lon: location.lon,
   };
 }

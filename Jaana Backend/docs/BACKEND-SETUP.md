@@ -1,6 +1,6 @@
 ﻿# Activate the backend on Cloudflare
 
-The backend is implemented and tested locally. Live order storage requires a real D1 database and an individual administrator account. Do not deploy with the all-zero database ID in wrangler.jsonc.
+The backend is implemented and tested locally. Live order storage requires a real D1 database and an individual administrator account. Before deploying, confirm that the database ID in `wrangler.jsonc` belongs to the intended company-owned database.
 
 Read [RELIABILITY-SECURITY.md](RELIABILITY-SECURITY.md) for the current migration, secret, MFA and header requirements. Only `wrangler.jsonc` is active.
 
@@ -15,7 +15,7 @@ npx.cmd wrangler login
 npx.cmd wrangler d1 create jaana-orders
 ```
 
-Replace the all-zero database_id in wrangler.jsonc with the ID printed by the last command. Keep the binding name DB. Set name to your actual Cloudflare Pages project name if it differs from jaana-logistics. A database ID is configuration, not a secret, and may be committed.
+Replace the `database_id` in `wrangler.jsonc` with the ID printed by the last command if it is not already the intended company database. Keep the binding name DB. Set name to your actual Cloudflare Pages project name if it differs from jaana-logistics. A database ID is configuration, not a secret, and may be committed.
 
 ## 2. Create production tables
 
@@ -44,6 +44,15 @@ Follow [STAFF-ACCOUNTS.md](STAFF-ACCOUNTS.md) to generate and apply a first-admi
 Pages installs and builds from `Jaana Backend`, compiles its `functions/` directory and reads its DB binding from `wrangler.jsonc`. The build script includes the customer HTML/CSS/JavaScript and images from the parent folder, plus the staff interface from dashboard/ and the routing/header configuration from public/. Public URLs stay `/api/...` and `/admin.html`. Commit the code, package-lock.json and real database configuration, then push and redeploy. Check the deployed project's bindings before accepting orders. Use a separate test database and staff accounts if enabling backend access in preview deployments.
 
 The output directory is `dist`, relative to `Jaana Backend` (the full repository path is `Jaana Backend/dist`). Do not publish the repository root as the static output: dist/ deliberately contains public assets only.
+
+Before pushing a release, run the local deployment check:
+
+```powershell
+npm.cmd run build
+npm.cmd run check:deployment
+```
+
+This confirms that the generated output contains the customer pages, staff dashboard, API routing files and required assets. It also fails if known secret files or server-only folders appear in `dist/`. It does not contact Cloudflare or change the production database.
 
 ## 5. Test the public HTTPS site
 

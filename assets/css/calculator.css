@@ -1,12 +1,386 @@
-﻿.rate-section{background:#f3f8fd;padding:60px 0;color:#082553;scroll-margin-top:30px}.rate-heading{display:flex;justify-content:space-between;align-items:center;gap:24px;margin-bottom:24px}.rate-heading h2{font-size:clamp(28px,3vw,44px);margin:0}.rate-heading p{font-size:19px}.rate-badges{display:flex;gap:14px;flex-wrap:wrap}.rate-badges span{padding:18px;background:#e6f1ff;border-radius:14px}.rate-badges span:last-child,.rate-custom{background:#fff5d7}.rate-layout{display:grid;grid-template-columns:1.65fr 1fr;gap:22px}.rate-card{background:white;border:1px solid #e8eef6;border-radius:14px;padding:26px;box-shadow:0 6px 28px #12345a06}.rate-card h3{font-size:26px;margin:0 0 20px}.rate-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.rate-fields label,.booking-shipment label{display:flex;flex-direction:column;gap:8px;font-weight:600}.rate-fields input,.rate-fields select,.booking-shipment input,.booking-shipment textarea{width:100%;padding:12px;border:1px solid #cad6e8;border-radius:7px;font:inherit;background:white;color:#082553;box-sizing:border-box}.rate-card p,.rate-weights small{line-height:1.6}.rate-actions{display:flex;gap:15px;flex-wrap:wrap}.rate-summary h3{background:#103762;color:white;padding:18px;margin:-26px -26px 20px;border-radius:14px 14px 0 0}.rate-summary dl>div{display:flex;justify-content:space-between;gap:15px;padding:13px 0;border-bottom:1px solid #e0e7f0}.rate-summary dd{margin:0;font-weight:700}.rate-total{font-size:24px}.rate-total dd{font-size:32px}.rate-continue{background:#ffca21;color:#082553;width:100%;margin:16px 0;font-size:18px}.rate-continue:disabled{opacity:.5;cursor:not-allowed}.rate-custom{padding:18px;border-radius:12px}.rate-custom h4{font-size:20px;margin:0}.rate-custom a{width:100%}.rate-weights{margin-top:20px}.weight-tiers{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.weight-tiers p{text-align:center;background:#f1f6ff;border-radius:10px;padding:14px;font-weight:600}.weight-tiers strong{display:block;color:#005bea}.rate-formula{background:#e3f0ff;padding:14px;border-radius:8px;color:#005bea;font-weight:700}.booking-shipment{border:1px solid #cad6e8;border-radius:10px;padding:16px;margin:12px 0}.booking-shipment legend{font-weight:700}.brand-art,.footer-brand-art{background-size:contain;background-position:center}.rate-card a{color:#005bea}.rate-custom a{color:white}@media(max-width:800px){.rate-heading{display:block}.rate-layout{grid-template-columns:1fr}.weight-tiers{grid-template-columns:repeat(2,1fr)}.rate-card{padding:20px}.rate-summary h3{margin:-20px -20px 20px}.rate-fields{grid-template-columns:1fr}.rate-section{padding:35px 0}}[hidden]{display:none!important}
+﻿.rate-section {
+  background: #f3f8fd;
+  padding: 60px 0;
+  color: #082553;
+  scroll-margin-top: 30px;
+}
+.rate-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.rate-heading h2 {
+  font-size: clamp(28px, 3vw, 44px);
+  margin: 0;
+}
+.rate-heading p {
+  font-size: 19px;
+}
+.rate-badges {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.rate-badges span {
+  padding: 18px;
+  background: #e6f1ff;
+  border-radius: 14px;
+}
+.rate-badges span:last-child,
+.rate-custom {
+  background: #fff5d7;
+}
+.rate-layout {
+  display: grid;
+  grid-template-columns: 1.65fr 1fr;
+  gap: 22px;
+}
+.rate-card {
+  background: white;
+  border: 1px solid #e8eef6;
+  border-radius: 14px;
+  padding: 26px;
+  box-shadow: 0 6px 28px #12345a06;
+}
+.rate-card h3 {
+  font-size: 26px;
+  margin: 0 0 20px;
+}
+.rate-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+.rate-fields label,
+.booking-shipment label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: 600;
+}
+.rate-fields input,
+.rate-fields select,
+.booking-shipment input,
+.booking-shipment textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #cad6e8;
+  border-radius: 7px;
+  font: inherit;
+  background: white;
+  color: #082553;
+  box-sizing: border-box;
+}
+.rate-card p,
+.rate-weights small {
+  line-height: 1.6;
+}
+.rate-actions {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+.rate-summary h3 {
+  background: #103762;
+  color: white;
+  padding: 18px;
+  margin: -26px -26px 20px;
+  border-radius: 14px 14px 0 0;
+}
+.rate-summary dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 13px 0;
+  border-bottom: 1px solid #e0e7f0;
+}
+.rate-summary dd {
+  margin: 0;
+  font-weight: 700;
+}
+.rate-total {
+  font-size: 24px;
+}
+.rate-total dd {
+  font-size: 32px;
+}
+.rate-continue {
+  background: #ffca21;
+  color: #082553;
+  width: 100%;
+  margin: 16px 0;
+  font-size: 18px;
+}
+.rate-continue:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.rate-custom {
+  padding: 18px;
+  border-radius: 12px;
+}
+.rate-custom h4 {
+  font-size: 20px;
+  margin: 0;
+}
+.rate-custom a {
+  width: 100%;
+}
+.rate-weights {
+  margin-top: 20px;
+}
+.weight-tiers {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+.weight-tiers p {
+  text-align: center;
+  background: #f1f6ff;
+  border-radius: 10px;
+  padding: 14px;
+  font-weight: 600;
+}
+.weight-tiers strong {
+  display: block;
+  color: #005bea;
+}
+.rate-formula {
+  background: #e3f0ff;
+  padding: 14px;
+  border-radius: 8px;
+  color: #005bea;
+  font-weight: 700;
+}
+.booking-shipment {
+  border: 1px solid #cad6e8;
+  border-radius: 10px;
+  padding: 16px;
+  margin: 12px 0;
+}
+.booking-shipment legend {
+  font-weight: 700;
+}
+.brand-art,
+.footer-brand-art {
+  background-size: contain;
+  background-position: center;
+}
+.rate-card a {
+  color: #005bea;
+}
+.rate-custom a {
+  color: white;
+}
+@media (max-width: 800px) {
+  .rate-heading {
+    display: block;
+  }
+  .rate-layout {
+    grid-template-columns: 1fr;
+  }
+  .weight-tiers {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .rate-card {
+    padding: 20px;
+  }
+  .rate-summary h3 {
+    margin: -20px -20px 20px;
+  }
+  .rate-fields {
+    grid-template-columns: 1fr;
+  }
+  .rate-section {
+    padding: 35px 0;
+  }
+}
+[hidden] {
+  display: none !important;
+}
 
-
-.brand-art,.footer-brand-art{background:white url("../images/Company Logo.jpeg") 48% 52.5% / 135% auto no-repeat}
+.brand-art,
+.footer-brand-art {
+  background: white url('../images/Company Logo.jpeg') 48% 52.5% / 135% auto no-repeat;
+}
 /* Dedicated calculator page and shared footer alignment. */
-.calculator-header{background:#103762;color:white;padding:12px 0}.calculator-header>.container{display:flex;align-items:center;justify-content:space-between;gap:24px}.calculator-header .brand-art{width:200px;height:64px;border-radius:8px}.calculator-header nav{display:flex;gap:clamp(18px,4vw,56px);font-size:18px;font-weight:600}.calculator-header nav a{padding:12px 0}.calculator-header nav a:hover{color:#ffca21}.calculator-page .rate-section{padding:36px 0 42px}.calculator-page .container{max-width:1440px}.calculator-fields{grid-template-columns:repeat(6,minmax(0,1fr))}.calculator-fields label{grid-column:span 2}.calculator-fields label:nth-child(-n+2){grid-column:span 3}.calculator-page .rate-layout{grid-template-columns:minmax(0,1.65fr) minmax(320px,1fr)}.calculator-page .rate-heading{align-items:center}.calculator-page .rate-heading h2{font-size:clamp(30px,3.3vw,48px)}.calculator-page .rate-summary{display:flex;flex-direction:column}.calculator-page .rate-custom{margin-top:auto}.calculator-page .rate-fields input,.calculator-page .rate-fields select{min-height:48px}.calculator-page .rate-card>p{font-size:14px;color:#50678d}.calculator-page .rate-actions{margin-top:20px}.calculator-page .rate-actions .button-blue{min-width:220px}.footer-grid{grid-template-columns:1.05fr .8fr 1fr 2.2fr .7fr;gap:20px}.footer-contact{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(105px,1fr);gap:20px;padding-left:20px;align-items:start}.footer-contact .business-hours{margin:0;font-size:10px;line-height:1.6}.footer-contact .business-hours strong{display:inline-block;margin-bottom:5px;font-size:11px}.footer-contact-details{min-width:0}
-@media(max-width:1050px){.footer-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.footer-contact{grid-column:span 2}.calculator-page .rate-heading{display:block}.calculator-page .rate-badges{margin-top:20px}}
-@media(max-width:800px){.calculator-page .rate-layout{grid-template-columns:1fr}.calculator-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.calculator-fields label,.calculator-fields label:nth-child(-n+2){grid-column:auto}.calculator-fields label:nth-child(-n+2){grid-column:1/-1}.calculator-header nav{font-size:14px;gap:18px}.calculator-header .brand-art{width:150px;height:52px}.calculator-header .brand{flex-basis:150px}.footer-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.footer-contact{grid-column:1/-1;border-left:0;padding-left:0;grid-template-columns:minmax(0,1.5fr) minmax(105px,1fr)}.footer-social{grid-column:1/-1}.calculator-page .rate-summary .rate-custom{margin-top:10px}}
-@media(max-width:440px){.calculator-header>.container{gap:12px;flex-wrap:wrap}.calculator-header nav{width:100%;justify-content:space-between}.calculator-fields{grid-template-columns:1fr}.calculator-fields label{grid-column:1/-1}.calculator-page .rate-actions .button-blue{min-width:0;width:100%}.weight-tiers{grid-template-columns:1fr}}
+.calculator-header {
+  background: #103762;
+  color: white;
+  padding: 12px 0;
+}
+.calculator-header > .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.calculator-header .brand-art {
+  width: 200px;
+  height: 64px;
+  border-radius: 8px;
+}
+.calculator-header nav {
+  display: flex;
+  gap: clamp(18px, 4vw, 56px);
+  font-size: 18px;
+  font-weight: 600;
+}
+.calculator-header nav a {
+  padding: 12px 0;
+}
+.calculator-header nav a:hover {
+  color: #ffca21;
+}
+.calculator-page .rate-section {
+  padding: 36px 0 42px;
+}
+.calculator-page .container {
+  max-width: 1440px;
+}
+.calculator-fields {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+.calculator-fields label {
+  grid-column: span 2;
+}
+.calculator-fields label:nth-child(-n + 2) {
+  grid-column: span 3;
+}
+.calculator-page .rate-layout {
+  grid-template-columns: minmax(0, 1.65fr) minmax(320px, 1fr);
+}
+.calculator-page .rate-heading {
+  align-items: center;
+}
+.calculator-page .rate-heading h2 {
+  font-size: clamp(30px, 3.3vw, 48px);
+}
+.calculator-page .rate-summary {
+  display: flex;
+  flex-direction: column;
+}
+.calculator-page .rate-custom {
+  margin-top: auto;
+}
+.calculator-page .rate-fields input,
+.calculator-page .rate-fields select {
+  min-height: 48px;
+}
+.calculator-page .rate-card > p {
+  font-size: 14px;
+  color: #50678d;
+}
+.calculator-page .rate-actions {
+  margin-top: 20px;
+}
+.calculator-page .rate-actions .button-blue {
+  min-width: 220px;
+}
+.footer-grid {
+  grid-template-columns: 1.05fr 0.8fr 1fr 2.2fr 0.7fr;
+  gap: 20px;
+}
+.footer-contact {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(105px, 1fr);
+  gap: 20px;
+  padding-left: 20px;
+  align-items: start;
+}
+.footer-contact .business-hours {
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.6;
+}
+.footer-contact .business-hours strong {
+  display: inline-block;
+  margin-bottom: 5px;
+  font-size: 11px;
+}
+.footer-contact-details {
+  min-width: 0;
+}
+@media (max-width: 1050px) {
+  .footer-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .footer-contact {
+    grid-column: span 2;
+  }
+  .calculator-page .rate-heading {
+    display: block;
+  }
+  .calculator-page .rate-badges {
+    margin-top: 20px;
+  }
+}
+@media (max-width: 800px) {
+  .calculator-page .rate-layout {
+    grid-template-columns: 1fr;
+  }
+  .calculator-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .calculator-fields label,
+  .calculator-fields label:nth-child(-n + 2) {
+    grid-column: auto;
+  }
+  .calculator-fields label:nth-child(-n + 2) {
+    grid-column: 1/-1;
+  }
+  .calculator-header nav {
+    font-size: 14px;
+    gap: 18px;
+  }
+  .calculator-header .brand-art {
+    width: 150px;
+    height: 52px;
+  }
+  .calculator-header .brand {
+    flex-basis: 150px;
+  }
+  .footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .footer-contact {
+    grid-column: 1/-1;
+    border-left: 0;
+    padding-left: 0;
+    grid-template-columns: minmax(0, 1.5fr) minmax(105px, 1fr);
+  }
+  .footer-social {
+    grid-column: 1/-1;
+  }
+  .calculator-page .rate-summary .rate-custom {
+    margin-top: 10px;
+  }
+}
+@media (max-width: 440px) {
+  .calculator-header > .container {
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .calculator-header nav {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .calculator-fields {
+    grid-template-columns: 1fr;
+  }
+  .calculator-fields label {
+    grid-column: 1/-1;
+  }
+  .calculator-page .rate-actions .button-blue {
+    min-width: 0;
+    width: 100%;
+  }
+  .weight-tiers {
+    grid-template-columns: 1fr;
+  }
+}
 
 /* JAANA Logistics — Address Autocomplete */
 
@@ -57,7 +431,7 @@
 
 .address-suggestion:hover,
 .address-suggestion:focus-visible,
-.address-suggestion[aria-selected="true"] {
+.address-suggestion[aria-selected='true'] {
   background: #eaf4ff;
   outline: none;
 }
@@ -72,5 +446,12 @@
   }
 }
 
-[data-calculator-locked]{background:#f1f5fa!important;color:#183153;cursor:pointer}
-[data-calculator-locked]:focus-visible{outline:2px solid #005bea;outline-offset:2px}
+[data-calculator-locked] {
+  background: #f1f5fa !important;
+  color: #183153;
+  cursor: pointer;
+}
+[data-calculator-locked]:focus-visible {
+  outline: 2px solid #005bea;
+  outline-offset: 2px;
+}

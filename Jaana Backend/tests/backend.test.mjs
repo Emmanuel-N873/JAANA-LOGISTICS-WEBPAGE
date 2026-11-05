@@ -664,8 +664,34 @@ test('MFA cannot be disabled without a second factor, and concurrent confirmatio
  const codes=(await winner.json()).recoveryCodes;
  assert.equal(env.sqlite.prepare('SELECT COUNT(*) n FROM staff_recovery_codes').get().n,8);
  const login=await call(staffAuth,env,{query:'?action=login',data:{email:'admin@jaana.example',password,code:codes[0]}});assert.equal(login.status,200);const session=cookieToken(login);
- assert.equal((await call(mfaEndpoint,env,{token:session,data:{action:'disable',password,code:'000000'}})).status,401);
- // Incorrect credentials deliberately revoke the dashboard's UI session only; backend cookie is still checked normally.
+ assert.equal((await call(mfaEndpoint,env,{token:session,data:{action:'disable',password,code:'invalid-code'}})).status,400);
+ // Reauthentication failures preserve the valid staff session.
  const disabled=await call(mfaEndpoint,env,{token:session,data:{action:'disable',password,code:codes[1]}});assert.equal(disabled.status,200);
  assert.equal(env.sqlite.prepare('SELECT mfa_secret FROM staff_users').get().mfa_secret,null);assert.equal(env.sqlite.prepare('SELECT COUNT(*) n FROM staff_recovery_codes').get().n,0);env.sqlite.close();
+});
+
+test('booking responses and retries return the saved price after administrator rates change',async()=>{
+ const env=setup();Object.assign(env,{GEOAPIFY_API_KEY:'mock',LOCATION_SIGNING_SECRET:'test-signing-secret-at-least-32-characters'});const original=globalThis.fetch;
+ try{
+  globalThis.fetch=async()=>Response.json({features:[{properties:{distance:12000}}]});
+  const data={...order(),packages:'1',weight:'8',distanceKm:'12',estimateSummary:'Old estimate: 4100'};
+  data.pickupToken=await signLocation(env,{label:data.pickup,lat:6.6,lon:3.3});data.destinationToken=await signLocation(env,{label:data.destination,lat:6.4,lon:3.4});
+  env.sqlite.prepare('UPDATE delivery_pricing SET per_km=400 WHERE id=1').run();
+  const key=crypto.randomUUID(),created=await call(create,env,{data,key});assert.equal(created.status,201);const result=await created.json();assert.equal(result.shipment.total,5300);assert.equal(result.shipment.rates.perKm,400);
+  env.sqlite.prepare('UPDATE delivery_pricing SET per_km=500 WHERE id=1').run();
+  const retry=await call(create,env,{data,key});assert.equal(retry.status,200);const saved=await retry.json();assert.equal(saved.reference,result.reference);assert.deepEqual(saved.shipment,result.shipment);
+ }finally{globalThis.fetch=original;env.sqlite.close();}
+});
+test('incorrect MFA settings credentials leave the existing staff session usable',async()=>{
+ const env=setup();env.MFA_ENCRYPTION_KEY='test-encryption-secret-at-least-32-characters';const {token}=await loginAccount(env);
+ const failure=await call(mfaEndpoint,env,{token,data:{action:'begin',password:'Incorrect current password'}});assert.equal(failure.status,400);assert.match((await failure.json()).error,/password is incorrect/);
+ const me=await call(staffAuth,env,{method:'GET',token});assert.equal(me.status,200);env.sqlite.close();
+});
+test('failed authenticator and recovery-code login attempts are audited without secret material',async()=>{
+ const env=setup();env.MFA_ENCRYPTION_KEY='test-encryption-secret-at-least-32-characters';const password='Local test password 123!';await loginAccount(env);
+ const {sealSecret}=await import('../server/mfa.js');const secret='GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ';
+ env.sqlite.prepare('UPDATE staff_users SET mfa_secret=? WHERE id=?').run(await sealSecret(env,secret),'test-admin');
+ for(const code of ['invalid-code','f'.repeat(24)])assert.equal((await call(staffAuth,env,{query:'?action=login',data:{email:'admin@jaana.example',password,code}})).status,401);
+ const events=env.sqlite.prepare("SELECT * FROM staff_audit WHERE action='auth.mfa_failed'").all();assert.equal(events.length,2);assert(events.every(row=>row.staff_id==='test-admin'));
+ const recorded=JSON.stringify(events);for(const value of [password,secret,'invalid-code','f'.repeat(24)])assert(!recorded.includes(value));env.sqlite.close();
 });

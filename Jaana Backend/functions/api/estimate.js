@@ -7,22 +7,22 @@ async function geoapifyRequest(url) {
 
   try {
     response = await fetch(url, {
-      signal: AbortSignal.timeout(10000)
+      signal: AbortSignal.timeout(10000),
     });
   } catch {
-    throw new HttpError(503, 'The map service is unavailable. Please retry or contact JAANA on WhatsApp.');
+    throw new HttpError(
+      503,
+      'The map service is unavailable. Please retry or contact JAANA on WhatsApp.'
+    );
   }
 
   if (!response.ok) {
     console.error('Geoapify request failed:', {
       endpoint: new URL(url).pathname,
-      status: response.status
+      status: response.status,
     });
 
-    throw new HttpError(
-      503,
-      'The map service could not calculate your route. Please retry later.'
-    );
+    throw new HttpError(503, 'The map service could not calculate your route. Please retry later.');
   }
 
   try {
@@ -30,13 +30,10 @@ async function geoapifyRequest(url) {
   } catch (error) {
     console.error('Geoapify JSON parsing failed:', {
       endpoint: new URL(url).pathname,
-      errorType: error.name
+      errorType: error.name,
     });
 
-    throw new HttpError(
-      503,
-      'The map service returned an invalid response. Please retry later.'
-    );
+    throw new HttpError(503, 'The map service returned an invalid response. Please retry later.');
   }
 }
 
@@ -52,12 +49,7 @@ async function geocode(address, apiKey) {
 
   const location = data.features?.[0]?.properties;
 
-
-  if (
-    !location ||
-    !Number.isFinite(location.lat) ||
-    !Number.isFinite(location.lon)
-  ) {
+  if (!location || !Number.isFinite(location.lat) || !Number.isFinite(location.lon)) {
     throw new HttpError(
       400,
       'We could not locate one of your addresses. Please enter a more complete address.'
@@ -84,13 +76,7 @@ async function geocode(address, apiKey) {
   return { lat: location.lat, lon: location.lon };
 }
 
-export async function route(
-  context,
-  pickup,
-  destination,
-  pickupToken,
-  destinationToken
-) {
+export async function route(context, pickup, destination, pickupToken, destinationToken) {
   const apiKey = context.env.GEOAPIFY_API_KEY;
 
   if (!apiKey) {
@@ -102,22 +88,25 @@ export async function route(
 
   const [origin, target] = await Promise.all([
     verifyLocation(context.env, pickupToken, pickup),
-    verifyLocation(context.env, destinationToken, destination)
+    verifyLocation(context.env, destinationToken, destination),
   ]);
 
   const url = new URL('https://api.geoapify.com/v1/routing');
 
-  url.searchParams.set(
-    'waypoints',
-    `${origin.lat},${origin.lon}|${target.lat},${target.lon}`
-  );
+  url.searchParams.set('waypoints', `${origin.lat},${origin.lon}|${target.lat},${target.lon}`);
   url.searchParams.set('mode', 'drive');
   url.searchParams.set('apiKey', apiKey);
 
-  const dailyLimit=Number(context.env.ROUTING_DAILY_LIMIT||1000);
-  if(!Number.isSafeInteger(dailyLimit)||dailyLimit<1)throw new HttpError(503,'Routing is temporarily unavailable.');
-  const globalContext={...context,request:new Request(context.request.url,{headers:{'CF-Connecting-IP':'routing-global'}})};
-  await rateLimit(globalContext,'routing-daily',dailyLimit,86400);
+  const dailyLimit = Number(context.env.ROUTING_DAILY_LIMIT || 1000);
+  if (!Number.isSafeInteger(dailyLimit) || dailyLimit < 1)
+    throw new HttpError(503, 'Routing is temporarily unavailable.');
+  const globalContext = {
+    ...context,
+    request: new Request(context.request.url, {
+      headers: { 'CF-Connecting-IP': 'routing-global' },
+    }),
+  };
+  await rateLimit(globalContext, 'routing-daily', dailyLimit, 86400);
   const data = await geoapifyRequest(url);
 
   const meters = data.features?.[0]?.properties?.distance;
@@ -158,7 +147,7 @@ export async function onRequest(context) {
     return json({
       distanceKm,
       rates,
-      ...estimate(distanceKm, weight, rates)
+      ...estimate(distanceKm, weight, rates),
     });
   });
 }

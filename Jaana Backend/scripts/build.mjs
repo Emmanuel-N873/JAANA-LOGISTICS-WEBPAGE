@@ -4,10 +4,19 @@ import { fileURLToPath } from 'node:url';
 const backend = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const frontend = path.dirname(backend);
 const output = path.resolve(backend, 'dist');
-if (path.dirname(output) !== backend || path.basename(output) !== 'dist') throw new Error('Unsafe output path');
+if (path.dirname(output) !== backend || path.basename(output) !== 'dist')
+  throw new Error('Unsafe output path');
 // Rebuild only the verified generated-output directory, never the source tree.
 await rm(output, { recursive: true, force: true });
-const pending = ['index.html', 'admin.html', '404.html', 'google951b51027c7a799d.html', '_routes.json', '_headers'];
+const pending = [
+  'index.html',
+  'admin.html',
+  'favicon.ico',
+  '404.html',
+  'google951b51027c7a799d.html',
+  '_routes.json',
+  '_headers',
+];
 // Public URL -> private source location. Only explicitly mapped staff/config files are published.
 const backendAssets = new Map([
   ['admin.html', 'dashboard/admin.html'],
@@ -20,7 +29,7 @@ const backendAssets = new Map([
   ['assets/js/admin-accounts.js', 'dashboard/js/admin-accounts.js'],
   ['assets/js/admin-notifications.js', 'dashboard/js/admin-notifications.js'],
   ['_routes.json', 'public/_routes.json'],
-  ['_headers', 'public/_headers']
+  ['_headers', 'public/_headers'],
 ]);
 const copied = new Set();
 while (pending.length) {
@@ -28,7 +37,12 @@ while (pending.length) {
   if (copied.has(file)) continue;
   const sourceRoot = backendAssets.has(file) ? backend : frontend;
   const source = path.resolve(sourceRoot, backendAssets.get(file) || file);
-  if (!source.startsWith(sourceRoot + path.sep) || file.startsWith('dist/') || file.startsWith('Jaana Backend/')) throw new Error('Invalid asset path');
+  if (
+    !source.startsWith(sourceRoot + path.sep) ||
+    file.startsWith('dist/') ||
+    file.startsWith('Jaana Backend/')
+  )
+    throw new Error('Invalid asset path');
   await mkdir(path.dirname(path.join(output, file)), { recursive: true });
   await copyFile(source, path.join(output, file));
   copied.add(file);
@@ -37,7 +51,11 @@ while (pending.length) {
   for (const match of contents.matchAll(/(?:src|href)="([^"#]+)"|url\(['"]?([^'")]+)['"]?\)/g)) {
     const asset = match[1] || match[2];
     if (/^(?:[a-z]+:|\/\/|#)/i.test(asset)) continue;
-    pending.push(path.posix.normalize(path.posix.join(path.posix.dirname(file), asset.replace(/^\//, ''))));
+    pending.push(
+      path.posix.normalize(path.posix.join(path.posix.dirname(file), asset.replace(/^\//, '')))
+    );
   }
 }
-console.log(`Prepared ${copied.size} public assets in dist/. Server code, database and secrets are excluded.`);
+console.log(
+  `Prepared ${copied.size} public assets in dist/. Server code, database and secrets are excluded.`
+);
