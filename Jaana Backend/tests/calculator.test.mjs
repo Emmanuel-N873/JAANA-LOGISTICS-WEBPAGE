@@ -7,7 +7,7 @@ const pricePresentation = readFileSync(
   new URL('../../assets/js/delivery-summary.js', import.meta.url),
   'utf8'
 );
-function calculator() {
+function calculator(options = {}) {
   const timers = new Map();
   let timerId = 0,
     selection = 0;
@@ -66,9 +66,21 @@ function calculator() {
     activeElement: null,
   };
   const requests = [];
+  const geolocation = {
+    getCurrentPosition(resolve) {
+      resolve({
+        coords: {
+          latitude: 6.5244,
+          longitude: 3.3792,
+          accuracy: options.accuracy ?? 25,
+        },
+      });
+    },
+  };
   const context = {
     document: doc,
     window: { location: {} },
+    navigator: { geolocation },
     sessionStorage: { getItem: () => null, setItem() {} },
     FormData: class {
       constructor() {
@@ -76,6 +88,7 @@ function calculator() {
       }
     },
     Intl,
+    URLSearchParams,
     AbortController,
     AbortSignal,
     Event,
@@ -89,6 +102,26 @@ function calculator() {
       requests.push({ url, options });
       if (url === '/api/pricing')
         return { ok: true, json: async () => ({ perKm: 300, minimum: 2000 }) };
+      if (url.startsWith('/api/locations?lat='))
+        if (url.includes('accuracy=5001'))
+          return {
+            ok: false,
+            json: async () => ({
+              error: 'Your location is too inaccurate. Please search for the address instead.',
+              code: 'accuracy_rejected',
+              requestType: 'reverse',
+            }),
+          };
+        else
+          return {
+            ok: true,
+            json: async () => ({
+              location: {
+                label: 'Current location, Lagos, Nigeria',
+                token: 'signed-current-location-token',
+              },
+            }),
+          };
       if (url === '/api/estimate')
         return {
           ok: true,
@@ -191,4 +224,44 @@ test('Reset clears selected-location proof tokens as well as the visible estimat
   await c.settle();
   assert(!c.requests.some((r) => r.url === '/api/estimate'));
   assert.match(c.get('rate-feedback').textContent, /select both addresses/);
+});
+
+test('current location reverse-geocodes into a signed address selection', async () => {
+  const c = calculator();
+  c.get('pickup-location-button').fire('click');
+  await c.settle();
+
+  assert.equal(c.form.elements.pickup.value, 'Current location, Lagos, Nigeria');
+  assert.match(c.get('pickup-location-status').textContent, /Confirm this address/);
+  const reverseRequest = c.requests.find((request) =>
+    request.url.startsWith('/api/locations?lat=')
+  );
+  assert(reverseRequest);
+  assert.match(reverseRequest.url, /lon=3\.3792/);
+});
+test('inaccurate device locations remain rejected with a helpful message', async () => {
+  const c = calculator({ accuracy: 5001 });
+  c.get('pickup-location-button').fire('click');
+  await c.settle();
+
+  assert.equal(c.form.elements.pickup.value, '');
+  assert.match(c.get('pickup-location-status').textContent, /too inaccurate/);
+  const reverseRequest = c.requests.find((request) =>
+    request.url.startsWith('/api/locations?lat=')
+  );
+  assert(reverseRequest);
+  assert.match(reverseRequest.url, /accuracy=5001/);
+});
+test('pickup and delivery autocomplete preserve independent signed selections', async () => {
+  const c = calculator();
+  await c.select('pickup');
+  await c.select('destination');
+  assert.equal(c.form.elements.pickup.value, 'Selected address 1');
+  assert.equal(c.form.elements.destination.value, 'Selected address 2');
+  c.form.fire('submit');
+  await c.settle();
+  const estimate = c.requests.find((request) => request.url === '/api/estimate');
+  assert(estimate);
+  assert.equal(estimate.options.body.includes('signed-token-1'), true);
+  assert.equal(estimate.options.body.includes('signed-token-2'), true);
 });

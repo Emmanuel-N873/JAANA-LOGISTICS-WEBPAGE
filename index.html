@@ -8,7 +8,7 @@
     />
     <meta
       name="description"
-      content="JAANA Logistics provides document, e-commerce, food and business delivery across Lagos."
+      content="JAANA Delivery Service Ltd provides document, e-commerce, food and business delivery across Lagos."
     />
     <meta
       name="theme-color"
@@ -20,7 +20,7 @@
       sizes="180x180"
       href="assets/images/apple-touch-icon.png"
     />
-    <title>JAANA Logistics — Fast, Reliable, Trusted Delivery</title>
+    <title>JAANA Delivery Service Ltd — Fast, Reliable, Trusted Delivery</title>
     <link
       rel="stylesheet"
       href="assets/css/design-system.css"
@@ -56,8 +56,8 @@
     ></script>
     <link
       rel="icon"
-      type="image/svg+xml"
-      href="assets/images/favicon-mascot.svg"
+      type="image/png"
+      href="assets/images/favicon.png"
     />
   </head>
   <body>
@@ -230,12 +230,12 @@
         <a
           class="brand"
           href="#home"
-          aria-label="JAANA Logistics home"
+          aria-label="JAANA Delivery Service Ltd home"
         >
           <span
             class="brand-art"
             role="img"
-            aria-label="JAANA Logistics — Fast, Reliable, Trusted Delivery"
+            aria-label="JAANA Delivery Service Ltd — Fast, Reliable, Trusted Delivery"
           >
           </span>
         </a>
@@ -310,8 +310,8 @@
             </h1>
             <p class="hero-tagline">Fast. Reliable. Trusted Delivery.</p>
             <p class="hero-description">
-              JAANA Logistics provides safe, affordable and efficient delivery solutions for
-              individuals and businesses across Lagos and beyond.
+              JAANA Delivery Service Ltd provides safe, affordable and efficient delivery solutions
+              for individuals and businesses across Lagos and beyond.
             </p>
             <div class="hero-actions">
               <a
@@ -434,7 +434,7 @@
             <p>
               From personal packages to business deliveries,
               <br class="desktop-break" />
-              JAANA Logistics has you covered.
+              JAANA Delivery Service Ltd has you covered.
             </p>
           </div>
         </div>
@@ -819,7 +819,7 @@
                 <span
                   class="brand-art"
                   role="img"
-                  aria-label="JAANA Delivery Services"
+                  aria-label="JAANA Delivery Service Ltd"
                 ></span>
                 <p>Fast. Reliable.<br />Trusted Delivery.</p>
                 <a href="calculator.html">Book a Delivery</a>
@@ -924,12 +924,12 @@
           <div class="footer-brand">
             <a
               href="#home"
-              aria-label="JAANA Logistics home"
+              aria-label="JAANA Delivery Service Ltd home"
             >
               <span
                 class="footer-brand-art"
                 role="img"
-                aria-label="JAANA Delivery Services"
+                aria-label="JAANA Delivery Service Ltd"
               >
               </span>
             </a>
@@ -1158,7 +1158,7 @@
           </div>
         </div>
         <div class="footer-bottom">
-          <p>© 2026 JAANA Logistics. All rights reserved.</p>
+          <p>© 2026 JAANA Delivery Service Ltd. All rights reserved.</p>
           <p>Fast, Reliable, Trusted Delivery.</p>
         </div>
       </div>
@@ -1169,7 +1169,7 @@
       aria-labelledby="about-title"
     >
       <div class="dialog-heading">
-        <h2 id="about-title">About JAANA Logistics</h2>
+        <h2 id="about-title">About JAANA Delivery Service Ltd</h2>
         <button
           class="dialog-close"
           type="button"
@@ -1179,9 +1179,9 @@
         </button>
       </div>
       <p>
-        JAANA Logistics (JAANA Delivery Services) is a customer-focused logistics and delivery
-        company based in Lagos, Nigeria. We provide fast, reliable, secure and affordable delivery
-        solutions to individuals, businesses and organisations.
+        JAANA Delivery Service Ltd is a customer-focused logistics and delivery company based in
+        Lagos, Nigeria. We provide fast, reliable, secure and affordable delivery solutions to
+        individuals, businesses and organisations.
       </p>
       <p>
         Our mission is to provide accessible, efficient and dependable logistics solutions that
@@ -1208,248 +1208,384 @@
       id="booking-dialog"
       aria-labelledby="booking-title"
     >
-      <div class="dialog-heading">
-        <h2 id="booking-title">Book a Delivery</h2>
-        <button
-          class="dialog-close"
-          type="button"
-          aria-label="Close booking"
-        >
-          ×
-        </button>
-      </div>
-      <p>
-        Complete your delivery request to save it with JAANA and receive a reference. Our team will
-        confirm availability and pricing. You can follow up on WhatsApp.
-      </p>
-      <p
-        id="booking-feedback"
-        class="form-note"
-        role="status"
-        aria-live="polite"
-      ></p>
-      <section
-        id="booking-reference-panel"
-        class="booking-reference-panel"
-        aria-labelledby="booking-reference-heading"
-        hidden
-      >
-        <h3 id="booking-reference-heading">Your booking request reference</h3>
-        <label for="booking-reference">Save this reference for delivery updates</label>
-        <input
-          id="booking-reference"
-          type="text"
-          readonly
-          spellcheck="false"
-        />
-        <p>
-          This identifies your request. Your request is saved with JAANA; our team will confirm your
-          booking.
-        </p>
-        <div class="reference-actions">
-          <button
-            class="button button-blue button-small"
-            id="copy-booking-reference"
-            type="button"
-          >
-            Copy reference
-          </button>
-          <button
-            class="button button-small reference-outline"
-            id="use-booking-reference"
-            type="button"
-          >
-            Use for Delivery Updates
-          </button>
-          <a
-            class="contact-alternative"
-            id="booking-whatsapp"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Open booking message in WhatsApp</a
-          >
-          <button
-            class="button button-small reference-outline"
-            id="new-booking-request"
-            type="button"
-          >
-            Start another booking
-          </button>
-        </div>
-      </section>
-      <form data-request="Delivery booking">
-        <fieldset class="booking-shipment">
-          <legend>Shipment and estimate</legend>
-          <div class="rate-fields">
-            <label
-              >Number of packages<input
-                name="packages"
-                type="number"
-                min="1"
-                max="10000"
-                step="1"
-                value="1"
-                required /></label
-            ><label
-              >Combined weight (kg)<input
-                name="weight"
-                type="number"
-                min="0.01"
-                max="10000"
-                step="0.01"
-                value="1"
-                required
-            /></label>
+      <div class="booking-layout">
+        <header class="booking-topbar">
+          <img
+            class="booking-topbar-logo"
+            src="assets/images/Company Logo.jpeg"
+            alt="JAANA Delivery Service Ltd"
+          />
+          <div class="booking-topbar-message">
+            <strong>Fast. Reliable.<br />Trusted Delivery.</strong>
           </div>
-          <label
-            >Road distance (km)<input
-              name="distanceKm"
-              readonly /></label
-          ><label
-            >Price breakdown and estimate<textarea
-              name="estimateSummary"
-              readonly
-              rows="4"
-            ></textarea>
-          </label>
-          <p id="booking-shipment-help">
-            Details transferred from the delivery calculator are locked. Click a locked field or use
-            Return to calculator to make adjustments.
+          <div class="booking-promo-copy">
+            <p class="booking-promo-eyebrow">Reliable delivery across Lagos</p>
+            <h2>Book a Delivery with JAANA</h2>
+            <p>Fast, reliable and transparent delivery for individuals and businesses.</p>
+          </div>
+          <ul class="booking-benefits">
+            <li><span aria-hidden="true">⚡</span> Fast Delivery</li>
+            <li><span aria-hidden="true">✓</span> Trusted &amp; Secure</li>
+            <li><span aria-hidden="true">●</span> Wide Coverage</li>
+            <li><span aria-hidden="true">▣</span> For Individuals &amp; Businesses</li>
+          </ul>
+          <img
+            class="booking-topbar-hero"
+            src="assets/images/hero-delivery.jpg"
+            alt="JAANA delivery rider ready to deliver a package"
+          />
+          <span
+            class="booking-menu-button"
+            aria-hidden="true"
+          >
+            <span></span><span></span><span></span>
+          </span>
+        </header>
+        <section class="booking-form-panel">
+          <div class="dialog-heading">
+            <h2 id="booking-title">Book a Delivery</h2>
+            <button
+              class="dialog-close"
+              type="button"
+              aria-label="Close booking"
+            >
+              ×
+            </button>
+          </div>
+          <p>
+            Complete the details below to request a delivery. We will confirm availability and final
+            pricing.
           </p>
-          <a
-            href="calculator.html"
-            id="booking-recalculate"
-            >Return to calculator</a
+          <p
+            id="booking-feedback"
+            class="form-note"
+            role="status"
+            aria-live="polite"
+          ></p>
+          <section
+            id="booking-reference-panel"
+            class="booking-reference-panel"
+            aria-labelledby="booking-reference-heading"
+            hidden
           >
-        </fieldset>
-        <label
-          >Service type<select
-            name="service"
-            required
-          >
-            <option
-              value=""
-              selected
-              disabled
+            <h3 id="booking-reference-heading">Your booking request reference</h3>
+            <label for="booking-reference">Save this reference for delivery updates</label>
+            <input
+              id="booking-reference"
+              type="text"
+              readonly
+              spellcheck="false"
+            />
+            <p>
+              This identifies your request. Your request is saved with JAANA; our team will confirm
+              your booking.
+            </p>
+            <div class="reference-actions">
+              <button
+                class="button button-blue button-small"
+                id="copy-booking-reference"
+                type="button"
+              >
+                Copy reference
+              </button>
+              <button
+                class="button button-small reference-outline"
+                id="use-booking-reference"
+                type="button"
+              >
+                Use for Delivery Updates
+              </button>
+              <a
+                class="contact-alternative"
+                id="booking-whatsapp"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Open booking message in WhatsApp</a
+              >
+              <button
+                class="button button-small reference-outline"
+                id="new-booking-request"
+                type="button"
+              >
+                Start another booking
+              </button>
+            </div>
+          </section>
+          <form data-request="Delivery booking">
+            <fieldset class="booking-section booking-shipment">
+              <legend>
+                <span class="section-icon"
+                  ><svg
+                    class="icon"
+                    aria-hidden="true"
+                  >
+                    <use href="#i-box" /></svg
+                ></span>
+                Shipment &amp; Pricing Summary
+              </legend>
+              <div class="shipment-summary-grid">
+                <label class="shipment-summary-card">
+                  <span>Packages</span>
+                  <input
+                    name="packages"
+                    type="number"
+                    min="1"
+                    max="10000"
+                    step="1"
+                    value="1"
+                    required
+                    readonly
+                  />
+                </label>
+                <label class="shipment-summary-card">
+                  <span>Weight</span>
+                  <input
+                    name="weight"
+                    type="number"
+                    min="0.01"
+                    max="10000"
+                    step="0.01"
+                    value="1"
+                    required
+                    readonly
+                  />
+                  <small>kg</small>
+                </label>
+                <label class="shipment-summary-card">
+                  <span>Distance</span>
+                  <input
+                    name="distanceKm"
+                    readonly
+                    aria-label="Road distance in kilometres"
+                  />
+                  <small>km</small>
+                </label>
+                <div class="shipment-summary-card">
+                  <span>Weight Charge</span>
+                  <strong id="booking-weight-charge">—</strong>
+                </div>
+                <div class="shipment-summary-card shipment-total-card">
+                  <span>Total Amount</span>
+                  <strong id="booking-total-amount">—</strong>
+                </div>
+              </div>
+              <textarea
+                class="sr-only"
+                name="estimateSummary"
+                readonly
+                tabindex="-1"
+                aria-hidden="true"
+              ></textarea>
+              <p id="booking-shipment-help">
+                Details transferred from the delivery calculator are locked. Click a locked field or
+                use Return to calculator to make adjustments.
+              </p>
+              <a
+                href="calculator.html"
+                id="booking-recalculate"
+                >Return to calculator</a
+              >
+            </fieldset>
+            <fieldset class="booking-section">
+              <legend>
+                <span class="section-icon"
+                  ><svg
+                    class="icon"
+                    aria-hidden="true"
+                  >
+                    <use href="#i-truck" /></svg
+                ></span>
+                Delivery Information
+              </legend>
+              <div class="booking-fields-grid">
+                <label
+                  >Service type<select
+                    name="service"
+                    required
+                  >
+                    <option
+                      value=""
+                      selected
+                      disabled
+                    >
+                      Choose a service
+                    </option>
+                    <option>Document Delivery</option>
+                    <option>E-commerce Delivery</option>
+                    <option>Food Delivery</option>
+                    <option>Bulk &amp; Business Delivery</option>
+                    <option>Custom Logistics Solutions</option>
+                  </select></label
+                >
+                <label
+                  >Preferred delivery date<input
+                    name="date"
+                    type="date"
+                    required
+                    aria-describedby="booking-availability"
+                /></label>
+                <p
+                  id="booking-availability"
+                  class="form-note"
+                >
+                  Our team will confirm availability, pickup timing and pricing before confirming
+                  your booking. Working hours: Monday&ndash;Saturday, 9:00am&ndash;5:00pm (WAT).
+                </p>
+              </div>
+              <div class="booking-people-grid">
+                <fieldset class="booking-person-card recipient-card">
+                  <legend>
+                    <span class="section-icon section-icon-green"
+                      ><svg
+                        class="icon"
+                        aria-hidden="true"
+                      >
+                        <use href="#i-users" /></svg
+                    ></span>
+                    Recipient Details
+                  </legend>
+                  <label
+                    >Recipient name<input
+                      name="recipient"
+                      autocomplete="off"
+                      required
+                      maxlength="100"
+                  /></label>
+                  <label
+                    >Recipient phone number<input
+                      name="recipientPhone"
+                      type="tel"
+                      autocomplete="off"
+                      pattern="\+?[0-9][0-9\s]{6,28}"
+                      required
+                      maxlength="30"
+                      title="Use digits, spaces and an optional leading +."
+                  /></label>
+                </fieldset>
+                <fieldset class="booking-person-card">
+                  <legend>
+                    <span class="section-icon"
+                      ><svg
+                        class="icon"
+                        aria-hidden="true"
+                      >
+                        <use href="#i-users" /></svg
+                    ></span>
+                    Sender (Your Details)
+                  </legend>
+                  <label>
+                    Your name
+                    <input
+                      name="name"
+                      autocomplete="name"
+                      required
+                      maxlength="100"
+                    />
+                  </label>
+                  <label>
+                    Phone number
+                    <input
+                      name="phone"
+                      type="tel"
+                      autocomplete="tel"
+                      pattern="\+?[0-9][0-9\s]{6,28}"
+                      title="Enter a phone number using digits, spaces and an optional leading +."
+                      required
+                      maxlength="30"
+                    />
+                  </label>
+                </fieldset>
+              </div>
+              <fieldset class="booking-subsection booking-addresses">
+                <legend>
+                  <span class="section-icon"
+                    ><svg
+                      class="icon"
+                      aria-hidden="true"
+                    >
+                      <use href="#i-pin" /></svg
+                  ></span>
+                  Pickup and Delivery Addresses
+                </legend>
+                <div class="booking-fields-grid">
+                  <label>
+                    Pickup address
+                    <textarea
+                      name="pickup"
+                      required
+                      maxlength="500"
+                      rows="2"
+                    ></textarea>
+                  </label>
+                  <label>
+                    Delivery address
+                    <textarea
+                      name="destination"
+                      required
+                      maxlength="500"
+                      rows="2"
+                    ></textarea>
+                  </label>
+                </div>
+              </fieldset>
+              <fieldset class="booking-subsection">
+                <legend>
+                  <span class="section-icon"
+                    ><svg
+                      class="icon"
+                      aria-hidden="true"
+                    >
+                      <use href="#i-box" /></svg
+                  ></span>
+                  Package Information
+                </legend>
+                <div class="booking-fields-grid">
+                  <label>
+                    Package size
+                    <select
+                      name="size"
+                      required
+                    >
+                      <option
+                        value=""
+                        selected
+                        disabled
+                      >
+                        Choose a size
+                      </option>
+                      <option>Envelope or document</option>
+                      <option>Small parcel (handheld)</option>
+                      <option>Medium parcel (box or bag)</option>
+                      <option>Large or bulk shipment</option>
+                    </select>
+                  </label>
+                  <label>
+                    Package details
+                    <textarea
+                      name="package"
+                      required
+                      maxlength="500"
+                      rows="2"
+                      placeholder="Describe the item (e.g. documents, food, gadgets, etc.)"
+                    ></textarea>
+                  </label>
+                </div>
+              </fieldset>
+            </fieldset>
+            <button
+              class="button button-blue"
+              type="submit"
             >
-              Choose a service
-            </option>
-            <option>Document Delivery</option>
-            <option>E-commerce Delivery</option>
-            <option>Food Delivery</option>
-            <option>Bulk &amp; Business Delivery</option>
-            <option>Custom Logistics Solutions</option>
-          </select></label
-        >
-        <label
-          >Preferred delivery date<input
-            name="date"
-            type="date"
-            required
-            aria-describedby="booking-availability"
-        /></label>
-        <p
-          id="booking-availability"
-          class="form-note"
-        >
-          Our team will confirm availability, pickup timing and pricing before confirming your
-          booking. Working hours: Monday&ndash;Saturday, 9:00am&ndash;5:00pm (WAT).
-        </p>
-        <label
-          >Recipient name<input
-            name="recipient"
-            autocomplete="off"
-            required
-            maxlength="100"
-        /></label>
-        <label
-          >Recipient phone number<input
-            name="recipientPhone"
-            type="tel"
-            autocomplete="off"
-            pattern="\+?[0-9][0-9\s]{6,28}"
-            required
-            maxlength="30"
-            title="Use digits, spaces and an optional leading +."
-        /></label>
-        <label
-          >Approximate package size<select
-            name="size"
-            required
-          >
-            <option
-              value=""
-              selected
-              disabled
-            >
-              Choose a size
-            </option>
-            <option>Envelope or document</option>
-            <option>Small parcel (handheld)</option>
-            <option>Medium parcel (box or bag)</option>
-            <option>Large or bulk shipment</option>
-          </select></label
-        >
-        <label>
-          Your name
-          <input
-            name="name"
-            autocomplete="name"
-            required
-            maxlength="100"
-          />
-        </label>
-        <label>
-          Phone number
-          <input
-            name="phone"
-            type="tel"
-            autocomplete="tel"
-            pattern="\+?[0-9][0-9\s]{6,28}"
-            title="Enter a phone number using digits, spaces and an optional leading +."
-            required
-            maxlength="30"
-          />
-        </label>
-        <label>
-          Pickup address
-          <textarea
-            name="pickup"
-            required
-            maxlength="500"
-            rows="2"
-          ></textarea>
-        </label>
-        <label>
-          Delivery address
-          <textarea
-            name="destination"
-            required
-            maxlength="500"
-            rows="2"
-          ></textarea>
-        </label>
-        <label>
-          Package details
-          <textarea
-            name="package"
-            required
-            maxlength="500"
-            rows="2"
-          ></textarea>
-        </label>
-        <button
-          class="button button-blue"
-          type="submit"
-        >
-          Save Booking Request
-        </button>
-        <p class="form-note">
-          Submitting saves your delivery details with JAANA so our team can arrange your request.
-          Our team confirms the price and booking; submitting does not reserve a delivery. Your
-          details are also included if you choose to continue on WhatsApp.
-        </p>
-      </form>
+              Save Booking Request
+            </button>
+            <p class="form-note">
+              Submitting saves your delivery details with JAANA so our team can arrange your
+              request. Our team confirms the price and booking; submitting does not reserve a
+              delivery. Your details are also included if you choose to continue on WhatsApp.
+            </p>
+          </form>
+        </section>
+      </div>
     </dialog>
     <!-- Tracking dialog: looks up a saved delivery reference. -->
     <dialog

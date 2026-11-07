@@ -33,12 +33,12 @@ Follow [STAFF-ACCOUNTS.md](STAFF-ACCOUNTS.md) to generate and apply a first-admi
 
 ## 4. Update Pages build settings
 
-| Setting | Value |
-| --- | --- |
-| Framework | None |
-| Build command | npm run build |
-| Build output | dist |
-| Root directory | Jaana Backend |
+| Setting           | Value                                |
+| ----------------- | ------------------------------------ |
+| Framework         | None                                 |
+| Build command     | npm run build                        |
+| Build output      | dist                                 |
+| Root directory    | Jaana Backend                        |
 | Production branch | Your production branch, usually main |
 
 Pages installs and builds from `Jaana Backend`, compiles its `functions/` directory and reads its DB binding from `wrangler.jsonc`. The build script includes the customer HTML/CSS/JavaScript and images from the parent folder, plus the staff interface from dashboard/ and the routing/header configuration from public/. Public URLs stay `/api/...` and `/admin.html`. Commit the code, package-lock.json and real database configuration, then push and redeploy. Check the deployed project's bindings before accepting orders. Use a separate test database and staff accounts if enabling backend access in preview deployments.
@@ -66,16 +66,17 @@ If the API is not configured, check the DB binding and redeploy. If storage fail
 
 ## Endpoints
 
-| Method | Path | Purpose |
-| --- | --- | --- |
-| POST | /api/bookings | Save a validated request; requires an Idempotency-Key header |
-| POST | /api/delivery-status | Lookup using a reference; returns status only |
-| GET | /api/admin/bookings?page=1 | Searchable, paginated staff list and dashboard totals; requires a signed-in staff session |
-| GET | /api/admin/order?reference=REFERENCE | Staff-only order details and status history |
-| PATCH | /api/admin/status | Staff update using reference, status and version |
-| GET/POST | /api/staff | Individual sign-in, current identity, password change and sign-out |
-| GET/POST | /api/admin/staff | Administrator account management |
-| GET | /api/admin/activity | Administrator activity search |
+| Method   | Path                                                   | Purpose                                                                                   |
+| -------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
+| POST     | /api/bookings                                          | Save a validated request; requires an Idempotency-Key header                              |
+| POST     | /api/delivery-status                                   | Lookup using a reference; returns status only                                             |
+| GET      | /api/locations?q=... or /api/locations?lat=...&lon=... | Search Lagos addresses or reverse-geocode a confirmed browser location                    |
+| GET      | /api/admin/bookings?page=1                             | Searchable, paginated staff list and dashboard totals; requires a signed-in staff session |
+| GET      | /api/admin/order?reference=REFERENCE                   | Staff-only order details and status history                                               |
+| PATCH    | /api/admin/status                                      | Staff update using reference, status and version                                          |
+| GET/POST | /api/staff                                             | Individual sign-in, current identity, password change and sign-out                        |
+| GET/POST | /api/admin/staff                                       | Administrator account management                                                          |
+| GET      | /api/admin/activity                                    | Administrator activity search                                                             |
 
 Initial limits: 10 booking attempts per IP per 10 minutes, 30 status lookups per IP per minute, and 60 staff attempts per IP per minute. Request bodies are limited to 16 KB.
 
@@ -86,6 +87,7 @@ Open **Staff Dashboard** in the website footer, then sign in. Use **View** to in
 Individual staff accounts grant access according to role. This version has no payments or live rider GPS tracking. The dashboard supports booking notifications. The business should decide its order-retention period and who may access production records.
 
 Official references:
+
 - https://developers.cloudflare.com/pages/functions/bindings/
 - https://developers.cloudflare.com/d1/worker-api/prepared-statements/
 - https://developers.cloudflare.com/pages/functions/routing/

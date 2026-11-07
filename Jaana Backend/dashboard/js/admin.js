@@ -66,7 +66,7 @@
   };
   const setIdentity = (user) => {
     currentStaffId = user ? user.id : '';
-    byId('staff-name').textContent = user?.name || 'JAANA Team';
+    byId('staff-name').textContent = user?.name || 'JAANA Delivery Service Ltd Team';
     byId('staff-role').textContent = user
       ? user.role === 'admin'
         ? 'Administrator'
@@ -80,7 +80,7 @@
           .join('')
           .toUpperCase()
       : 'JA';
-    byId('welcome-name').textContent = user?.name || 'JAANA team';
+    byId('welcome-name').textContent = user?.name || 'JAANA Delivery Service Ltd team';
     byId('account-settings').hidden = !user;
     byId('manage-staff').hidden =
       !user || user.role !== 'admin' || user.mustChangePassword || user.mustEnrollMfa;
@@ -106,6 +106,7 @@
     byId('detail-fields').replaceChildren();
     byId('detail-history').replaceChildren();
     byId('detail-reference').value = '';
+    byId('open-ticket').hidden = true;
     detailMessage.textContent = '';
     byId('detail-content').hidden = true;
     if (detailDialog.open) detailDialog.close();
@@ -263,6 +264,7 @@
     );
     byId('detail-reference').value = order.reference;
     byId('detail-status').replaceChildren(badge(order.status));
+    byId('open-ticket').hidden = order.status !== 'delivered';
     const details = byId('detail-fields');
     details.replaceChildren();
     const panel = (title, icon, rows, wide = false) => {
@@ -494,6 +496,14 @@
       }
     }
   });
+  byId('open-ticket').addEventListener('click', () => {
+    if (!currentOrder || currentOrder.status !== 'delivered') return;
+    window.open(
+      'ticket.html?reference=' + encodeURIComponent(currentOrder.reference),
+      '_blank',
+      'noopener'
+    );
+  });
   const closeDetails = () => {
     detailVersion++;
     statusVersion++;
@@ -511,6 +521,7 @@
     byId('detail-history').replaceChildren();
     byId('detail-status').replaceChildren();
     byId('detail-reference').value = '';
+    byId('open-ticket').hidden = true;
   });
   login.addEventListener('submit', async (event) => {
     event.preventDefault();

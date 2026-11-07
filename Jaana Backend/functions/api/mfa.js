@@ -43,10 +43,10 @@ export async function onRequest(context) {
         secret,
         uri:
           'otpauth://totp/' +
-          encodeURIComponent('JAANA Logistics:' + actor.email) +
+          encodeURIComponent('JAANA Delivery Service Ltd:' + actor.email) +
           '?secret=' +
           secret +
-          '&issuer=JAANA%20Logistics&algorithm=SHA1&digits=6&period=30',
+          '&issuer=JAANA%20Delivery%20Service%20Ltd&algorithm=SHA1&digits=6&period=30',
       });
     }
     if (data.action === 'confirm') {

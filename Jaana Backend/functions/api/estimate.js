@@ -12,7 +12,7 @@ async function geoapifyRequest(url) {
   } catch {
     throw new HttpError(
       503,
-      'The map service is unavailable. Please retry or contact JAANA on WhatsApp.'
+      'The map service is unavailable. Please retry or contact JAANA Delivery Service Ltd on WhatsApp.'
     );
   }
 
@@ -82,7 +82,7 @@ export async function route(context, pickup, destination, pickupToken, destinati
   if (!apiKey) {
     throw new HttpError(
       503,
-      'Automatic road distance is awaiting map setup. Please contact JAANA on WhatsApp.'
+      'Automatic road distance is awaiting map setup. Please contact JAANA Delivery Service Ltd on WhatsApp.'
     );
   }
 

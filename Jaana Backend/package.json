@@ -21,5 +21,9 @@
   },
   "engines": {
     "node": ">=22.13"
+  },
+  "dependencies": {
+    "jsbarcode": "^3.11.6",
+    "qrcode-generator": "^1.4.4"
   }
 }

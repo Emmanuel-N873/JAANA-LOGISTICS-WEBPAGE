@@ -40,12 +40,23 @@
   const referenceStorageKey = 'jaana.latestRequestReference.v1';
   let bookingRequest = null;
   let bookingAttempt = null;
+  const urlReference = decodeURIComponent(
+    location.search.match(/[?&]reference=([^&]*)/)?.[1] || ''
+  );
+  if (/^(?:\d{10}|JAANA-\d{8}(?:-[A-F0-9]{6}){4})$/.test(urlReference || ''))
+    updateReference.value = urlReference.toUpperCase();
   try {
     const savedReference = localStorage.getItem(referenceStorageKey);
-    if (/^JAANA-\d{8}(?:-[A-F0-9]{6}){4}$/.test(savedReference || ''))
+    if (/^(?:\d{10}|JAANA-\d{8}(?:-[A-F0-9]{6}){4})$/.test(savedReference || ''))
       updateReference.value = savedReference;
   } catch {
     /* References still work when browser storage is unavailable. */
+  }
+  if (location.hash === '#tracking' && updateReference.value) {
+    const trackingDialog = document.getElementById('tracking-dialog');
+    trackingDialog.showModal();
+    document.body.classList.add('dialog-open');
+    updateReference.focus();
   }
 
   const requestApi = async (url, payload, headers = {}) => {
@@ -61,7 +72,7 @@
       data = await response.json();
     } catch {
       throw new Error(
-        'The booking server is unavailable. Run the backend or contact JAANA on WhatsApp.'
+        'The booking server is unavailable. Run the backend or contact JAANA Delivery Service Ltd on WhatsApp.'
       );
     }
     if (!response.ok) throw new Error(data.error || 'The request could not be completed.');
@@ -183,7 +194,7 @@
           requestLines.push('Booking request reference: ' + bookingRequest.reference, '');
         }
         const message = [
-          'Hello JAANA Logistics,',
+          'Hello JAANA Delivery Service Ltd,',
           form.dataset.request,
           '',
           ...requestLines,
@@ -215,7 +226,7 @@
           error.name === 'TimeoutError'
             ? 'The server took too long to respond. Please retry the same request; it will not create a duplicate.'
             : error.name === 'TypeError'
-              ? 'Could not reach the booking service. Please retry or contact JAANA on WhatsApp.'
+              ? 'Could not reach the booking service. Please retry or contact JAANA Delivery Service Ltd on WhatsApp.'
               : error.message;
       } finally {
         submit.disabled = false;

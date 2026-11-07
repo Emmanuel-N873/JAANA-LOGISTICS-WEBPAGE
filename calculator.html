@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width,initial-scale=1"
     />
-    <title>Delivery Rate Calculator | JAANA Logistics</title>
+    <title>Delivery Rate Calculator | JAANA Delivery Service Ltd</title>
     <meta
       name="description"
       content="Calculate your JAANA delivery estimate by road distance and package weight, then continue to booking."
@@ -34,8 +34,8 @@
     ></script>
     <link
       rel="icon"
-      type="image/svg+xml"
-      href="assets/images/favicon-mascot.svg"
+      type="image/png"
+      href="assets/images/favicon.png"
     />
   </head>
   <body class="calculator-page">
@@ -203,11 +203,11 @@
         <a
           class="brand"
           href="index.html"
-          aria-label="JAANA Logistics home"
+          aria-label="JAANA Delivery Service Ltd home"
           ><span
             class="brand-art"
             role="img"
-            aria-label="JAANA Delivery Services"
+            aria-label="JAANA Delivery Service Ltd"
           ></span
         ></a>
         <nav aria-label="Main navigation">
@@ -240,47 +240,105 @@
             >
               <h3>Shipment details</h3>
               <div class="rate-fields calculator-fields">
-                <label class="address-field">
-                  Pickup address
-                  <input
-                    name="pickup"
-                    id="pickup-address"
-                    required
-                    maxlength="500"
-                    placeholder="Start typing a pickup address"
-                    autocomplete="off"
-                    role="combobox"
-                    aria-autocomplete="list"
-                    aria-expanded="false"
-                    aria-controls="pickup-suggestions"
-                  />
+                <div class="address-field">
+                  <label for="pickup-address">Pickup address</label>
+                  <div class="address-input-row">
+                    <input
+                      name="pickup"
+                      id="pickup-address"
+                      required
+                      maxlength="500"
+                      placeholder="Start typing a pickup address"
+                      autocomplete="off"
+                      role="combobox"
+                      aria-autocomplete="list"
+                      aria-expanded="false"
+                      aria-controls="pickup-suggestions"
+                    />
+                    <button
+                      class="location-button"
+                      id="pickup-location-button"
+                      type="button"
+                      data-use-location="pickup"
+                      aria-label="Use my current location for pickup"
+                      aria-describedby="pickup-location-status"
+                    >
+                      <svg
+                        class="location-pin"
+                        aria-hidden="true"
+                        viewBox="0 0 24 24"
+                        focusable="false"
+                      >
+                        <path
+                          d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Zm0-9.25A2.75 2.75 0 1 1 12 6.25a2.75 2.75 0 0 1 0 5.5Z"
+                        />
+                      </svg>
+                      <span>Locate</span>
+                    </button>
+                  </div>
                   <span
                     id="pickup-suggestions"
                     class="address-suggestions"
                     role="listbox"
                     hidden
-                  ></span> </label
-                ><label class="address-field">
-                  Delivery address
-                  <input
-                    name="destination"
-                    id="destination-address"
-                    required
-                    maxlength="500"
-                    placeholder="Start typing a delivery address"
-                    autocomplete="off"
-                    role="combobox"
-                    aria-autocomplete="list"
-                    aria-expanded="false"
-                    aria-controls="destination-suggestions"
-                  />
+                  ></span>
+                  <span
+                    id="pickup-location-status"
+                    class="location-status"
+                    role="status"
+                    aria-live="polite"
+                  ></span>
+                </div>
+                <div class="address-field">
+                  <label for="destination-address">Delivery address</label>
+                  <div class="address-input-row">
+                    <input
+                      name="destination"
+                      id="destination-address"
+                      required
+                      maxlength="500"
+                      placeholder="Start typing a delivery address"
+                      autocomplete="off"
+                      role="combobox"
+                      aria-autocomplete="list"
+                      aria-expanded="false"
+                      aria-controls="destination-suggestions"
+                    />
+                    <button
+                      class="location-button"
+                      id="destination-location-button"
+                      type="button"
+                      data-use-location="destination"
+                      aria-label="Use my current location for delivery"
+                      aria-describedby="destination-location-status"
+                    >
+                      <svg
+                        class="location-pin"
+                        aria-hidden="true"
+                        viewBox="0 0 24 24"
+                        focusable="false"
+                      >
+                        <path
+                          d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Zm0-9.25A2.75 2.75 0 1 1 12 6.25a2.75 2.75 0 0 1 0 5.5Z"
+                        />
+                      </svg>
+                      <span>Locate</span>
+                    </button>
+                  </div>
                   <span
                     id="destination-suggestions"
                     class="address-suggestions"
                     role="listbox"
                     hidden
-                  ></span> </label
-                ><label
+                  ></span>
+                  <span
+                    id="destination-location-status"
+                    class="location-status"
+                    role="status"
+                    aria-live="polite"
+                  ></span>
+                </div>
+                <label
                   >Number of packages<input
                     name="packages"
                     type="number"
@@ -378,14 +436,14 @@
                 hidden
               >
                 <h4>When weight exceeds 20 kg</h4>
-                <p>Custom quotation required — contact JAANA Logistics.</p>
+                <p>Custom quotation required — contact JAANA Delivery Service Ltd.</p>
                 <a
                   id="rate-contact"
                   class="button button-blue"
                   href="https://wa.me/2348038422591"
                   target="_blank"
                   rel="noopener noreferrer"
-                  >Contact JAANA Logistics</a
+                  >Contact JAANA Delivery Service Ltd</a
                 >
               </div>
             </aside>
@@ -420,12 +478,12 @@
           <div class="footer-brand">
             <a
               href="index.html#home"
-              aria-label="JAANA Logistics home"
+              aria-label="JAANA Delivery Service Ltd home"
             >
               <span
                 class="footer-brand-art"
                 role="img"
-                aria-label="JAANA Delivery Services"
+                aria-label="JAANA Delivery Service Ltd"
               >
               </span>
             </a>
@@ -642,7 +700,7 @@
           </div>
         </div>
         <div class="footer-bottom">
-          <p>© 2026 JAANA Logistics. All rights reserved.</p>
+          <p>© 2026 JAANA Delivery Service Ltd. All rights reserved.</p>
           <p>Fast, Reliable, Trusted Delivery.</p>
         </div>
       </div>

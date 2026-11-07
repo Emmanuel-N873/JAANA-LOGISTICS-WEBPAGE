@@ -47,7 +47,7 @@ for (const file of [
   '_routes.json',
   'assets/js/service-carousel.js',
   'assets/js/booking.js',
-  'assets/images/favicon-mascot.svg',
+  'assets/images/favicon.png',
 ]) {
   await requireFile(file);
 }
@@ -72,4 +72,6 @@ async function inspect(folder, relative = '') {
 }
 
 await inspect(output);
-console.log('Deployment check passed: dist/ contains the required public files and no known server-only files.');
+console.log(
+  'Deployment check passed: dist/ contains the required public files and no known server-only files.'
+);

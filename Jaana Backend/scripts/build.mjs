@@ -11,6 +11,7 @@ await rm(output, { recursive: true, force: true });
 const pending = [
   'index.html',
   'admin.html',
+  'ticket.html',
   'favicon.ico',
   '404.html',
   'google951b51027c7a799d.html',
@@ -20,12 +21,17 @@ const pending = [
 // Public URL -> private source location. Only explicitly mapped staff/config files are published.
 const backendAssets = new Map([
   ['admin.html', 'dashboard/admin.html'],
+  ['ticket.html', 'dashboard/ticket.html'],
   ['404.html', 'public/404.html'],
   ['google951b51027c7a799d.html', 'public/google951b51027c7a799d.html'],
   ['assets/js/admin-mfa.js', 'dashboard/js/admin-mfa.js'],
   ['assets/js/admin-pricing.js', 'dashboard/js/admin-pricing.js'],
   ['assets/css/admin.css', 'dashboard/css/admin.css'],
+  ['assets/css/ticket.css', 'dashboard/css/ticket.css'],
   ['assets/js/admin.js', 'dashboard/js/admin.js'],
+  ['assets/js/ticket.js', 'dashboard/js/ticket.js'],
+  ['assets/js/qrcode-generator.js', 'node_modules/qrcode-generator/qrcode.js'],
+  ['assets/js/jsbarcode.js', 'node_modules/jsbarcode/dist/JsBarcode.all.min.js'],
   ['assets/js/admin-accounts.js', 'dashboard/js/admin-accounts.js'],
   ['assets/js/admin-notifications.js', 'dashboard/js/admin-notifications.js'],
   ['_routes.json', 'public/_routes.json'],

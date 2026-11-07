@@ -243,10 +243,10 @@
 .calculator-fields {
   grid-template-columns: repeat(6, minmax(0, 1fr));
 }
-.calculator-fields label {
+.calculator-fields > label {
   grid-column: span 2;
 }
-.calculator-fields label:nth-child(-n + 2) {
+.calculator-fields > .address-field {
   grid-column: span 3;
 }
 .calculator-page .rate-layout {
@@ -324,11 +324,11 @@
   .calculator-fields {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .calculator-fields label,
-  .calculator-fields label:nth-child(-n + 2) {
+  .calculator-fields > label,
+  .calculator-fields > .address-field {
     grid-column: auto;
   }
-  .calculator-fields label:nth-child(-n + 2) {
+  .calculator-fields > .address-field {
     grid-column: 1/-1;
   }
   .calculator-header nav {
@@ -370,7 +370,8 @@
   .calculator-fields {
     grid-template-columns: 1fr;
   }
-  .calculator-fields label {
+  .calculator-fields > label,
+  .calculator-fields > .address-field {
     grid-column: 1/-1;
   }
   .calculator-page .rate-actions .button-blue {
@@ -390,6 +391,60 @@
   flex-direction: column;
   gap: 8px;
   min-width: 0;
+}
+
+.address-input-row {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.address-input-row input {
+  min-width: 0;
+  flex: 1;
+}
+
+.location-button {
+  flex: 0 0 auto;
+  min-height: 44px;
+  min-width: 86px;
+  padding: 8px 10px;
+  border: 1px solid #0b4fa8;
+  border-radius: 8px;
+  background: #edf5ff;
+  color: #00358d;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.location-pin {
+  width: 17px;
+  height: 17px;
+  fill: currentColor;
+  flex: 0 0 auto;
+}
+
+.location-button:hover,
+.location-button:focus-visible {
+  background: #d8eaff;
+}
+
+.location-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.location-status {
+  min-height: 1.2em;
+  color: #385777;
+  font-size: 0.84rem;
 }
 
 .address-suggestions {
@@ -437,6 +492,11 @@
 }
 
 @media (max-width: 600px) {
+  .location-button {
+    min-width: 82px;
+    padding-inline: 8px;
+  }
+
   .address-suggestions {
     max-height: 220px;
   }

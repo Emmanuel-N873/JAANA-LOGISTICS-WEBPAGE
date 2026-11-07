@@ -7,11 +7,15 @@ export const STATUSES = {
   delivered: 'Delivered',
   cancelled: 'Cancelled',
 };
-export const REFERENCE = /^JAANA-\d{8}(?:-[A-F0-9]{6}){4}$/;
+// New bookings use ten random decimal digits. Historical JAANA-prefixed
+// references remain valid for status, staff and ticket lookups.
+export const REFERENCE = /^(?:\d{10}|JAANA-\d{8}(?:-[A-F0-9]{6}){4})$/;
 export class HttpError extends Error {
-  constructor(status, message) {
+  constructor(status, message, code = null, meta = {}) {
     super(message);
     this.status = status;
+    this.code = code;
+    this.meta = meta;
   }
 }
 export function json(data, status = 200, extra = {}) {
@@ -41,7 +45,7 @@ export async function endpoint(context, method, callback) {
     if (!context.env.DB)
       throw new HttpError(
         503,
-        'Booking service is not configured. Please contact JAANA on WhatsApp.'
+        'Booking service is not configured. Please contact JAANA Delivery Service Ltd on WhatsApp.'
       );
     return await callback();
   } catch (error) {
@@ -58,12 +62,21 @@ export async function endpoint(context, method, callback) {
         /* Do not expose credentials or customer data in fallback logs. */
       }
     }
-    if (error instanceof HttpError) return json({ error: error.message }, error.status);
+    if (error instanceof HttpError)
+      return json(
+        {
+          error: error.message,
+          ...(error.code ? { code: error.code } : {}),
+          ...error.meta,
+        },
+        error.status
+      );
     // Avoid recording customer data or credentials in logs and public errors.
-    console.error('JAANA API request failed:', error.name);
+    console.error('JAANA Delivery Service Ltd API request failed:', error.name);
     return json(
       {
-        error: 'The service is temporarily unavailable. Please retry or contact JAANA on WhatsApp.',
+        error:
+          'The service is temporarily unavailable. Please retry or contact JAANA Delivery Service Ltd on WhatsApp.',
       },
       503
     );

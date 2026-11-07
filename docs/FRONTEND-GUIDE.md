@@ -6,38 +6,38 @@ This guide is for someone who knows basic HTML, CSS, and JavaScript. Start here 
 
 Read this guide in order, then follow the smallest path that matches your change:
 
-| If you want to change... | Start with... | Then check... |
-| --- | --- | --- |
-| Homepage text or layout | `index.html` | `assets/css/styles.css` |
-| Calculator fields or estimate display | `calculator.html` | `assets/js/calculator.js` and the estimate tests |
-| Booking submission or retry behavior | `assets/js/booking.js` | `assets/js/booking-transfer.js` and booking tests |
-| Shared colors, spacing, buttons or focus styles | `assets/css/design-system.css` | All three customer pages at phone and desktop widths |
-| Staff dashboard behavior | `Jaana Backend/dashboard/admin.html` | `Jaana Backend/dashboard/js/admin.js` and the related feature file |
+| If you want to change...                        | Start with...                        | Then check...                                                      |
+| ----------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------ |
+| Homepage text or layout                         | `index.html`                         | `assets/css/styles.css`                                            |
+| Calculator fields or estimate display           | `calculator.html`                    | `assets/js/calculator.js` and the estimate tests                   |
+| Booking submission or retry behavior            | `assets/js/booking.js`               | `assets/js/booking-transfer.js` and booking tests                  |
+| Shared colors, spacing, buttons or focus styles | `assets/css/design-system.css`       | All three customer pages at phone and desktop widths               |
+| Staff dashboard behavior                        | `Jaana Backend/dashboard/admin.html` | `Jaana Backend/dashboard/js/admin.js` and the related feature file |
 
 The frontend is deliberately built with HTML, CSS and JavaScript instead of a component framework. That keeps the browser behavior visible to a beginner, but it means the script order and shared browser contracts in this guide are part of the design. Do not reorder scripts or rename storage keys casually.
 
 ## 1. Where the frontend lives
 
-| File or folder | Purpose |
-| --- | --- |
-| `index.html` | Homepage, services, booking dialog, tracking dialog, contact information |
-| `calculator.html` | Delivery calculator page |
-| `assets/css/design-system.css` | Shared design tokens and base controls |
-| `assets/css/styles.css` | Homepage sections and shared site layout |
-| `assets/css/calculator.css` | Calculator, address suggestions, booking shipment fields, shared footer adjustments |
-| `assets/js/` | Customer-facing behavior |
-| `Jaana Backend/dashboard/admin.html` | Staff interface source; published as `/admin.html` |
-| `Jaana Backend/dashboard/css/admin.css` | Staff interface styling |
-| `Jaana Backend/dashboard/js/` | Staff interface behavior |
-| `Jaana Backend/dist/` | Generated output. Never edit it by hand. |
+| File or folder                          | Purpose                                                                             |
+| --------------------------------------- | ----------------------------------------------------------------------------------- |
+| `index.html`                            | Homepage, services, booking dialog, tracking dialog, contact information            |
+| `calculator.html`                       | Delivery calculator page                                                            |
+| `assets/css/design-system.css`          | Shared design tokens and base controls                                              |
+| `assets/css/styles.css`                 | Homepage sections and shared site layout                                            |
+| `assets/css/calculator.css`             | Calculator, address suggestions, booking shipment fields, shared footer adjustments |
+| `assets/js/`                            | Customer-facing behavior, including address search and current-location selection   |
+| `Jaana Backend/dashboard/admin.html`    | Staff interface source; published as `/admin.html`                                  |
+| `Jaana Backend/dashboard/css/admin.css` | Staff interface styling                                                             |
+| `Jaana Backend/dashboard/js/`           | Staff interface behavior                                                            |
+| `Jaana Backend/dist/`                   | Generated output. Never edit it by hand.                                            |
 
 The staff interface lives inside the backend folder for packaging, but its HTML, CSS, and JavaScript are frontend source. The build script maps these private source paths to public `/assets/...` URLs.
 
 ## 2. A useful reading order
 
-1. Open `calculator.html` and locate `rate-form`, `rate-feedback`, and `continue-booking`.
+1. Open `calculator.html` and locate `rate-form`, `rate-feedback`, `continue-booking`, and the two address location buttons.
 2. Read `assets/js/delivery-summary.js`: two small functions format amounts and saved estimates. They do not calculate prices.
-3. Read `assets/js/calculator.js`: select addresses, request an estimate, display it, and continue to booking.
+3. Read `assets/js/calculator.js`: search or reverse-geocode addresses, request an estimate, display it, and continue to booking.
 4. Read `assets/js/booking-transfer.js`: restore drafts, lock transferred fields, preserve request identity, and offer a return to the calculator.
 5. Read `assets/js/booking.js`: validate and submit booking fields, display the saved result, check delivery status, and construct WhatsApp messages.
 6. Read `assets/js/script.js`: shared homepage controls for navigation and dialogs.
@@ -78,16 +78,16 @@ Scripts use `defer`, so they run after the HTML is parsed and in their document 
 
 The calculator loads `delivery-summary.js` before `calculator.js`. Scripts wrap their internal variables in a function so they do not accidentally overwrite each other. Only the following named contracts are shared:
 
-| Contract | Created by | Used by |
-| --- | --- | --- |
-| `window.JaanaDelivery.formatMoney(amount)` | `delivery-summary.js` | Calculator presentation |
-| `window.JaanaDelivery.formatEstimate(shipment)` | `delivery-summary.js` | Calculator and booking summary |
-| `window.JaanaBooking.prepareAttempt(fields)` | `booking-transfer.js` | Booking submission; returns a promise containing `fingerprint` and `key` |
-| `window.JaanaBooking.applyShipment(shipment)` | `booking-transfer.js` | Booking submission; updates saved price fields and returns `{ changed }` |
-| `window.jaanaBookingLocationTokens()` | `booking-transfer.js` | Booking submission; returns copies of the selected-location tokens |
-| `window.JaanaStaff.api(url, options)` | `dashboard/js/admin.js` | Staff feature scripts; handles authenticated requests and session errors |
-| `window.JaanaStaff.logout()` | `dashboard/js/admin.js` | Staff account and authenticator screens |
-| `window.JaanaStaff.openOrder(reference)` | `dashboard/js/admin.js` | Notifications and acknowledgements |
+| Contract                                        | Created by              | Used by                                                                  |
+| ----------------------------------------------- | ----------------------- | ------------------------------------------------------------------------ |
+| `window.JaanaDelivery.formatMoney(amount)`      | `delivery-summary.js`   | Calculator presentation                                                  |
+| `window.JaanaDelivery.formatEstimate(shipment)` | `delivery-summary.js`   | Calculator and booking summary                                           |
+| `window.JaanaBooking.prepareAttempt(fields)`    | `booking-transfer.js`   | Booking submission; returns a promise containing `fingerprint` and `key` |
+| `window.JaanaBooking.applyShipment(shipment)`   | `booking-transfer.js`   | Booking submission; updates saved price fields and returns `{ changed }` |
+| `window.jaanaBookingLocationTokens()`           | `booking-transfer.js`   | Booking submission; returns copies of the selected-location tokens       |
+| `window.JaanaStaff.api(url, options)`           | `dashboard/js/admin.js` | Staff feature scripts; handles authenticated requests and session errors |
+| `window.JaanaStaff.logout()`                    | `dashboard/js/admin.js` | Staff account and authenticator screens                                  |
+| `window.JaanaStaff.openOrder(reference)`        | `dashboard/js/admin.js` | Notifications and acknowledgements                                       |
 
 Adding another global helper should solve a real shared need. Prefer a clearly named function within the feature that owns the behavior.
 
@@ -95,11 +95,11 @@ Adding another global helper should solve a real shared need. Prefer a clearly n
 
 `sessionStorage` lasts for the browser tab/session. These keys are deliberately stable across pages:
 
-| Key | Contains | Cleared when |
-| --- | --- | --- |
-| `jaana.shipmentDraft.v1` | Shipment fields, estimate, and short-lived signed location references | Booking succeeds or customer starts another booking |
-| `jaana.bookingDetailsDraft.v1` | An explicit allowlist of sender/recipient and booking fields | Booking succeeds or customer starts another booking |
-| `jaana.pendingBookingAttempt.v1` | A fingerprint and idempotency key | Booking succeeds or customer starts another booking |
+| Key                              | Contains                                                              | Cleared when                                        |
+| -------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------- |
+| `jaana.shipmentDraft.v1`         | Shipment fields, estimate, and short-lived signed location references | Booking succeeds or customer starts another booking |
+| `jaana.bookingDetailsDraft.v1`   | An explicit allowlist of sender/recipient and booking fields          | Booking succeeds or customer starts another booking |
+| `jaana.pendingBookingAttempt.v1` | A fingerprint and idempotency key                                     | Booking succeeds or customer starts another booking |
 
 A fingerprint identifies the meaningful booking fields. An idempotency key lets the server recognize a retry rather than create another order. Price text and refreshed location proof tokens do not create a new request identity. The server independently validates all data and enforces duplicate protection.
 
@@ -107,23 +107,23 @@ Only the latest saved booking reference is kept in localStorage. Never put passw
 
 ## 6. Staff features and events
 
-| File | Responsibility |
-| --- | --- |
-| `admin.js` | Sign-in state, shared API client, order search/list/details, status updates |
-| `admin-accounts.js` | Password changes, account management, audit history |
-| `admin-notifications.js` | Notification polling, unread counts, sound, acknowledgements |
-| `admin-mfa.js` | Authenticator enrollment and one-time display of recovery codes |
-| `admin-pricing.js` | Administrator pricing form |
+| File                     | Responsibility                                                              |
+| ------------------------ | --------------------------------------------------------------------------- |
+| `admin.js`               | Sign-in state, shared API client, order search/list/details, status updates |
+| `admin-accounts.js`      | Password changes, account management, audit history                         |
+| `admin-notifications.js` | Notification polling, unread counts, sound, acknowledgements                |
+| `admin-mfa.js`           | Authenticator enrollment and one-time display of recovery codes             |
+| `admin-pricing.js`       | Administrator pricing form                                                  |
 
 The dashboard's `currentStaffId` is an identity marker used to ignore outdated responses. The actual login session is an HttpOnly cookie managed by the browser and server; frontend JavaScript cannot read it.
 
 These browser events connect existing features:
 
-| Event | Producer | Payload and effect |
-| --- | --- | --- |
-| `staff-session` | `admin.js` | Staff user or `null`; feature scripts open/clear their controls and stop work on sign-out |
-| `staff-order` | `admin.js` | `{ order, acknowledgement }`; notifications update acknowledgement controls |
-| `jaana-booking-saved` | `booking.js` | No payload; booking-transfer clears pending drafts |
+| Event                 | Producer     | Payload and effect                                                                        |
+| --------------------- | ------------ | ----------------------------------------------------------------------------------------- |
+| `staff-session`       | `admin.js`   | Staff user or `null`; feature scripts open/clear their controls and stop work on sign-out |
+| `staff-order`         | `admin.js`   | `{ order, acknowledgement }`; notifications update acknowledgement controls               |
+| `jaana-booking-saved` | `booking.js` | No payload; booking-transfer clears pending drafts                                        |
 
 Request-version counters reject late responses after a different account signs in or another order opens. Do not remove them as "unused complexity": they prevent stale or private information from appearing in a newer session. Hiding a button is a usability measure; the API must still authorize every protected action.
 

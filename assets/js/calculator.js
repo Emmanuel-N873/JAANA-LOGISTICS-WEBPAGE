@@ -5,6 +5,29 @@
   const byId = (id) => document.getElementById(id);
   const form = byId('rate-form');
   const money = window.JaanaDelivery.formatMoney;
+  const locationErrorMessage = (data, fallback) => {
+    switch (data?.code) {
+      case 'invalid_search_query':
+        return 'Enter at least 3 characters to search for an address.';
+      case 'accuracy_rejected':
+        return 'Your location is too inaccurate. Please search for the address instead.';
+      case 'invalid_coordinates':
+        return 'Your browser returned an invalid location. Please search for the address instead.';
+      case 'provider_not_configured':
+        return 'Address search is not configured. Please contact JAANA Delivery Service Ltd.';
+      case 'provider_rate_limited':
+      case 'local_rate_limited':
+        return 'Address search is temporarily rate limited. Please retry shortly.';
+      case 'provider_authentication':
+      case 'provider_rejected':
+      case 'provider_timeout':
+      case 'provider_unavailable':
+      case 'provider_invalid_response':
+        return 'Address provider is temporarily unavailable. Please retry shortly.';
+      default:
+        return data?.error || fallback;
+    }
+  };
   let quote = null;
   // Incrementing this counter makes older estimate responses harmless after an edit.
   let version = 0;
@@ -15,6 +38,12 @@
   function setupAddressAutocomplete(name) {
     const input = form.elements[name];
     const list = byId(name === 'pickup' ? 'pickup-suggestions' : 'destination-suggestions');
+    const locationButton = byId(
+      name === 'pickup' ? 'pickup-location-button' : 'destination-location-button'
+    );
+    const locationStatus = byId(
+      name === 'pickup' ? 'pickup-location-status' : 'destination-location-status'
+    );
 
     let searchTimer;
     let controller;
@@ -22,6 +51,11 @@
     let suggestions = [];
     let generation = 0;
     let blurTimer;
+    let locationRequest = 0;
+
+    function showLocationStatus(message) {
+      locationStatus.textContent = message;
+    }
 
     function close() {
       list.hidden = true;
@@ -58,8 +92,88 @@
       // Clear any previous estimate without triggering
       // another autocomplete search.
       invalidate();
+      showLocationStatus('Address selected. Confirm it before calculating.');
       byId('rate-feedback').textContent =
         'Address selected. Select the other address, then calculate your estimate.';
+    }
+
+    async function useCurrentLocation() {
+      if (typeof navigator === 'undefined' || !navigator.geolocation) {
+        showLocationStatus(
+          'This browser does not provide location access. Search for the address instead.'
+        );
+        return;
+      }
+
+      const request = ++locationRequest;
+      generation++;
+      clearTimeout(searchTimer);
+      controller?.abort();
+      close();
+      locationButton.disabled = true;
+      showLocationStatus('Requesting your location permission...');
+
+      try {
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 60000,
+          });
+        });
+        if (request !== locationRequest) return;
+
+        const { latitude, longitude, accuracy } = position.coords;
+        if (
+          !Number.isFinite(latitude) ||
+          !Number.isFinite(longitude) ||
+          latitude < -90 ||
+          latitude > 90 ||
+          longitude < -180 ||
+          longitude > 180
+        ) {
+          throw new Error(
+            'Your browser returned an invalid location. Please search for the address instead.'
+          );
+        }
+
+        showLocationStatus('Location found. Converting it into an address...');
+        const params = new URLSearchParams({ lat: String(latitude), lon: String(longitude) });
+        if (Number.isFinite(accuracy)) params.set('accuracy', String(accuracy));
+        const response = await fetch('/api/locations?' + params, { cache: 'no-store' });
+        const data = await response.json();
+        if (!response.ok)
+          throw new Error(
+            locationErrorMessage(data, 'We could not find an address for your location.')
+          );
+        if (request !== locationRequest) return;
+
+        const location = data.location;
+        if (!location || typeof location.label !== 'string' || typeof location.token !== 'string')
+          throw new Error(
+            'We could not turn your location into an address. Please search instead.'
+          );
+
+        input.value = location.label;
+        selectedLocations[name] = { label: location.label, token: location.token };
+        invalidate();
+        showLocationStatus('Location found. Confirm this address before calculating.');
+        byId('rate-feedback').textContent =
+          'Your current location was added. Confirm both addresses, then calculate your estimate.';
+      } catch (error) {
+        if (request !== locationRequest) return;
+        const message =
+          error?.code === 1
+            ? 'Location permission was denied. Search for the address instead.'
+            : error?.code === 2
+              ? 'Your location could not be determined. Try again or search for the address.'
+              : error?.code === 3
+                ? 'Location lookup timed out. Try again or search for the address.'
+                : error.message || 'Location lookup failed. Search for the address instead.';
+        showLocationStatus(message);
+      } finally {
+        if (request === locationRequest) locationButton.disabled = false;
+      }
     }
 
     function highlight(index) {
@@ -79,6 +193,7 @@
 
     input.addEventListener('input', () => {
       selectedLocations[name] = null;
+      locationRequest++;
       generation++;
       clearTimeout(blurTimer);
 
@@ -105,7 +220,9 @@
 
           const data = await response.json();
           if (!response.ok)
-            throw new Error(data.error || 'Address suggestions are unavailable. Please retry.');
+            throw new Error(
+              locationErrorMessage(data, 'Address suggestions are unavailable. Please retry.')
+            );
 
           // Ignore responses for an address that has since changed.
           if (
@@ -186,13 +303,17 @@
       blurTimer = setTimeout(close, 150);
     });
 
+    locationButton.addEventListener('click', useCurrentLocation);
+
     form.addEventListener('reset', () => {
       selectedLocations[name] = null;
+      locationRequest++;
       generation++;
       clearTimeout(blurTimer);
       clearTimeout(searchTimer);
       controller?.abort();
       close();
+      showLocationStatus('');
     });
   }
   function updateCustomQuotation() {
@@ -245,7 +366,7 @@
     const current = ++version;
     quote = null;
     byId('continue-booking').disabled = true;
-    byId('rate-feedback').textContent = 'Finding your road route and current pricing…';
+    byId('rate-feedback').textContent = 'Finding your road route and current pricing...';
     try {
       const response = await fetch('/api/estimate', {
         method: 'POST',
@@ -278,7 +399,7 @@
       byId('rate-contact').href =
         'https://wa.me/2348038422591?text=' +
         encodeURIComponent(
-          'Hello JAANA Logistics, please quote for my shipment.\n' +
+          'Hello JAANA Delivery Service Ltd, please quote for my shipment.\n' +
             Object.entries(data)
               .filter(([key]) => !['pickupToken', 'destinationToken'].includes(key))
               .map(([key, value]) => `${key}: ${value}`)
@@ -322,6 +443,8 @@
         JSON.stringify({
           fields: payload(),
           distanceKm: quote.distanceKm,
+          weightCharge: quote.weightCharge,
+          total: quote.total,
           estimateSummary: formatEstimate(quote),
         })
       );
@@ -345,7 +468,7 @@
     byId('rate-contact').href =
       'https://wa.me/2348038422591?text=' +
       encodeURIComponent(
-        'Hello JAANA Logistics, please quote for my shipment.\n' +
+        'Hello JAANA Delivery Service Ltd, please quote for my shipment.\n' +
           lines.join('\n') +
           (quote ? '\n' + formatEstimate(quote) : '')
       );

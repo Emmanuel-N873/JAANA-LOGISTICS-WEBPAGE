@@ -1,0 +1,17 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build JAANA static assets",
+			"type": "shell",
+			"command": "npm.cmd",
+			"args": [
+				"--prefix",
+				"Jaana Backend",
+				"run",
+				"build"
+			],
+			"problemMatcher": []
+		}
+	]
+}

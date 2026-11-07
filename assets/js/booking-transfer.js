@@ -99,6 +99,7 @@
         ? String(shipment.distanceKm)
         : '';
       form.elements.estimateSummary.value = summary;
+      renderShipmentSummary(shipment);
       return { changed: !!previous.trim() && previous !== summary };
     },
   };
@@ -124,6 +125,26 @@
   }
   window.addEventListener('jaana-booking-saved', clearBookingDrafts);
   const transferredFields = [...shipmentFieldNames, 'distanceKm', 'estimateSummary'];
+
+  function renderShipmentSummary(shipment) {
+    const money = window.JaanaDelivery.formatMoney;
+    const weightCharge = document.getElementById('booking-weight-charge');
+    const totalAmount = document.getElementById('booking-total-amount');
+    if (weightCharge)
+      weightCharge.textContent =
+        shipment?.weightCharge === null
+          ? 'Custom quote'
+          : Number.isFinite(shipment?.weightCharge)
+            ? money(shipment.weightCharge)
+            : '—';
+    if (totalAmount)
+      totalAmount.textContent =
+        shipment?.total === null
+          ? 'Custom quote'
+          : Number.isFinite(shipment?.total)
+            ? money(shipment.total)
+            : '—';
+  }
 
   window.jaanaBookingLocationTokens = () => ({ ...locationTokens });
   let locked = false,
@@ -176,6 +197,7 @@
         form.elements.distanceKm.value = draft.distanceKm;
       if (typeof draft.estimateSummary === 'string')
         form.elements.estimateSummary.value = draft.estimateSummary.slice(0, 1000);
+      renderShipmentSummary(draft);
       setLocked(true);
     }
     if (!dialog.open) dialog.showModal();

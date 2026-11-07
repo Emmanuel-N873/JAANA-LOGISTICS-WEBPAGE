@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+    />
+    <meta
+      name="robots"
+      content="noindex,nofollow"
+    />
+    <title>JAANA Delivery Ticket</title>
+    <link
+      rel="stylesheet"
+      href="assets/css/ticket.css"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="assets/images/favicon.png"
+    />
+    <script
+      src="assets/js/qrcode-generator.js"
+      defer
+    ></script>
+    <script
+      src="assets/js/jsbarcode.js"
+      defer
+    ></script>
+    <script
+      src="assets/js/ticket.js"
+      defer
+    ></script>
+  </head>
+  <body>
+    <main class="ticket-page">
+      <div
+        id="ticket-message"
+        class="ticket-message"
+        role="status"
+        aria-live="polite"
+      >
+        Loading delivery ticket...
+      </div>
+      <article
+        id="delivery-ticket"
+        class="delivery-ticket"
+        hidden
+      >
+        <header class="ticket-header">
+          <div class="ticket-brand">
+            <img
+              src="assets/images/Company Logo.jpeg"
+              alt="JAANA Delivery Service Ltd"
+            />
+            <p>Fast. Reliable.<br /><strong>Trusted Delivery.</strong></p>
+          </div>
+          <div class="ticket-meta">
+            <div class="meta-column">
+              <div><span>Payment status</span><strong>To be confirmed</strong></div>
+              <div><span>Service type</span><strong id="ticket-service"></strong></div>
+              <div><span>Delivery area</span><strong id="ticket-area"></strong></div>
+            </div>
+            <div class="meta-column">
+              <div><span>Date of shipment</span><strong id="ticket-created"></strong></div>
+              <div><span>Completed date</span><strong id="ticket-completed"></strong></div>
+              <div><span>Status</span><strong id="ticket-status">Delivered</strong></div>
+            </div>
+            <div class="waybill-column">
+              <span>Waybill No.</span>
+              <strong id="ticket-reference"></strong>
+              <img
+                id="ticket-barcode"
+                alt="Barcode for this delivery reference"
+              />
+              <img
+                id="ticket-qr"
+                alt="QR code for tracking this delivery"
+              />
+              <small>Scan to track shipment</small>
+            </div>
+          </div>
+        </header>
+
+        <section
+          class="people-section"
+          aria-label="Sender and receiver details"
+        >
+          <div class="person-block">
+            <h2>From (Sender)</h2>
+            <p><span>Name:</span><strong id="ticket-sender"></strong></p>
+            <p><span>Phone:</span><strong id="ticket-sender-phone"></strong></p>
+            <p><span>Pickup:</span><strong id="ticket-pickup"></strong></p>
+          </div>
+          <div class="person-block">
+            <h2>To (Receiver)</h2>
+            <p><span>Name:</span><strong id="ticket-recipient"></strong></p>
+            <p><span>Phone:</span><strong id="ticket-recipient-phone"></strong></p>
+            <p><span>Delivery:</span><strong id="ticket-delivery"></strong></p>
+          </div>
+          <div class="signature-block">
+            <h2>Delivery confirmation</h2>
+            <p><span>Delivered by:</span><strong id="ticket-delivered-by"></strong></p>
+            <p><span>Received by:</span><span class="signature-line"></span></p>
+            <p><span>Signature:</span><span class="signature-line"></span></p>
+            <p><span>Date:</span><strong id="ticket-completed-short"></strong></p>
+          </div>
+        </section>
+
+        <section
+          class="items-section"
+          aria-labelledby="items-heading"
+        >
+          <h2
+            id="items-heading"
+            class="sr-only"
+          >
+            Shipment details
+          </h2>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">S/N</th>
+                <th scope="col">Item description</th>
+                <th scope="col"><abbr title="Quantity">Qty</abbr></th>
+                <th scope="col"><abbr title="Weight">Wt.</abbr></th>
+                <th scope="col">Charge</th>
+                <th scope="col">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td id="ticket-package"></td>
+                <td id="ticket-packages"></td>
+                <td id="ticket-weight"></td>
+                <td id="ticket-charge"></td>
+                <td id="ticket-total"></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="remarks-section">
+          <strong>Remarks:</strong>
+          <span id="ticket-remarks"></span>
+        </section>
+
+        <footer class="ticket-footer">
+          <span>No. 20 Oyin Onibokun Crescent, Isheri-Osun, Lagos 102214.</span>
+          <span>0907 257 3328 · 0803 842 2591</span>
+          <strong>JAANA Delivery Service Ltd</strong>
+        </footer>
+      </article>
+      <div class="ticket-actions">
+        <button
+          id="print-ticket"
+          type="button"
+        >
+          Print ticket
+        </button>
+        <button
+          id="pdf-ticket"
+          type="button"
+        >
+          Save as PDF
+        </button>
+        <a href="admin.html">Return to dashboard</a>
+      </div>
+    </main>
+  </body>
+</html>

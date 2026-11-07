@@ -51,7 +51,11 @@ export async function signLocation(env, location) {
     typeof location.label !== 'string' ||
     !location.label.trim() ||
     !Number.isFinite(location.lat) ||
-    !Number.isFinite(location.lon)
+    !Number.isFinite(location.lon) ||
+    location.lat < -90 ||
+    location.lat > 90 ||
+    location.lon < -180 ||
+    location.lon > 180
   ) {
     throw new HttpError(400, 'Invalid location details.');
   }
@@ -111,6 +115,10 @@ export async function verifyLocation(env, token, expectedLabel) {
     location.label !== expectedLabel ||
     !Number.isFinite(location.lat) ||
     !Number.isFinite(location.lon) ||
+    location.lat < -90 ||
+    location.lat > 90 ||
+    location.lon < -180 ||
+    location.lon > 180 ||
     !Number.isSafeInteger(location.exp) ||
     location.exp <= Math.floor(Date.now() / 1000)
   ) {

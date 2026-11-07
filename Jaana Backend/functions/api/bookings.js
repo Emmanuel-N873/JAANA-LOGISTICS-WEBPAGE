@@ -29,6 +29,21 @@ const sizes = [
   'Medium parcel (box or bag)',
   'Large or bulk shipment',
 ];
+const REFERENCE_RETRY_LIMIT = 8;
+
+export function generateBookingReference(random = crypto.getRandomValues.bind(crypto)) {
+  const digits = [];
+  const limit = Math.floor(0x100000000 / 10) * 10;
+  while (digits.length < 10) {
+    const values = random(new Uint32Array(10 - digits.length));
+    for (const value of values) {
+      if (value >= limit) continue;
+      digits.push(String(value % 10));
+      if (digits.length === 10) break;
+    }
+  }
+  return digits.join('');
+}
 export async function onRequest(context) {
   return endpoint(context, 'POST', async () => {
     await rateLimit(context, 'booking', 10, 600);
@@ -164,39 +179,47 @@ export async function onRequest(context) {
       }
     }
     const digest = await hash(JSON.stringify({ ...order, ...(shipment ? { shipment } : {}) }));
-    const bytes = [...crypto.getRandomValues(new Uint8Array(12))]
-      .map((byte) => byte.toString(16).padStart(2, '0'))
-      .join('')
-      .toUpperCase();
-    const reference = `JAANA-${lagosToday().replaceAll('-', '')}-${bytes.match(/.{6}/g).join('-')}`;
     const now = new Date().toISOString();
-    await context.env.DB.batch([
-      context.env.DB.prepare(
-        `INSERT INTO bookings(reference,idempotency_key,payload_hash,customer_name,customer_phone,service,delivery_date,recipient_name,recipient_phone,package_size,pickup_address,delivery_address,package_details,created_at,updated_at,shipment_json,request_hash)
-        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(idempotency_key) DO NOTHING`
-      ).bind(
-        reference,
-        key,
-        digest,
-        order.name,
-        order.phone,
-        order.service,
-        order.date,
-        order.recipient,
-        order.recipientPhone,
-        order.size,
-        order.pickup,
-        order.destination,
-        order.package,
-        now,
-        now,
-        shipment ? JSON.stringify(shipment) : null,
-        requestHash
-      ),
-      context.env.DB.prepare(
-        `INSERT INTO booking_events(id,reference,status,created_at) SELECT reference||':created',reference,'requested',created_at FROM bookings WHERE idempotency_key=? ON CONFLICT(id) DO NOTHING`
-      ).bind(key),
-    ]);
+    let reference;
+    for (let attempt = 0; attempt < REFERENCE_RETRY_LIMIT; attempt += 1) {
+      reference = generateBookingReference();
+      try {
+        await context.env.DB.batch([
+          context.env.DB.prepare(
+            `INSERT INTO bookings(reference,idempotency_key,payload_hash,customer_name,customer_phone,service,delivery_date,recipient_name,recipient_phone,package_size,pickup_address,delivery_address,package_details,created_at,updated_at,shipment_json,request_hash)
+            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(idempotency_key) DO NOTHING`
+          ).bind(
+            reference,
+            key,
+            digest,
+            order.name,
+            order.phone,
+            order.service,
+            order.date,
+            order.recipient,
+            order.recipientPhone,
+            order.size,
+            order.pickup,
+            order.destination,
+            order.package,
+            now,
+            now,
+            shipment ? JSON.stringify(shipment) : null,
+            requestHash
+          ),
+          context.env.DB.prepare(
+            `INSERT INTO booking_events(id,reference,status,created_at) SELECT reference||':created',reference,'requested',created_at FROM bookings WHERE idempotency_key=? ON CONFLICT(id) DO NOTHING`
+          ).bind(key),
+        ]);
+        break;
+      } catch (error) {
+        // The reference is the only new unique value here. A collision is safe
+        // to retry; any other database failure must remain visible to endpoint().
+        const message = String(error?.message || error);
+        if (!/unique|constraint/i.test(message) || attempt === REFERENCE_RETRY_LIMIT - 1)
+          throw error;
+      }
+    }
     const saved = await context.env.DB.prepare('SELECT * FROM bookings WHERE idempotency_key=?')
       .bind(key)
       .first();
