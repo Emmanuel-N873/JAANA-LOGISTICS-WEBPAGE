@@ -492,7 +492,7 @@ td:first-child {
     width: 5mm;
   }
   th:nth-child(2) {
-    width: 40mm;
+    width: 30mm;
   }
   th:nth-child(3),
   th:nth-child(4) {

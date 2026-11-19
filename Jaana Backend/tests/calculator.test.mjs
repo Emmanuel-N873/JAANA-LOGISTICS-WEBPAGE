@@ -1,4 +1,5 @@
-﻿import test from 'node:test';
+import { estimate } from '../functions/api/pricing.js';
+import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import { readFileSync } from 'node:fs';
@@ -53,7 +54,10 @@ function calculator(options = {}) {
     };
   const form = get('rate-form');
   form.elements = Object.fromEntries(
-    ['pickup', 'destination', 'weight', 'packages', 'size'].map((n) => [n, new Element()])
+    ['pickup', 'destination', 'weight', 'packages', 'size'].map((n) => [
+      n,
+      Object.assign(new Element(), { name: n }),
+    ])
   );
   form.elements.weight.value = '8';
   form.elements.packages.value = '1';
@@ -129,8 +133,7 @@ function calculator(options = {}) {
             distanceKm: 12,
             rates: { perKm: 300, minimum: 2000 },
             distanceCharge: 3600,
-            weightCharge: 500,
-            total: 4100,
+            ...estimate(12, JSON.parse(options.body).weight, { perKm: 300, minimum: 2000 }),
           }),
         };
       if (url.includes('Failure'))
@@ -211,7 +214,7 @@ test('suggestion selection is required and editing weight cannot send an old Wha
   c.get('rate-contact').fire('click');
   const message = new URL(c.get('rate-contact').href).searchParams.get('text');
   assert.match(message, /weight: 21/);
-  assert(!message.includes('4,100'));
+  assert(!message.includes('5,100'));
   assert(!message.includes('Token'));
   assert(!message.includes('signed-token'));
 });
@@ -264,4 +267,34 @@ test('pickup and delivery autocomplete preserve independent signed selections', 
   assert(estimate);
   assert.equal(estimate.options.body.includes('signed-token-1'), true);
   assert.equal(estimate.options.body.includes('signed-token-2'), true);
+});
+
+test('weight edits recalculate from server pricing and heavy shipments cannot continue', async () => {
+  const c = calculator();
+  await c.select('pickup');
+  await c.select('destination');
+  c.form.fire('submit');
+  await c.settle();
+  assert.match(c.get('weight-charge').textContent, /1,500/);
+  for (const [weight, charge] of [
+    ['5.5', '500'],
+    ['6.1', '1,000'],
+    ['20', '7,500'],
+  ]) {
+    c.form.elements.weight.value = weight;
+    c.form.fire('input', { target: c.form.elements.weight });
+    assert.equal(c.get('continue-booking').disabled, true);
+    await c.run(400);
+    assert.match(c.get('weight-charge').textContent, new RegExp(charge));
+    assert.equal(c.get('continue-booking').disabled, false);
+  }
+  const requestCount = c.requests.filter((r) => r.url === '/api/estimate').length;
+  c.form.elements.weight.value = '20.01';
+  c.form.fire('input', { target: c.form.elements.weight });
+  await c.run(400);
+  assert.equal(c.get('continue-booking').disabled, true);
+  assert.equal(c.get('custom-quotation').hidden, false);
+  assert.match(c.get('rate-feedback').textContent, /Custom Quotation Required/);
+  c.get('continue-booking').fire('click');
+  assert.equal(c.requests.filter((r) => r.url === '/api/estimate').length, requestCount);
 });

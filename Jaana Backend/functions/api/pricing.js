@@ -1,5 +1,6 @@
 ﻿import { endpoint, body, json, HttpError, rateLimit } from '../../server/common.js';
 import { requireStaff, auditStatement } from '../../server/staff-auth.js';
+import { weightPricing } from '../../server/weight-pricing.js';
 export const defaults = { perKm: 300, minimum: 2000 };
 export async function pricing(context) {
   const row = await context.env.DB.prepare(
@@ -28,10 +29,10 @@ export async function onRequest(context) {
 }
 export function estimate(distanceKm, weight, rates) {
   const distanceCharge = Math.ceil(distanceKm * rates.perKm);
-  const weightCharge =
-    weight <= 5 ? 0 : weight <= 10 ? 500 : weight <= 15 ? 1000 : weight <= 20 ? 1500 : null;
+  const { weightCharge, customQuotationRequired } = weightPricing(weight);
   return {
     distanceCharge,
+    customQuotationRequired,
     minimumApplied: distanceCharge < rates.minimum,
     weightCharge,
     total: weightCharge === null ? null : Math.max(rates.minimum, distanceCharge) + weightCharge,

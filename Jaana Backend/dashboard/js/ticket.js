@@ -61,7 +61,14 @@
       set('ticket-package', `${data.packageSize}: ${data.packageDetails}`);
       set('ticket-packages', shipment.packages ? String(shipment.packages) : 'Not supplied');
       set('ticket-weight', shipment.weight ? `${shipment.weight} kg` : 'Not supplied');
-      set('ticket-charge', money(shipment.distanceCharge));
+      set(
+        'ticket-charge',
+        money(shipment.minimumApplied ? shipment.rates?.minimum : shipment.distanceCharge)
+      );
+      set(
+        'ticket-weight-charge',
+        shipment.weightCharge === null ? 'Custom quote' : money(shipment.weightCharge)
+      );
       set('ticket-total', shipment.total === null ? 'Custom quote' : money(shipment.total));
       set('ticket-remarks', 'Delivery completed. Keep this ticket with your delivery records.');
 

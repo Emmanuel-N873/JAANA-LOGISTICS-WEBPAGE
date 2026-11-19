@@ -1,5 +1,6 @@
 import { endpoint, body, text, json, HttpError, rateLimit } from '../../server/common.js';
 import { pricing, estimate } from './pricing.js';
+import { weightInGrams } from '../../server/weight-pricing.js';
 import { verifyLocation } from '../../server/location-token.js';
 
 async function geoapifyRequest(url) {
@@ -129,11 +130,7 @@ export async function onRequest(context) {
 
     const pickup = text(data, 'pickup', 500);
     const destination = text(data, 'destination', 500);
-    const weight = Number(data.weight);
-
-    if (!Number.isFinite(weight) || weight <= 0 || weight > 10000) {
-      throw new HttpError(400, 'Enter a valid combined weight.');
-    }
+    const weight = weightInGrams(data.weight) / 1000;
 
     const distanceKm = await route(
       context,

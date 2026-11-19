@@ -1,3 +1,4 @@
+import { weightInGrams } from '../../server/weight-pricing.js';
 import { route } from './estimate.js';
 import { pricing, estimate } from './pricing.js';
 import {
@@ -80,11 +81,11 @@ export async function onRequest(context) {
       if (!/^\+?[0-9][0-9\s]{6,28}$/.test(phone))
         throw new HttpError(400, 'Please provide valid phone numbers.');
     let shipment = null;
-    if (data.weight || data.packages) {
+    if (data.weight !== undefined || data.packages !== undefined) {
       shipment = {};
       for (const field of ['packages', 'weight', 'length', 'width', 'height']) {
         if (!data[field]) continue;
-        const value = Number(data[field]);
+        const value = field === 'weight' ? weightInGrams(data[field]) / 1000 : Number(data[field]);
         if (
           !Number.isFinite(value) ||
           value <= 0 ||
@@ -139,6 +140,15 @@ export async function onRequest(context) {
           'This request key was already used for different booking details.'
         );
       return json(bookingResult(previous));
+    }
+    // Saved retries above have already returned their original historical price.
+    // New heavy shipments must use the contact quotation flow, never ordinary booking.
+    if (shipment?.weight > 20) {
+      throw new HttpError(
+        400,
+        'Custom Quotation Required — Contact JAANA Delivery Service Ltd.',
+        'custom_quotation_required'
+      );
     }
     const date = new Date(`${order.date}T12:00:00Z`);
     if (

@@ -1187,16 +1187,16 @@ test('estimate applies minimum, all weight boundaries, custom quotes and changed
   for (const [w, charge] of [
     [5, 0],
     [5.01, 500],
-    [10, 500],
-    [10.01, 1000],
-    [15, 1000],
-    [15.01, 1500],
-    [20, 1500],
+    [10, 2500],
+    [10.01, 3000],
+    [15, 5000],
+    [15.01, 5500],
+    [20, 7500],
   ])
     assert.equal(estimate(1, w, r).total, 2000 + charge);
-  assert.equal(estimate(12, 8, r).total, 4100);
+  assert.equal(estimate(12, 8, r).total, 5100);
   assert.equal(estimate(12, 20.01, r).total, null);
-  assert.equal(estimate(12, 8, { perKm: 400, minimum: 2500 }).total, 5300);
+  assert.equal(estimate(12, 8, { perKm: 400, minimum: 2500 }).total, 6300);
 });
 test('route setup errors do not invent distances and shipment data persists without a quote', async () => {
   const env = setup();
@@ -1275,7 +1275,7 @@ test('route uses provider metres and booking recalculates rather than trusting c
     const result = await response.json();
 
     assert.equal(result.distanceKm, 12);
-    assert.equal(result.total, 4100);
+    assert.equal(result.total, 5100);
 
     const booking = await call(create, env, {
       data: {
@@ -1298,7 +1298,7 @@ test('route uses provider metres and booking recalculates rather than trusting c
     );
 
     assert.equal(saved.distanceKm, 12);
-    assert.equal(saved.total, 4100);
+    assert.equal(saved.total, 5100);
     assert.equal(routingCalls, 2);
   } finally {
     globalThis.fetch = original;
@@ -1841,7 +1841,7 @@ test('booking responses and retries return the saved price after administrator r
       created = await call(create, env, { data, key });
     assert.equal(created.status, 201);
     const result = await created.json();
-    assert.equal(result.shipment.total, 5300);
+    assert.equal(result.shipment.total, 6300);
     assert.equal(result.shipment.rates.perKm, 400);
     env.sqlite.prepare('UPDATE delivery_pricing SET per_km=500 WHERE id=1').run();
     const retry = await call(create, env, { data, key });
@@ -1897,4 +1897,141 @@ test('failed authenticator and recovery-code login attempts are audited without 
   for (const value of [password, secret, 'invalid-code', 'f'.repeat(24)])
     assert(!recorded.includes(value));
   env.sqlite.close();
+});
+
+test('approved per-kilogram pricing handles fractional boundaries without floating-point drift', () => {
+  const rates = { perKm: 300, minimum: 2000 };
+  for (const [weight, expected] of [
+    [1, 0],
+    [5, 0],
+    [5.1, 500],
+    [5.5, 500],
+    [6, 500],
+    [6.1, 1000],
+    [7, 1000],
+    [8, 1500],
+    [10, 2500],
+    [15, 5000],
+    [20, 7500],
+    [5.001, 500],
+    [5.999, 500],
+    [6.001, 1000],
+    [19.999, 7500],
+  ]) {
+    const result = estimate(10, weight, rates);
+    assert.equal(result.weightCharge, expected, String(weight));
+    assert.equal(result.total, 3000 + expected);
+    assert.equal(result.customQuotationRequired, false);
+  }
+  assert.equal(estimate(10, 8, rates).total, 4500);
+  assert.equal(estimate(3, 5.5, rates).total, 2500);
+  for (const weight of [20.01, 20.5]) {
+    const result = estimate(10, weight, rates);
+    assert.equal(result.customQuotationRequired, true);
+    assert.equal(result.weightCharge, null);
+    assert.equal(result.total, null);
+  }
+  for (const weight of [
+    0,
+    -1,
+    undefined,
+    null,
+    '',
+    'abc',
+    NaN,
+    Infinity,
+    -Infinity,
+    5.0001,
+    '6.000000000000001',
+    true,
+    [],
+    10001,
+  ])
+    assert.throws(() => estimate(10, weight, rates), { status: 400 });
+});
+
+test('new overweight and invalid API submissions cannot bypass custom quotation or create orders', async () => {
+  const env = setup();
+  try {
+    for (const weight of ['20.001', '20.5', '21', '5.0001', 'bad', 0, -1, null]) {
+      const response = await call(create, env, {
+        data: { ...order(), weight, packages: '1', total: 0, weightCharge: 0 },
+      });
+      assert.equal(response.status, 400, String(weight));
+    }
+    assert.equal(env.sqlite.prepare('SELECT COUNT(*) n FROM bookings').get().n, 0);
+    for (const weight of [0, -1, null, 'bad', '5.0001', undefined]) {
+      const response = await call(routeEndpoint, env, {
+        data: { pickup: 'A', destination: 'B', weight },
+      });
+      assert.equal(response.status, 400, String(weight));
+    }
+  } finally {
+    env.sqlite.close();
+  }
+});
+
+test('fractional booking prices are authoritative and historical tickets keep saved prices', async () => {
+  const env = setup();
+  Object.assign(env, {
+    GEOAPIFY_API_KEY: 'mock',
+    LOCATION_SIGNING_SECRET: 'test-signing-secret-at-least-32-characters',
+  });
+  const original = globalThis.fetch;
+  try {
+    globalThis.fetch = async () =>
+      Response.json({ features: [{ properties: { distance: 3000 } }] });
+    const data = {
+      ...order(),
+      packages: '1',
+      weight: '5.5',
+      distanceKm: '1',
+      weightCharge: 0,
+      total: 1,
+    };
+    data.pickupToken = await signLocation(env, { label: data.pickup, lat: 6.6, lon: 3.3 });
+    data.destinationToken = await signLocation(env, {
+      label: data.destination,
+      lat: 6.4,
+      lon: 3.4,
+    });
+    const heavyEstimate = await call(routeEndpoint, env, { data: { ...data, weight: '20.5' } });
+    assert.equal(heavyEstimate.status, 200);
+    const heavy = await heavyEstimate.json();
+    assert.equal(heavy.customQuotationRequired, true);
+    assert.equal(heavy.weightCharge, null);
+    assert.equal(heavy.total, null);
+    const heavyBooking = await call(create, env, { data: { ...data, weight: '20.5', total: 0 } });
+    assert.equal(heavyBooking.status, 400);
+    assert.equal((await heavyBooking.json()).code, 'custom_quotation_required');
+    const response = await call(create, env, { data });
+    assert.equal(response.status, 201);
+    const saved = await response.json();
+    assert.match(saved.reference, /^\d{10}$/);
+    assert.equal(saved.shipment.weight, 5.5);
+    assert.equal(saved.shipment.weightCharge, 500);
+    assert.equal(saved.shipment.total, 2500);
+    // Simulate a historical row in the isolated test DB only. No production data is touched.
+    const historical = { ...saved.shipment, weight: 8, weightCharge: 500, total: 2500 };
+    env.sqlite
+      .prepare("UPDATE bookings SET status='delivered',shipment_json=? WHERE reference=?")
+      .run(JSON.stringify(historical), saved.reference);
+    env.sqlite.prepare('UPDATE delivery_pricing SET per_km=900 WHERE id=1').run();
+    for (const handler of [ticket, details]) {
+      const result = await call(handler, env, {
+        method: 'GET',
+        token: env.TEST_SESSION,
+        query: '?reference=' + saved.reference,
+      });
+      assert.equal(result.status, 200);
+      const payload = await result.json();
+      const shipment =
+        handler === ticket ? payload.ticket.shipment : JSON.parse(payload.order.shipment_json);
+      assert.equal(shipment.weightCharge, 500);
+      assert.equal(shipment.total, 2500);
+    }
+  } finally {
+    globalThis.fetch = original;
+    env.sqlite.close();
+  }
 });

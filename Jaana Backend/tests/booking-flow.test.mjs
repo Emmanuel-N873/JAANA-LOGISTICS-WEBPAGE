@@ -201,6 +201,7 @@ test('a timed-out booking keeps its idempotency key after navigation and quote/t
   });
   first.fill();
   await first.submit();
+  assert.equal(first.get('submit').innerHTML, 'Save Booking Request');
   assert(storage.has('jaana.pendingBookingAttempt.v1'));
   const draft = JSON.parse(storage.get('jaana.shipmentDraft.v1'));
   draft.estimateSummary = 'Refreshed estimate';
@@ -215,12 +216,15 @@ test('a timed-out booking keeps its idempotency key after navigation and quote/t
   assert.equal(next.form.elements.name.value, 'Customer');
   await next.submit();
   assert.equal(keys.length, 2);
+  assert.equal(next.get('submit').innerHTML, 'Booking Saved');
+  assert.equal(next.get('view-booking-reference').hidden, false);
   assert.equal(keys[0], keys[1]);
   assert(!storage.has('jaana.pendingBookingAttempt.v1'));
   assert(!storage.has('jaana.bookingDetailsDraft.v1'));
   await next.submit();
   assert.equal(keys[2], keys[0]);
   await next.get('new-booking-request').fire('click');
+  assert.equal(next.window.location.href, 'calculator.html');
   next.fill();
   await next.submit();
   assert.notEqual(keys[3], keys[0]);
