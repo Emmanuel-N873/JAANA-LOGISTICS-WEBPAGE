@@ -70,11 +70,11 @@ Default distance pricing is ?300 per kilometre with a ?2,000 minimum. The calcul
 
 | Combined shipment weight | Additional charge |
 | --- | --- |
-| Up to 5 kg | ?0 |
-| Over 5?10 kg | ?500 |
-| Over 10?15 kg | ?1,000 |
-| Over 15?20 kg | ?1,500 |
-| Over 20 kg | Custom quotation required; automatic total stops |
+| Up to 5 kg | No surcharge |
+| Over 5 kg through 20 kg | ₦500 per additional kg, rounded upward |
+| Over 20 kg | Custom Quotation Required — Contact JAANA Delivery Service Ltd. |
+
+Weights support up to three decimal places (1 gram). For example, 5.5 kg adds ₦500, 8 kg adds ₦1,500 and 20 kg adds ₦7,500. Heavy shipments use the WhatsApp contact option; ordinary booking is blocked. Historical saved prices are retained.
 
 Geoapify geocodes Nigerian addresses and calculates driving road distance. Customers can inspect their route through a Google Maps link. Estimates use current administrator pricing, and the booking endpoint recalculates the route and price rather than trusting customer-submitted amounts. JAANA still confirms the final quote and availability. Contact buttons open the company WhatsApp at +2348038422591.
 

@@ -564,10 +564,42 @@
   overflow-wrap: anywhere;
 }
 
-.footer-contact .icon {
-  width: 14px;
-  height: 14px;
-  margin-top: 2px;
+/* Scope contact alignment to these four rows; other footer links keep their layout. */
+.footer-contact a.footer-contact-row {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  align-items: start;
+  gap: 11px;
+  min-width: 0;
+  padding-block: 3px;
+  color: #fff;
+}
+.footer-contact-row > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.footer-contact-row .footer-contact-icon {
+  display: block;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  color: #fff;
+}
+.footer-contact-row svg.footer-contact-icon {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.footer-contact a.footer-contact-row:hover > span {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.footer-contact a.footer-contact-row:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 
 .footer-social {

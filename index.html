@@ -992,53 +992,83 @@
             <div class="footer-contact-details">
               <h3>Contact Us</h3>
               <address>
-                <a href="tel:+2349072573328">
+                <a
+                  class="footer-contact-row"
+                  href="tel:+2349072573328"
+                  aria-label="Call JAANA on 0907 257 3328"
+                >
                   <svg
-                    class="icon"
+                    class="footer-contact-icon"
+                    viewBox="0 0 24 24"
                     aria-hidden="true"
+                    focusable="false"
                   >
-                    <use href="#i-phone" />
+                    <path
+                      d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.8 2.1Z"
+                    />
                   </svg>
-                  0907 257 3328
+                  <span>0907 257 3328</span>
                 </a>
                 <a
+                  class="footer-contact-row"
                   href="https://wa.me/2348038422591"
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="Chat with JAANA on WhatsApp: 0803 842 2591 (opens in a new tab)"
                 >
-                  <svg
-                    class="icon"
+                  <img
+                    class="footer-contact-icon"
+                    src="assets/images/whatsapp-contact.svg"
+                    width="20"
+                    height="20"
+                    alt=""
                     aria-hidden="true"
-                  >
-                    <use href="#i-chat" />
-                  </svg>
-                  0803 842 2591
-                </a>
-                <a href="mailto:jaanadelivery@gmail.com">
-                  <svg
-                    class="icon"
-                    aria-hidden="true"
-                  >
-                    <use href="#i-mail" />
-                  </svg>
-                  Jaanadelivery@gmail.com
+                  />
+                  <span>0803 842 2591</span>
                 </a>
                 <a
-                  href="https://www.google.com/maps/search/?api=1&amp;query=20%20Oyin%20Onibokun%20Crescent%20Isheri-Osun%20Lagos"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  class="footer-contact-row"
+                  href="mailto:jaanadelivery@gmail.com"
+                  aria-label="Email JAANA at jaanadelivery@gmail.com"
                 >
                   <svg
-                    class="icon"
+                    class="footer-contact-icon"
+                    viewBox="0 0 24 24"
                     aria-hidden="true"
+                    focusable="false"
                   >
-                    <use href="#i-pin" />
+                    <rect
+                      x="2"
+                      y="4"
+                      width="20"
+                      height="16"
+                      rx="2"
+                    />
+                    <path d="m2 6 10 7 10-7" />
                   </svg>
-                  <span>
-                    No. 20 Oyin Onibokun Crescent,
-                    <br />
-                    Isheri-Osun, Lagos 102214.
-                  </span>
+                  <span>Jaanadelivery@gmail.com</span>
+                </a>
+                <a
+                  class="footer-contact-row"
+                  href="https://www.google.com/maps/search/?api=1&amp;query=No.%2020%20Oyin%20Onibokun%20Crescent%2C%20Isheri-Osun%2C%20Lagos%20102214%2C%20Nigeria"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Find JAANA at No. 20 Oyin Onibokun Crescent, Isheri-Osun, Lagos 102214 on Google Maps (opens in a new tab)"
+                >
+                  <svg
+                    class="footer-contact-icon"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z" />
+                    <circle
+                      cx="12"
+                      cy="10"
+                      r="3"
+                    />
+                  </svg>
+                  <span>No. 20 Oyin Onibokun Crescent,<br />Isheri-Osun, Lagos 102214.</span>
                 </a>
               </address>
             </div>
@@ -1307,7 +1337,7 @@
                 id="new-booking-request"
                 type="button"
               >
-                Start another booking
+                Book another delivery
               </button>
             </div>
           </section>
@@ -1342,9 +1372,9 @@
                   <input
                     name="weight"
                     type="number"
-                    min="0.01"
+                    min="0.001"
                     max="10000"
-                    step="0.01"
+                    step="0.001"
                     value="1"
                     required
                     readonly
@@ -1577,6 +1607,15 @@
               type="submit"
             >
               Save Booking Request
+            </button>
+            <button
+              class="button button-small reference-outline"
+              id="view-booking-reference"
+              type="button"
+              aria-controls="booking-reference-panel"
+              hidden
+            >
+              View reference number
             </button>
             <p class="form-note">
               Submitting saves your delivery details with JAANA so our team can arrange your

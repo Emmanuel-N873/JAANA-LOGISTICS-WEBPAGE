@@ -28,6 +28,7 @@
         return data?.error || fallback;
     }
   };
+  let weightTimer;
   let quote = null;
   // Incrementing this counter makes older estimate responses harmless after an edit.
   let version = 0;
@@ -357,7 +358,24 @@
     byId('route-map').hidden = true;
   }
   async function calculate() {
+    clearTimeout(weightTimer);
     if (!form.reportValidity()) return;
+    const weight = Number(form.elements.weight.value);
+    if (
+      !/^\d+(?:\.\d{1,3})?$/.test(form.elements.weight.value) ||
+      !Number.isFinite(weight) ||
+      weight <= 0 ||
+      weight > 10000
+    ) {
+      byId('rate-feedback').textContent = 'Enter a positive weight with at most 3 decimal places.';
+      return;
+    }
+    if (weight > 20) {
+      invalidate();
+      byId('rate-feedback').textContent =
+        'Custom Quotation Required — Contact JAANA Delivery Service Ltd.';
+      return;
+    }
     if (!selectedLocations.pickup?.token || !selectedLocations.destination?.token) {
       byId('rate-feedback').textContent =
         'Please select both addresses from the suggestions before calculating.';
@@ -407,7 +425,8 @@
             '\n' +
             formatEstimate(estimateResult)
         );
-      byId('continue-booking').disabled = false;
+      byId('continue-booking').disabled =
+        estimateResult.total === null || estimateResult.customQuotationRequired === true;
       byId('rate-feedback').textContent =
         estimateResult.total === null
           ? 'Your shipment needs a custom quotation. Continue to record your details or contact us on WhatsApp.'
@@ -422,27 +441,39 @@
     e.preventDefault();
     calculate();
   });
-  form.addEventListener('input', () => {
+  form.addEventListener('input', (event) => {
+    clearTimeout(weightTimer);
     updateCustomQuotation();
     invalidate();
 
     byId('rate-feedback').textContent =
       'Select your pickup and delivery addresses, then click Calculate Estimate.';
+    // Only weight edits recalculate automatically; address edits still require selection.
+    if (
+      event.target.name === 'weight' &&
+      selectedLocations.pickup?.token &&
+      selectedLocations.destination?.token
+    )
+      weightTimer = setTimeout(calculate, 400);
   });
   form.addEventListener('reset', () => {
+    clearTimeout(weightTimer);
     byId('custom-quotation').hidden = true;
     invalidate();
     byId('rate-feedback').textContent = '';
     byId('rate-contact').href = 'https://wa.me/2348038422591';
   });
   byId('continue-booking').addEventListener('click', () => {
-    if (!quote) return;
+    if (!quote || quote.total === null || quote.customQuotationRequired) return;
     try {
       sessionStorage.setItem(
         'jaana.shipmentDraft.v1',
         JSON.stringify({
           fields: payload(),
           distanceKm: quote.distanceKm,
+          distanceCharge: quote.distanceCharge,
+          rates: quote.rates,
+          minimumApplied: quote.minimumApplied,
           weightCharge: quote.weightCharge,
           total: quote.total,
           estimateSummary: formatEstimate(quote),

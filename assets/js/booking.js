@@ -36,10 +36,12 @@
   const referencePanel = document.getElementById('booking-reference-panel');
   const referenceInput = document.getElementById('booking-reference');
   const bookingFeedback = document.getElementById('booking-feedback');
+  const viewReferenceButton = document.getElementById('view-booking-reference');
   const updateReference = document.querySelector('#tracking-dialog [name="reference"]');
   const referenceStorageKey = 'jaana.latestRequestReference.v1';
   let bookingRequest = null;
   let bookingAttempt = null;
+  viewReferenceButton.hidden = true;
   const urlReference = decodeURIComponent(
     location.search.match(/[?&]reference=([^&]*)/)?.[1] || ''
   );
@@ -100,6 +102,11 @@
     document.body.classList.add('dialog-open');
     updateReference.focus();
   });
+  viewReferenceButton.addEventListener('click', () => {
+    referencePanel.hidden = false;
+    referencePanel.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    referenceInput.focus({ preventScroll: true });
+  });
   document.getElementById('new-booking-request').addEventListener('click', () => {
     bookingRequest = null;
     bookingAttempt = null;
@@ -112,7 +119,7 @@
     document.getElementById('booking-whatsapp').removeAttribute('href');
     bookingFeedback.textContent =
       'Ready for a new booking. Complete the form to generate a new reference.';
-    bookingForm.elements.service.focus();
+    window.location.href = 'calculator.html';
   });
   document.querySelectorAll('form[data-request]').forEach((form) => {
     form.addEventListener('submit', async (event) => {
@@ -141,6 +148,7 @@
       const newBookingButton = document.getElementById('new-booking-request');
       if (submit.disabled) return;
       const originalButtonContent = submit.innerHTML;
+      let bookingSaved = false;
       submit.disabled = true;
       if (isBooking) {
         submit.textContent = 'Submitting Booking...';
@@ -190,6 +198,7 @@
             reference: result.reference,
             priceChanged: pricingUpdate.changed,
           };
+          bookingSaved = true;
           window.dispatchEvent(new Event('jaana-booking-saved'));
           requestLines.push('Booking request reference: ' + bookingRequest.reference, '');
         }
@@ -212,6 +221,8 @@
           } catch {
             /* Saving is optional. */
           }
+          submit.textContent = 'Booking Saved';
+          viewReferenceButton.hidden = false;
           feedback.textContent =
             (bookingRequest.priceChanged
               ? 'The estimate changed during verification. The updated breakdown is shown in your booking details. '
@@ -231,7 +242,7 @@
       } finally {
         submit.disabled = false;
         if (isBooking) {
-          submit.innerHTML = originalButtonContent;
+          submit.innerHTML = bookingSaved ? 'Booking Saved' : originalButtonContent;
           submit.removeAttribute('aria-busy');
           newBookingButton.disabled = false;
         }

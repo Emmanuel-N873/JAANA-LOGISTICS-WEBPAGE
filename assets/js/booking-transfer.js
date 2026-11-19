@@ -9,6 +9,7 @@
   const bookingDraftKey = 'jaana.bookingDetailsDraft.v1';
   const attemptStorageKey = 'jaana.pendingBookingAttempt.v1';
   let pendingAttempt = null;
+  let displayedShipment = null;
   const canonicalFields = [
     'name',
     'phone',
@@ -84,6 +85,7 @@
             fields: { ...shipmentFields, ...locationTokens },
             distanceKm: Number(data.distanceKm) || undefined,
             estimateSummary: String(data.estimateSummary || ''),
+            ...(displayedShipment || {}),
           })
         );
       } catch {
@@ -127,6 +129,15 @@
   const transferredFields = [...shipmentFieldNames, 'distanceKm', 'estimateSummary'];
 
   function renderShipmentSummary(shipment) {
+    displayedShipment = shipment
+      ? {
+          weightCharge: shipment.weightCharge,
+          total: shipment.total,
+          distanceCharge: shipment.distanceCharge,
+          rates: shipment.rates,
+          minimumApplied: shipment.minimumApplied,
+        }
+      : null;
     const money = window.JaanaDelivery.formatMoney;
     const weightCharge = document.getElementById('booking-weight-charge');
     const totalAmount = document.getElementById('booking-total-amount');
